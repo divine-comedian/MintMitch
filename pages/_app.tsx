@@ -6,7 +6,8 @@ import type { AppProps } from 'next/app'
 import { ThemeProvider } from 'next-themes'
 
 import { getDefaultWallets, RainbowKitProvider } from '@rainbow-me/rainbowkit'
-import { chain, configureChains, createClient, WagmiConfig } from 'wagmi'
+import { configureChains, createClient, WagmiConfig } from 'wagmi'
+import { mainnet, polygon, optimism, arbitrum, goerli } from 'wagmi/chains'
 import { alchemyProvider } from 'wagmi/providers/alchemy'
 import { publicProvider } from 'wagmi/providers/public'
 
@@ -17,9 +18,10 @@ const alchemyId = NEXT_PUBLIC_ALCHEMY_ID
 const etherscanApiKey = NEXT_PUBLIC_ETHERSCAN_API_KEY
 
 const { chains, provider } = configureChains(
-  [chain.mainnet, chain.polygon, chain.optimism, chain.arbitrum, chain.localhost],
+  [mainnet, polygon, optimism, arbitrum, goerli],
   [alchemyProvider({ apiKey: alchemyId }), publicProvider()],
 )
+
 const { connectors } = getDefaultWallets({
   appName: 'Web 3 Starter App',
   chains,

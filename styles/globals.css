@@ -19,3 +19,16 @@ a {
 * {
   box-sizing: border-box;
 }
+
+.container {
+  margin: 15px;
+}
+
+.headingOne {
+  font-size: 1.3em;
+  font-weight: bold;
+}
+
+.navBarBorder {
+  border-bottom: 3px solid gray;
+}

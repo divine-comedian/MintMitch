@@ -1,12 +1,11 @@
-import {Link} from "react-router-dom";
-import { Router, Route } from 'react-router-dom';
+import React from "react";
+import Link from "next/link";
 
 
 export default function HomePage() {
       return (
         <div className="container" >
-            <h1>Welcome to the Place to Mint some Mitch</h1>
-            <p></p>
+            <h1 className="m-auto text-center md:mt-8 text-4xl md:text-6xl font-extrabold">Welcome to the Place to Mint some Mitch</h1>
         <div><p>This page is a project made with love where you can mint your own Mitch inspired NFT and help the IRL Mitch reach his goals</p>
             <h3>What are we raising money for?</h3>
             <p>I am looking for funds to acquire my very own Ethereum Validator, I currently have all I need to run my own validator and I already run my own dappnodes on gnosis chain and goerli. Funds raised will go towards accruing the 32 ETH I need in order to make the deposit!

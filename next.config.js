@@ -1,5 +1,9 @@
 /** @type {import('next').NextConfig} */
 module.exports = {
+  env: {
+    GOERLI_CONTRACT: process.env.GOERLI_CONTRACT,
+    IPFS_GATEWAY: process.env.IPFS_GATEWAY
+  },
   reactStrictMode: true,
   async headers() {
     return [
