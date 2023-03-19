@@ -3,12 +3,36 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: Overpass;
+  src: url('../fonts/Overpass/static/Overpass-Regular.ttf');
+  font-weight: normal;
+}
+
+@font-face {
+  font-family: Overpass;
+  src: url('../fonts/Overpass/static/Overpass-ExtraBold.ttf');
+  font-weight: 700;
+  font-weight: bold;
+}
+
+@font-face {
+  font-family: Overpass;
+  src: url('../fonts/Overpass/static/Overpass-Italic.ttf');
+  font-style: italic;
+}
+
+@font-face {
+  font-family: Overpass;
+  src: url('../fonts/Overpass/static/Overpass-Light.ttf');
+  font-weight: light;
+}
+
 html,
 body {
   padding: 0;
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
-    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+  font-family: Overpass, sans-serif;
 }
 
 a {
@@ -31,4 +55,13 @@ a {
 
 .navBarBorder {
   border-bottom: 3px solid gray;
+}
+
+.text-border {
+  -webkit-text-stroke: 1px gray;
+  text-stroke: 1px gray;
+  font-weight: bold;
+  background-image: linear-gradient(to right, red, orange,indigo);
+  -webkit-background-clip: text;
+  color: transparent;
 }
