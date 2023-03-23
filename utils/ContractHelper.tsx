@@ -101,18 +101,40 @@ export const useERC20Info = () => {
     }
 }
 
-export const usePaymentTokenBalance = (address: string) => {
-    const paymentTokenAddress = useContractRead({
+export const usePaymentTokenBalance = (addressToCheck: string) => {
+    const [paymentTokenBalance, setPaymentTokenBalance] = useState<number | null>(null)
+   const getPaymentTokenAddress = useContractRead({
         address: `0x${mintingContract.address}`,
         abi: mintingContract.abi,
         functionName: 'paymentToken',
         args: []
-    });
-    const paymentTokenBalance = useContractRead({
+    })
+      console.log("this is the payment token's address", getPaymentTokenAddress.data)
+    const fetchPaymentTokenBalance = async () => {
+    paymentTokenAddress = await getPaymentTokenAddress.data as string
+    paymentTokenAddress = paymentTokenAddress.slice(2)
+    };
+   // await fetchPaymentTokenBalance();
+    const getBalanceData = useContractRead({
         address: `0x${paymentTokenAddress}`,
         abi: erc20ABI,
         functionName: 'balanceOf',
-        args: [`0x${address}`]
-    });
+        args: [`0x${addressToCheck}`]
+   })
+
+    const balanceData = getBalanceData.data as BigNumber
+    useEffect(() => { 
+        if (balanceData) {
+            const formattedBalance = parseFloat(formatEther(balanceData))
+            setPaymentTokenBalance(formattedBalance)
+            console.log(formattedBalance)
+        }
+
+        if (addressToCheck) {
+            fetchPaymentTokenBalance()
+        } else {
+            setPaymentTokenBalance(null)
+        }
+    }, [addressToCheck, balanceData]);
     return paymentTokenBalance
 }

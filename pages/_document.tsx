@@ -6,7 +6,7 @@ class MyDocument extends Document {
       <Html>
         <Head></Head>
         <body>
-          <Main />
+          <Main  />
           <NextScript />
         </body>
       </Html>

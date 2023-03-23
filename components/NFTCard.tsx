@@ -61,7 +61,7 @@ export const NFTCard: React.FC<NFTCardProps> = ({tokenId, addToCart, removeFromC
     }
     
     return (
-    <div className="shadow-lg  container border-solid bg-[#ffb627] dark:bg-[#3C096C] border-2 rounded-lg border-grey-600">
+    <div className="shadow-2xl container bg-gray-400/30 transition ease-in-out duration hover:-translate-y-1 hover:scale-105 dark:bg-gray-700/30 rounded-lg border-grey-600">
         <div className="p-3 space-y-2">
         <h2 className="text-lg font-bold py-2">{tokenName}</h2>
         <div className='flex justify-center mr-5 py-3'>
@@ -69,9 +69,11 @@ export const NFTCard: React.FC<NFTCardProps> = ({tokenId, addToCart, removeFromC
         </div>
         <p>{tokenDescription}</p>
         <p>{`${tokenPrice} ETH`}</p>
-        <div>
+        <div className='pb-3'>
+            <div className='rounded-lg p-2 bg-orange-300/50 inline mr-2 text-lg'>
         <span>Add to Cart?</span>
-        <input className="mx-2 mb-1" onChange={handleCart} type="checkbox" id="mint" name="mint" value="mint" />
+        <input className="mx-2 mb-1 accent-orange-300" onChange={handleCart} type="checkbox" id="mint" name="mint" value="mint" />
+            </div>
         <span
     className={`transition-opacity duration-300 ease-in-out font-bold italic text-2xl text-border ${
         showFadeText ? 'opacity-100' : 'opacity-0'

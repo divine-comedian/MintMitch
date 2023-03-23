@@ -38,12 +38,12 @@ interface Item {
             <Navbar />
             <div className='bg-gradient-to-br from-[#9D4EDD] to-[#FF9E00] dark:from-[#240046] dark:to-[#ff4800]'>
             <div className="p-4">
-            <div className="fixed float-right z-40 top-30 right-10 mr-5">
+            <div className="fixed float-right z-40 top-30 right-10 mr-5 xl:max-w-[26%]">
             <CartModal itemsArray={mintingCart} itemSum={cartTotal}  />
             </div>
-            <h1 className="headingOne">Here's the goods!</h1>
+            <h1 className="text-3xl font-bold my-3">Here's the goods!</h1>
             
-            {nftCards ? <div className="flex-initial grid xl:grid-cols-2 grid-cols-1  gap-2 max-w-[66.67%] ">{nftCards}</div> : <p>Loading...</p>}
+            {nftCards ? <div className="flex-initial grid xl:grid-cols-2 grid-cols-1  gap-2 gap-x-6 sm:max-w-[50%] xl:max-w-[66%] ">{nftCards}</div> : <p>Loading...</p>}
             </div>
         </div>
         </div>
