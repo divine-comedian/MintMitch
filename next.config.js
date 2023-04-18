@@ -2,7 +2,9 @@
 module.exports = {
   env: {
     CONTRACT_ADDRESS: process.env.CONTRACT_ADDRESS,
-    IPFS_GATEWAYS: process.env.IPFS_GATEWAYS
+    IPFS_GATEWAYS: process.env.IPFS_GATEWAYS,
+    ETHERSCAN_URL: process.env.ETHERSCAN_URL,
+
   },
   reactStrictMode: true,
   async headers() {

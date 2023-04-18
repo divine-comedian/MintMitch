@@ -1,22 +1,10 @@
-require('dotenv').config()
+require("dotenv").config();
+require("@nomiclabs/hardhat-ethers");
 require('@nomiclabs/hardhat-waffle')
 require('@nomiclabs/hardhat-etherscan')
 require('hardhat-gas-reporter')
 
-const { ETH_PRIVATE_KEY, ETHERSCAN_API_KEY, COIN_MARKETCAP_API_KEY, ETH_MAINNET_PRIVATE_KEY, ALCHEMY_GOERLI_URL } = process.env
-
-// This is a sample Hardhat task. To learn how to create your own go to
-// https://hardhat.org/guides/create-task.html
-task('accounts', 'Prints the list of accounts', async (taskArgs, hre) => {
-  const accounts = await hre.ethers.getSigners()
-
-  for (const account of accounts) {
-    console.log(account.address)
-  }
-})
-
-// You need to export an object to set up your config
-// Go to https://hardhat.org/config/ to learn more
+ const { ETH_PRIVATE_KEY, ETHERSCAN_API_KEY, COIN_MARKETCAP_API_KEY, ETH_MAINNET_PRIVATE_KEY, ALCHEMY_GOERLI_URL } = process.env
 
 /**
  * @type import('hardhat/config').HardhatUserConfig
@@ -45,11 +33,11 @@ module.exports = {
     },
     goerli: {
       url: `${ALCHEMY_GOERLI_URL}`,
-      accounts: [`0x${ETH_PRIVATE_KEY}`],
+      account: [`0x${ETH_PRIVATE_KEY}`]
     },
     mainnet: {
       url: 'https://eth-mainnet.alchemyapi.io/v2/GBjvplStTQ2x1FiAa5-5Qdyv2_8ZBuwe',
-      accounts: [`0x${ETH_MAINNET_PRIVATE_KEY}`],
+      account: [`0x${ETH_MAINNET_PRIVATE_KEY}`]
     },
   },
   etherscan: { apiKey: ETHERSCAN_API_KEY },

@@ -5,6 +5,7 @@ import '@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Burnable.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
 import '@openzeppelin/contracts/token/ERC1155/extensions/ERC1155URIStorage.sol';
 import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
+import './MitchToken.sol';
 
 contract MitchMinter is ERC1155Burnable, Ownable, ERC1155URIStorage {
     using SafeERC20 for IERC20;
@@ -13,18 +14,21 @@ contract MitchMinter is ERC1155Burnable, Ownable, ERC1155URIStorage {
 
     event Mint(address recipient, uint256 tokenId, uint256 amount, uint256 totalPrice);
     event MintBatch(address recipient, uint256 totalAmounts, uint256 finalPrice);
+    event Withdrawal(address recipient, uint256 amount);
 
     IERC20 public paymentToken;
+    MitchToken private mitchToken;
     string baseURI;
     uint256 defaultPrice;
     uint96 uniqueTokens = 0;
 
     mapping(uint256 => uint256) public tokenPrice;
 
-    constructor(string memory _baseURI, IERC20 _paymentToken, uint256 _defaultPrice) ERC1155(_baseURI) {
+    constructor(string memory _baseURI, IERC20 _paymentToken, address _mitchToken, uint256 _defaultPrice) ERC1155(_baseURI) {
         baseURI = _baseURI;
         paymentToken = _paymentToken;
         defaultPrice = _defaultPrice;
+        mitchToken = MitchToken(_mitchToken);
     }
 
     function mint(address account, uint256 id, uint256 amount) external {
@@ -42,6 +46,26 @@ contract MitchMinter is ERC1155Burnable, Ownable, ERC1155URIStorage {
             emit Mint(account, id, amount, totalPrice);
         }
 
+        mitchToken.mint(account, amount);        
+        _mint(account, id, amount, '');
+    }
+
+    function mintWithNativeToken(address account, uint256 id, uint256 amount) external payable {
+        uint256 totalPrice;
+        uint256 unitPrice;
+
+        if (id > uniqueTokens) {
+            revert NoTokenExists(id);
+        }
+
+        if (msg.sender != owner()) {
+            tokenPrice[id] == 0 ? unitPrice = defaultPrice : unitPrice = tokenPrice[id];
+            totalPrice = unitPrice * amount;
+            require(msg.value >= totalPrice, 'Insufficient funds!');
+            emit Mint(account, id, amount, totalPrice);
+        }
+        
+        mitchToken.mint(account, amount);
         _mint(account, id, amount, '');
     }
 
@@ -64,6 +88,30 @@ contract MitchMinter is ERC1155Burnable, Ownable, ERC1155URIStorage {
             paymentToken.safeTransferFrom(msg.sender, address(this), finalPrice);
             emit MintBatch(to, totalAmount, finalPrice);
         }
+        mitchToken.mint(to, totalAmount);
+        _mintBatch(to, ids, amounts, '');
+    }
+
+    function mintBatchWithNativeToken(address to, uint256[] memory ids, uint256[] memory amounts) external payable {
+        uint256 finalPrice;
+        uint256 totalAmount;
+        if (msg.sender != owner()) {
+            for (uint256 i = 0; i < ids.length;) {
+                if (ids[i] > uniqueTokens) {
+                    revert NoTokenExists(ids[i]);
+                }
+                uint256 unitPrice;
+                tokenPrice[ids[i]] == 0 ? unitPrice = defaultPrice : unitPrice = tokenPrice[ids[i]];
+                finalPrice += unitPrice * amounts[i];
+                totalAmount += amounts[i];
+                unchecked {
+                    i++;
+                }
+            }
+            require(msg.value >= finalPrice, 'Insufficient funds!');
+            emit MintBatch(to, totalAmount, finalPrice);
+        }
+        mitchToken.mint(to, totalAmount);
         _mintBatch(to, ids, amounts, '');
     }
 
@@ -112,6 +160,11 @@ contract MitchMinter is ERC1155Burnable, Ownable, ERC1155URIStorage {
         }
     }
 
+    function withdrawNativeToken() external onlyOwner payable {
+        (bool sent,) = payable(owner()).call{value: address(this).balance}('');
+        require(sent, 'Failed to send Ether');
+    }
+
     function getTokenInfo(uint tokenId) external view returns (uint256 price, string memory tokenURI) {
             tokenPrice[tokenId] == 0 ? price = defaultPrice : price = tokenPrice[tokenId];
             tokenURI = uri(tokenId);
@@ -124,4 +177,5 @@ contract MitchMinter is ERC1155Burnable, Ownable, ERC1155URIStorage {
     function getUniqueTokens() external view returns (uint96) { 
         return uniqueTokens;
     }
+
 }

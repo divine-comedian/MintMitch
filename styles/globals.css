@@ -65,3 +65,18 @@ a {
   -webkit-background-clip: text;
   color: transparent;
 }
+
+@layer components {
+  .rise-up {
+    animation: rise-up 300ms ease-in forwards;
+  }
+
+  @keyframes rise-up {
+    0% {
+      transform: translateY(105vh);
+    }
+    100% {
+      transform: translateY(0);
+    }
+  }
+}

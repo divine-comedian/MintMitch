@@ -13,44 +13,6 @@ export const mintingContract = {
 }
 
 
-export const useMintTokens = async (tokenId: number, mintAmount: number) => { 
-    const { address } = useAccount();
-    await address;
-    const {config, error} = usePrepareContractWrite({
-        address: `0x${mintingContract.address}`,
-        abi: mintingContract.abi,
-        functionName: 'mint',
-        args: [address, tokenId, mintAmount],
-        onSuccess(data) {
-            console.log(data)
-        },
-        onError(error) {
-            console.log(error)
-        }
-    })
-    const mintTokens = useContractWrite(await config);
-    return mintTokens
-}
-
-export const useMintBatchTokens = async (tokenBatchIds: number[], mintBatchAmounts: number[]) => { 
-    const { address } = useAccount();
-    await address;
-    const {config, error} = usePrepareContractWrite({
-        address: `0x${mintingContract.address}`,
-        abi: mintingContract.abi,
-        functionName: 'mint',
-        args: [address, tokenBatchIds, mintBatchAmounts],
-        onSuccess(data) {
-            console.log(data)
-        },
-        onError(error) {
-            console.log(error)
-        }
-    })
-    const mintBatchTokens = useContractWrite(await config);
-    return mintBatchTokens
-}
-
 export const useTokenInfo = (tokenId: number) => {
     const [tokenURI, setTokenURI] = useState('')
     const [tokenPrice, setTokenPrice] = useState('')
@@ -68,8 +30,10 @@ export const useTokenInfo = (tokenId: number) => {
     }
 
     useEffect(() => {
+      if (_tokenInfo.data) {
         fetchData(tokenId);
-    }, []);
+      }
+    }, [_tokenInfo.data]);
    // const [tokenPrice, tokenURI] = tokenInfo.data as [BigNumber, string]
     return  ([tokenPrice, tokenURI]) 
 }
@@ -83,14 +47,13 @@ export const useUniqueTokens = () => {
         functionName: 'getUniqueTokens',
         args: []
     });
-    async function fetchData() {
-        const res = await getUniqueTokens.data as BigNumber
-        setUniqueToken(res.toNumber())                
-    }
+   
     useEffect(() => {
-        fetchData();
+        if (getUniqueTokens.data) {
+            const updatedUniqueToken = getUniqueTokens.data as number;
+            setUniqueToken(updatedUniqueToken);
         }
-    , []);
+     } , [getUniqueTokens.data]);
     return uniqueToken
 }
 
@@ -102,39 +65,36 @@ export const useERC20Info = () => {
 }
 
 export const usePaymentTokenBalance = (addressToCheck: string) => {
-    const [paymentTokenBalance, setPaymentTokenBalance] = useState<number | null>(null)
-   const getPaymentTokenAddress = useContractRead({
-        address: `0x${mintingContract.address}`,
-        abi: mintingContract.abi,
-        functionName: 'paymentToken',
-        args: []
-    })
-      console.log("this is the payment token's address", getPaymentTokenAddress.data)
-    const fetchPaymentTokenBalance = async () => {
-    paymentTokenAddress = await getPaymentTokenAddress.data as string
-    paymentTokenAddress = paymentTokenAddress.slice(2)
-    };
-   // await fetchPaymentTokenBalance();
+    const [paymentTokenBalance, setPaymentTokenBalance] = useState<number | null>(null);
+    const [paymentTokenAddress, setPaymentTokenAddress] = useState<string | null>(null);
+    const getPaymentTokenAddress = useContractRead({
+      address: `0x${mintingContract.address}`,
+      abi: mintingContract.abi,
+      functionName: 'paymentToken',
+      args: [],
+    });
+  
+    useEffect(() => {
+      if (getPaymentTokenAddress.data) {
+        const updatedPaymentTokenAddress = getPaymentTokenAddress.data as string;
+        setPaymentTokenAddress(updatedPaymentTokenAddress.slice(2));
+      }
+    }, [getPaymentTokenAddress.data]);
+  
     const getBalanceData = useContractRead({
-        address: `0x${paymentTokenAddress}`,
-        abi: erc20ABI,
-        functionName: 'balanceOf',
-        args: [`0x${addressToCheck}`]
-   })
-
-    const balanceData = getBalanceData.data as BigNumber
-    useEffect(() => { 
-        if (balanceData) {
-            const formattedBalance = parseFloat(formatEther(balanceData))
-            setPaymentTokenBalance(formattedBalance)
-            console.log(formattedBalance)
-        }
-
-        if (addressToCheck) {
-            fetchPaymentTokenBalance()
-        } else {
-            setPaymentTokenBalance(null)
-        }
-    }, [addressToCheck, balanceData]);
-    return paymentTokenBalance
-}
+      address: `0x${paymentTokenAddress}`,
+      abi: erc20ABI,
+      functionName: 'balanceOf',
+      args: [`0x${addressToCheck}`],
+    });
+  
+    useEffect(() => {
+      if (getBalanceData.data) {
+        const formattedBalance = parseFloat(formatEther(getBalanceData.data as BigNumber));
+        setPaymentTokenBalance(formattedBalance);
+      }
+    }, [getBalanceData.data]);
+  
+    return paymentTokenBalance;
+  };
+  

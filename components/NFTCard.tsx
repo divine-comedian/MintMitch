@@ -1,7 +1,5 @@
-import image from '../images/Favicon.png'
 import Image from 'next/image';
 import { useTokenInfo } from '../utils/ContractHelper';
-import { ethers, BigNumber } from 'ethers';
 import { useParseIpfsData, useParseIpfsImage } from '../utils/AxiosHelper';
 import { useState, useEffect } from 'react';
 
@@ -55,7 +53,7 @@ export const NFTCard: React.FC<NFTCardProps> = ({tokenId, addToCart, removeFromC
 }
 
     const randomMessage = () => {
-        const messages = ['Nice!', 'WOW!', 'Sweet!', 'Awesome!', 'Rad!', 'You da best!', 'Yes!', 'Magnificient!', 'Godlike!']
+        const messages = ['Nice!','Fresh.', 'WOW!', 'Sweet!', 'Awesome!', 'Rad!', 'You da best!', 'Hell Yeah!', 'Magnificient!', 'Godlike!']
         const randomIndex = Math.floor(Math.random() * messages.length)
         return messages[randomIndex]
     }
@@ -68,15 +66,15 @@ export const NFTCard: React.FC<NFTCardProps> = ({tokenId, addToCart, removeFromC
         {ipfsImage ? <Image alt="some text here" src={ipfsImage} width={250} height={250} /> : <div>Loading...</div>}
         </div>
         <p>{tokenDescription}</p>
-        <p>{`${tokenPrice} ETH`}</p>
+        <p>{`${tokenPrice} WETH`}</p>
         <div className='pb-3'>
-            <div className='rounded-lg p-2 bg-orange-300/50 inline mr-2 text-lg'>
-        <span>Add to Cart?</span>
+            <div className='rounded-lg p-2 bg-orange-300/50 dark:bg-orange-400/50 inline mr-2 text-lg'>
+        <span>Pick Me! 👉</span>
         <input className="mx-2 mb-1 accent-orange-300" onChange={handleCart} type="checkbox" id="mint" name="mint" value="mint" />
             </div>
         <span
     className={`transition-opacity duration-300 ease-in-out font-bold italic text-2xl text-border ${
-        showFadeText ? 'opacity-100' : 'opacity-0'
+        showFadeText ? 'opacity-400' : 'opacity-0'
     }`}
 >
   {isInCart ? randomMsg : "Aww..."}
