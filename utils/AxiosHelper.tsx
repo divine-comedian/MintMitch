@@ -59,7 +59,7 @@ export const useParseIpfsImage = (tokenId: number) => {
   const getImageFromGateways = async (cid: string, gateways: string[]) => {
     for (const gateway of gateways) {
       try {
-        const response = await axios.get(`${gateway}/${cid}`, { responseType: 'arraybuffer' });
+        const response = await axios.get(`${gateway}/${cid}`, { responseType: 'arraybuffer' }, { timeout: 5000 });
         return response;
       } catch (error) {
         console.error(`Failed to fetch from ${gateway}`, error);
@@ -73,6 +73,7 @@ export const useParseIpfsImage = (tokenId: number) => {
       const tokenCID = tokenURI.replace("ipfs://", "");
       try {
         const response = await getDataFromGateways(tokenCID);
+        console.log(response)
         const imgHash = response.data.image.replace("ipfs://", "");
         const imageResponse = await getImageFromGateways(imgHash, IPFS_GATEWAYS);
         const imageBuffer = Buffer.from(imageResponse.data, 'binary');
