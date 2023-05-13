@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { useTokenInfo } from '../utils/ContractHelper';
+import { useTokenInfo, getTokenInfo } from '../utils/ContractHelper';
 import { useParseIpfsData, useParseIpfsImage } from '../utils/AxiosHelper';
 import { useState, useEffect } from 'react';
 
@@ -8,20 +8,27 @@ interface NFTCardProps {
     tokenId: number;
     addToCart: Function,
     removeFromCart: Function;
+    contractAddress: string;
 }
 
-export const NFTCard: React.FC<NFTCardProps> = ({tokenId, addToCart, removeFromCart} ) => {
+export const NFTCard: React.FC<NFTCardProps> = ({tokenId, addToCart, removeFromCart, contractAddress} ) => {
     
     const [ipfsData, setIpfsData] = useState({}) as any;
     const [ipfsImage, setIpfsImage] = useState() as any;
-    const [tokenPrice, tokenURI] = useTokenInfo(tokenId) as [number, string]
+    // const [tokenPrice, tokenURI] = useTokenInfo(tokenId) as [number, string]
+    const [tokenPrice, setTokenPrice] = useState(0)
+    const [tokenURI, setTokenURI] = useState('')
     const [isInCart, setIsInCart] = useState(false) as [boolean, any]
     const [showFadeText, setShowFadeText] = useState(false);
     const [randomMsg, setRandomMsg] = useState('');
+    const [toggleText, setToggleText] = useState(false);
 
+    const handleToggle = () => {
+        setToggleText(!toggleText)
+    };
 
-    const newIpfsImage = useParseIpfsImage(tokenId)
-    const newIpfsData = useParseIpfsData(tokenId)
+    const newIpfsImage = useParseIpfsImage(tokenId, contractAddress)
+    const newIpfsData = useParseIpfsData(tokenId, contractAddress)
 
     const tokenName = ipfsData.name
     const tokenDescription = ipfsData.description
@@ -33,6 +40,14 @@ export const NFTCard: React.FC<NFTCardProps> = ({tokenId, addToCart, removeFromC
         }, 500); // Adjust the duration as needed (in milliseconds)
     };
     
+    useEffect(() => {
+        getTokenInfo(tokenId, contractAddress).then((tokenInfo) => {
+            const [newTokenPrice, newTokenURI] = tokenInfo as [number, string]
+            setTokenPrice(newTokenPrice)
+            setTokenURI(newTokenURI)
+        })
+    }, [tokenId, contractAddress])
+
 
 
     useEffect(() => {
@@ -59,14 +74,24 @@ export const NFTCard: React.FC<NFTCardProps> = ({tokenId, addToCart, removeFromC
     }
     
     return (
-    <div className="shadow-2xl container bg-gray-400/30 transition ease-in-out duration hover:-translate-y-1 hover:scale-105 dark:bg-gray-700/30 rounded-lg border-grey-600">
+<div className={`shadow-2xl container bg-gray-400/30 dark:bg-gray-700/30 rounded-lg border-grey-600 transition-max-height duration-200 ease-in-out ${toggleText ? 'max-h-[770px]' : 'max-h-[540px]'}`}>
         <div className="p-3 space-y-2">
-        <h2 className="text-lg font-bold py-2">{tokenName}</h2>
+        <h2 className="text-xl font-bold py-2">{tokenName}</h2>
         <div className='flex justify-center mr-5 py-3'>
-        {ipfsImage ? <Image alt="some text here" src={ipfsImage} width={250} height={250} /> : <div>Loading...</div>}
+        {ipfsImage ? <Image alt="some text here" src={ipfsImage} width={320} height={320} /> : <div>Loading...</div>}
         </div>
-        <p>{tokenDescription}</p>
-        <p>{`${tokenPrice} WETH`}</p>
+        <div>
+        <span className='p-2'>? -&gt;</span>
+        <label className="switch">
+        <input type="checkbox" onClick={handleToggle} />
+     <span className="slider round"></span>
+        </label>
+       
+        </div>
+        { toggleText ? 
+        <p className="font-300 bg-gray-200/30 p-2 rounded-lg">{tokenDescription}</p>
+        : null }
+        <p>{`${tokenPrice} ETH`}</p>
         <div className='pb-3'>
             <div className='rounded-lg p-2 bg-orange-300/50 dark:bg-orange-400/50 inline mr-2 text-lg'>
         <span>Pick Me! 👉</span>

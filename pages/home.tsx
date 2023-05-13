@@ -9,7 +9,7 @@ export default function HomePage() {
         <div className=' min-h-screen bg-gradient-to-br from-[#9D4EDD] to-[#FF9E00] dark:from-[#240046] dark:to-[#ff4800]'>
 
         <div className="p-3 px-4" >
-             <div className="fixed z-30 top-30 right-1 float-right p-4 pl-6 md:max-w-[40%] md:inline sm:block hidden">
+             <div className="fixed top-30 right-1 float-right p-4 pl-6 md:max-w-[40%] md:inline sm:block hidden">
               <Image src={mitchPinPreview} alt="preview of a mitch pin to mint" width={500} height={500} />
              </div>
              <div className="bg-white/40 dark:bg-black/40 md:max-w-[60%] p-5 rounded-2xl ">

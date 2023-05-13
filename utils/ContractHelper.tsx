@@ -1,24 +1,163 @@
 import { useContractRead, useContractWrite, usePrepareContractWrite, erc20ABI, useAccount } from 'wagmi';
+import {prepareWriteContract, writeContract, fetchBalance, waitForTransaction, readContract,getNetwork} from '@wagmi/core'
 import MintingContractJSON from '../artifacts/contracts/MitchMinter.sol/MitchMinter.json'
-import { useEffect, useState
- } from 'react';
- import { formatEther } from 'ethers/lib/utils.js';
+import { useEffect, useState } from 'react';
+ import { formatEther, parseEther } from 'ethers/lib/utils.js';
 import { BigNumber } from 'ethers';
 
-let paymentTokenAddress: string | any;
 
-export const mintingContract = {
-    address: process.env.CONTRACT_ADDRESS,
-    abi: MintingContractJSON.abi
+export const selectContractAddress = (network: string) => {
+    if (process.env.NODE_ENV === 'development' && network === 'goerli') {
+        return process.env.CONTRACT_ADDRESS as string
+    }
+    else if (network === 'maticmum') {
+      return process.env.MUMBAI_CONTRACT_ADDRESS as string
+    }   
+    else if (process.env.NODE_ENV === 'development' && network === 'gnosis') {
+      return process.env.GNOSIS_CONTRACT_ADDRESS as string
+    }
+    else {
+        return "not set"
+    }
+}
+
+export const approveTokens = async ( approveAmount: BigNumber, mintingContractAddress: string) => {
+  const response = await readContract({address: `0x${mintingContractAddress}`,
+  abi: MintingContractJSON.abi,
+  functionName: 'paymentToken',
+  args: [],
+  });
+  const paymentTokenAddress = response as string;
+  const config = await prepareWriteContract({
+      address: `0x${paymentTokenAddress.substring(2)}`,
+      abi: erc20ABI,
+      functionName: 'approve',
+      args: [`0x${mintingContractAddress}`, approveAmount],
+  })
+  const data = await writeContract(config)
+    return data
+}
+
+export const mintTokens = async (recipientAddress: string, tokenId: number, mintAmount: number, mintingContractAddress: string) => {
+  const config = await prepareWriteContract({
+    address: `0x${mintingContractAddress}`,
+        abi: MintingContractJSON.abi,
+        functionName: 'mint',
+        args: [recipientAddress, tokenId, mintAmount],
+  })
+    const data = await writeContract(config)
+    return data
+}
+
+export const mintBatchTokens = async (recipientAddress: string, tokenId: number[], mintAmount: number[], mintingContractAddress: string) => { 
+  const config = await prepareWriteContract({
+      address: `0x${mintingContractAddress}`,
+      abi: MintingContractJSON.abi,
+      functionName: 'mintBatch',
+      args: [recipientAddress, tokenId, mintAmount],
+  })
+  const data = await writeContract(config)
+    return data
+}
+
+export const mintTokensNative = async (recipientAddress: string, tokenId: number, mintAmount: number, value: number, mintingContractAddress: string) => {
+  const config = await prepareWriteContract({
+    address: `0x${mintingContractAddress}`,
+        abi: MintingContractJSON.abi,
+        functionName: 'mintWithNativeToken',
+        args: [recipientAddress, tokenId, mintAmount],
+        overrides: {
+          value: parseEther(value.toString())
+      }
+  })
+    const data = await writeContract(config)
+    return data
 }
 
 
-export const useTokenInfo = (tokenId: number) => {
+export const mintBatchTokensNative = async (recipientAddress: string, tokenId: number[], mintAmount: number[], value: number, mintingContractAddress: string) => {
+  const config = await prepareWriteContract({
+      address: `0x${mintingContractAddress}`,
+      abi: MintingContractJSON.abi,
+      functionName: 'mintBatchWithNativeToken',
+      args: [recipientAddress, tokenId, mintAmount],
+      overrides: {
+          value: parseEther(value.toString())
+      }})
+      const data = await writeContract(config)
+      return data
+    }
+
+export const getTokenInfo = async (tokenId:number, mintingContractAddress: string) => {
+  const tokenInfo = await readContract({
+    address: `0x${mintingContractAddress}`,
+    abi: MintingContractJSON.abi,
+    functionName: 'getTokenInfo',
+    args: [tokenId]
+});
+  const [tokenPriceHex, tokenURI] = tokenInfo as [BigNumber, string]
+  const tokenPrice = parseFloat(formatEther(tokenPriceHex))
+  return [tokenPrice, tokenURI]
+}
+
+export const getUniqueTokens = async ( mintingContractAddress: string) => {
+  const uniqueTokens = await readContract({
+    address: `0x${mintingContractAddress}`,
+    abi: MintingContractJSON.abi,
+    functionName: 'getUniqueTokens',
+    args: []
+});
+  return uniqueTokens as number;
+}
+
+export const getPaymentTokenBalance = async (address: string, mintingContractAddress: string) => {
+  try {
+    const paymentTokenAddress = await readContract({address: `0x${mintingContractAddress}`,
+    abi: MintingContractJSON.abi,
+    functionName: 'paymentToken',
+    args: [],
+    });
+    await paymentTokenAddress;
+    const formattedTokenAddress = paymentTokenAddress as string;
+    const paymentTokenBalance = await fetchBalance({
+      address: `0x${address}`,
+      token: `0x${formattedTokenAddress.substring(2)}`
+    })
+    return paymentTokenBalance.value
+  }
+  catch (error) {
+    console.log(error)
+  }
+}
+
+export const getNativeBalance = async (address:string) => {
+  const nativeBalance = await fetchBalance({
+    address: `0x${address}`
+  }) 
+  return nativeBalance.value;
+}
+
+export const getIsNativeMinting = async (mintingContractAddress: string) => {
+  try {
+    console.log("this is the contract address in the function",mintingContractAddress)
+   const isNativeMinting = await readContract({
+      address: `0x${mintingContractAddress}`,
+      abi: MintingContractJSON.abi,
+      functionName: 'nativeMintEnabled',  
+      args: [],
+    })
+    return isNativeMinting as boolean
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+export const useTokenInfo = (tokenId: number, mintingContractAddress: string) => {
     const [tokenURI, setTokenURI] = useState('')
     const [tokenPrice, setTokenPrice] = useState('')
     const _tokenInfo = useContractRead({
-        address: `0x${mintingContract.address}`,
-        abi: mintingContract.abi,
+        address: `0x${mintingContractAddress}`,
+        abi: MintingContractJSON.abi,
         functionName: 'getTokenInfo',
         args: [tokenId]
     });
@@ -39,11 +178,11 @@ export const useTokenInfo = (tokenId: number) => {
 }
 
 
-export const useUniqueTokens = () => { 
+export const useUniqueTokens = (mintingContractAddress: string) => { 
     const [uniqueToken, setUniqueToken] = useState(0)
     const getUniqueTokens = useContractRead({
-        address: `0x${mintingContract.address}`,
-        abi: mintingContract.abi,
+        address: `0x${mintingContractAddress}`,
+        abi: MintingContractJSON.abi,
         functionName: 'getUniqueTokens',
         args: []
     });
@@ -57,19 +196,13 @@ export const useUniqueTokens = () => {
     return uniqueToken
 }
 
-export const useERC20Info = () => {
-    const paymentTokenContract = {
-        address: paymentTokenAddress,
-        abi: erc20ABI
-    }
-}
 
-export const usePaymentTokenBalance = (addressToCheck: string) => {
+export const usePaymentTokenBalance = (addressToCheck: string, mintingContractAddress: string) => {
     const [paymentTokenBalance, setPaymentTokenBalance] = useState<number | null>(null);
     const [paymentTokenAddress, setPaymentTokenAddress] = useState<string | null>(null);
     const getPaymentTokenAddress = useContractRead({
-      address: `0x${mintingContract.address}`,
-      abi: mintingContract.abi,
+      address: `0x${mintingContractAddress}`,
+      abi: MintingContractJSON.abi,
       functionName: 'paymentToken',
       args: [],
     });
@@ -98,3 +231,14 @@ export const usePaymentTokenBalance = (addressToCheck: string) => {
     return paymentTokenBalance;
   };
   
+
+  export const useIfNativeTokenMinting = (mintingContractAddress: string) => {
+    const response = useContractRead({
+    address: `0x${mintingContractAddress}`,
+    abi: MintingContractJSON.abi,
+    functionName: 'nativeMintEnabled',  
+    args: [],
+  })
+
+  return response.data as boolean
+};

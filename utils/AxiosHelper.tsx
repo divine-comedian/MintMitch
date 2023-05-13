@@ -19,12 +19,12 @@ async function getDataFromGateways(path: any) {
 }
 
 
-export const useParseIpfsData = (tokenId: number) => {
+export const useParseIpfsData = (tokenId: number, contractAddress: string) => {
   const [ipfsData, setIpfsData] = useState({
     name: 'Loading...',
     description: 'Loading...',
   });
-  const [tokenPriceHex, tokenURI] = useTokenInfo(tokenId);
+  const [tokenPriceHex, tokenURI] = useTokenInfo(tokenId, contractAddress);
   
   const retrieveIpfsData = useCallback(async () => {
     if (tokenURI) {
@@ -51,9 +51,9 @@ export const useParseIpfsData = (tokenId: number) => {
 };
 
 
-export const useParseIpfsImage = (tokenId: number) => {
+export const useParseIpfsImage = (tokenId: number, contractAddress: string) => {
   const [ipfsImage, setIpfsImage] = useState('');
-  const [tokenPriceHex, tokenURI] = useTokenInfo(tokenId);
+  const [tokenPriceHex, tokenURI] = useTokenInfo(tokenId, contractAddress);
   const IPFS_GATEWAYS = process.env.IPFS_GATEWAYS!.split(',');
 
   const getImageFromGateways = async (cid: string, gateways: string[]) => {
@@ -73,7 +73,6 @@ export const useParseIpfsImage = (tokenId: number) => {
       const tokenCID = tokenURI.replace("ipfs://", "");
       try {
         const response = await getDataFromGateways(tokenCID);
-        console.log(response)
         const imgHash = response.data.image.replace("ipfs://", "");
         const imageResponse = await getImageFromGateways(imgHash, IPFS_GATEWAYS);
         const imageBuffer = Buffer.from(imageResponse.data, 'binary');

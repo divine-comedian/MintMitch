@@ -4,7 +4,8 @@ module.exports = {
     CONTRACT_ADDRESS: process.env.CONTRACT_ADDRESS,
     IPFS_GATEWAYS: process.env.IPFS_GATEWAYS,
     ETHERSCAN_URL: process.env.ETHERSCAN_URL,
-
+    GNOSIS_CONTRACT_ADDRESS: process.env.GNOSIS_CONTRACT_ADDRESS,
+    MUMBAI_CONTRACT_ADDRESS: process.env.MUMBAI_CONTRACT_ADDRESS,
   },
   reactStrictMode: true,
   async headers() {

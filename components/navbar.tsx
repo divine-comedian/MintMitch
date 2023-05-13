@@ -1,12 +1,18 @@
 import DarkModeToggle from './darkModeToggle'
-import ConnectWallet from './connectWallet'
+// import ConnectWallet from './connectWallet'
+import { ConnectWallet } from './customConnectWallet'
 import Link from 'next/link'
-import {usePaymentTokenBalance} from '../utils/ContractHelper'
+import { selectContractAddress, getNativeBalance, getIsNativeMinting, getPaymentTokenBalance} from '../utils/ContractHelper'
 import {useEffect, useState} from 'react'
+import {getAccount} from '@wagmi/core'
+import { formatEther } from 'ethers/lib/utils.js'
+import { BigNumber } from 'ethers'
 
 interface IProps {
   displayConnectButton?: boolean
   isDarkModeToggleVisible?: boolean
+  isRightNetwork?: boolean | undefined
+  contractAddress: string
 }
 
 /**
@@ -15,20 +21,44 @@ interface IProps {
 const Navbar = ({
   isDarkModeToggleVisible = true,
   displayConnectButton = true,
+  isRightNetwork,
+  contractAddress
 }: // isNetworkSwitcherVisible = true,
 IProps) => {
   const [progressBar, setProgressBar] = useState(0)
-  const [contractAddress, setContractAddress] = useState('')
-  let balance = usePaymentTokenBalance(contractAddress)
-  
+  const [isNativeMintEnabled, setIsNativeMintEnabled] = useState<boolean>(false)
+  const [balance, setBalance] = useState(0)
+  const { address } = getAccount()
 
+  // const nativeMinting = await getIsNativeMinting()
+  // setIsNativeMintEnabled(nativeMinting)
+  useEffect(() => { 
+    const getNativeMinting = async () => {
+        console.log("this is the contract address on the navbar", contractAddress)
+        const nativeMinting = await getIsNativeMinting(contractAddress) as boolean
+        await nativeMinting
+        setIsNativeMintEnabled(nativeMinting)
+      }
+      if (isRightNetwork && contractAddress) {
+        getNativeMinting()
+      }
+    }, [isRightNetwork, contractAddress])
 
-  console.log("this should be the contract's balance", balance)
-  useEffect (() => {
-    const address = process.env.CONTRACT_ADDRESS || '';
-    console.log(address)
-    setContractAddress(address)
-  }, [])
+  useEffect(() => {
+    const getBalance = async () => {
+      if (isNativeMintEnabled) {
+        const response = await getNativeBalance(contractAddress) as BigNumber
+        setBalance(parseFloat(formatEther(response)))
+      } else {
+        const response = await getPaymentTokenBalance(contractAddress, contractAddress) as BigNumber
+        setBalance(parseFloat(formatEther(response)))
+      }
+    } 
+    if (isRightNetwork) {
+      getBalance()
+    }
+  }, [isNativeMintEnabled, contractAddress, isRightNetwork])
+
 
   useEffect (() => {
     const maxEthNeeded = 32
@@ -38,7 +68,7 @@ IProps) => {
 
 
   return (
-    <nav className="flex flex-col lg:flex-row items-center bg-gradient-to-r from-cyan-500 to-blue-500 dark:from-blue-500 dark:to-cyan-500 sm:max-w-screen justify-between py-2 px-4 navBarBorder">
+    <nav className="flex flex-col z-30 lg:flex-row items-center bg-gradient-to-r from-cyan-500 to-blue-500 dark:from-blue-500 dark:to-cyan-500 sm:max-w-screen justify-between py-2 px-4 navBarBorder">
       {/* Logo */}
       <div className=" flex  items-center justify-start">
       <div className="mx-5 p-2 mt-2 font-bold hover:bg-cyan-400 dark:hover:bg-blue-400 rounded-lg "><Link href="/">Home</Link></div>

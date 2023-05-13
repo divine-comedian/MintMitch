@@ -5,6 +5,9 @@ module.exports = {
   darkMode: 'class', // or 'media' or 'class'
   theme: {
     extend: {
+      transitionProperty: {
+        'max-height': 'max-height',
+      },
       keyframes: {
         rotate: {
           '100%': {
