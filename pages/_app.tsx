@@ -6,7 +6,7 @@ import type { AppProps } from 'next/app'
 import { ThemeProvider } from 'next-themes'
 
 import { getDefaultWallets, RainbowKitProvider } from '@rainbow-me/rainbowkit'
-import { configureChains, createClient, WagmiConfig } from 'wagmi'
+import { configureChains, createConfig, WagmiConfig } from 'wagmi'
 import { mainnet, polygonMumbai, optimism, arbitrum, goerli, gnosis, polygon } from 'wagmi/chains'
 import { alchemyProvider } from 'wagmi/providers/alchemy'
 import { publicProvider } from 'wagmi/providers/public'
@@ -17,7 +17,7 @@ const { NEXT_PUBLIC_ALCHEMY_ID, NEXT_PUBLIC_INFURA_ID, NEXT_PUBLIC_ETHERSCAN_API
 const alchemyId = NEXT_PUBLIC_ALCHEMY_ID
 const etherscanApiKey = NEXT_PUBLIC_ETHERSCAN_API_KEY
 
-const { chains, provider} =
+const { chains, publicClient} =
  configureChains(
   [polygonMumbai, gnosis, goerli],
   [publicProvider()],
@@ -29,17 +29,17 @@ const { connectors } = getDefaultWallets({
   chains,
 })
 
-const wagmiClient = createClient({
+const wagmiClient = createConfig({
   autoConnect: true,
   connectors,
-  provider,
+  publicClient,
 })
 
 const App = ({ Component, pageProps }: AppProps) => {
   return (
     <ThemeProvider attribute="class">
       <div className="min-h-screen bg-white dark:bg-gray-900 dark:text-white">
-        <WagmiConfig client={wagmiClient}>
+        <WagmiConfig config={wagmiClient}>
           <RainbowKitProvider chains={chains}>
             <Component {...pageProps} />
           </RainbowKitProvider>

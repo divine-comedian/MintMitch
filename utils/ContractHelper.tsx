@@ -2,9 +2,7 @@ import { useContractRead, useContractWrite, usePrepareContractWrite, erc20ABI, u
 import {prepareWriteContract, writeContract, fetchBalance, waitForTransaction, readContract,getNetwork} from '@wagmi/core'
 import MintingContractJSON from '../artifacts/contracts/MitchMinter.sol/MitchMinter.json'
 import { useEffect, useState } from 'react';
- import { formatEther, parseEther } from 'ethers/lib/utils.js';
-import { BigNumber } from 'ethers';
-
+import { formatEther, parseEther } from 'viem';
 
 export const selectContractAddress = (network: string) => {
     if (process.env.NODE_ENV === 'development' && network === 'goerli') {
@@ -21,7 +19,7 @@ export const selectContractAddress = (network: string) => {
     }
 }
 
-export const approveTokens = async ( approveAmount: BigNumber, mintingContractAddress: string) => {
+export const approveTokens = async ( approveAmount: bigint, mintingContractAddress: string) => {
   const response = await readContract({address: `0x${mintingContractAddress}`,
   abi: MintingContractJSON.abi,
   functionName: 'paymentToken',
@@ -60,30 +58,33 @@ export const mintBatchTokens = async (recipientAddress: string, tokenId: number[
     return data
 }
 
-export const mintTokensNative = async (recipientAddress: string, tokenId: number, mintAmount: number, value: number, mintingContractAddress: string) => {
+export const mintTokensNative = async (
+          recipientAddress: string,
+          tokenId: number,
+          mintAmount: number,
+          nativeValue: number,
+          mintingContractAddress: string
+      ) => {
   const config = await prepareWriteContract({
-    address: `0x${mintingContractAddress}`,
+        address: `0x${mintingContractAddress}`,
         abi: MintingContractJSON.abi,
         functionName: 'mintWithNativeToken',
         args: [recipientAddress, tokenId, mintAmount],
-        overrides: {
-          value: parseEther(value.toString())
-      }
+        value: parseEther(`${nativeValue}`),
   })
     const data = await writeContract(config)
     return data
 }
 
 
-export const mintBatchTokensNative = async (recipientAddress: string, tokenId: number[], mintAmount: number[], value: number, mintingContractAddress: string) => {
+export const mintBatchTokensNative = async (recipientAddress: string, tokenId: number[], mintAmount: number[], nativeValue: number, mintingContractAddress: string) => {
   const config = await prepareWriteContract({
       address: `0x${mintingContractAddress}`,
       abi: MintingContractJSON.abi,
       functionName: 'mintBatchWithNativeToken',
       args: [recipientAddress, tokenId, mintAmount],
-      overrides: {
-          value: parseEther(value.toString())
-      }})
+      value: parseEther(`${nativeValue}`)
+    })
       const data = await writeContract(config)
       return data
     }
@@ -95,7 +96,7 @@ export const getTokenInfo = async (tokenId:number, mintingContractAddress: strin
     functionName: 'getTokenInfo',
     args: [tokenId]
 });
-  const [tokenPriceHex, tokenURI] = tokenInfo as [BigNumber, string]
+  const [tokenPriceHex, tokenURI] = tokenInfo as [bigint, string]
   const tokenPrice = parseFloat(formatEther(tokenPriceHex))
   return [tokenPrice, tokenURI]
 }
@@ -162,7 +163,7 @@ export const useTokenInfo = (tokenId: number, mintingContractAddress: string) =>
         args: [tokenId]
     });
     async function fetchData(tokenId: number) {
-        const [newTokenPriceHex, newTokenURI] = await _tokenInfo.data as [string, string]
+        const [newTokenPriceHex, newTokenURI] = await _tokenInfo.data as [bigint, string]
         const newTokenPrice = formatEther(newTokenPriceHex) 
         setTokenURI(newTokenURI)
         setTokenPrice(newTokenPrice)
@@ -223,7 +224,7 @@ export const usePaymentTokenBalance = (addressToCheck: string, mintingContractAd
   
     useEffect(() => {
       if (getBalanceData.data) {
-        const formattedBalance = parseFloat(formatEther(getBalanceData.data as BigNumber));
+        const formattedBalance = parseFloat(formatEther(getBalanceData.data as bigint));
         setPaymentTokenBalance(formattedBalance);
       }
     }, [getBalanceData.data]);

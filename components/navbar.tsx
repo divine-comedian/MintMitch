@@ -47,10 +47,10 @@ IProps) => {
   useEffect(() => {
     const getBalance = async () => {
       if (isNativeMintEnabled) {
-        const response = await getNativeBalance(contractAddress) as BigNumber
+        const response = await getNativeBalance(contractAddress) as bigint
         setBalance(parseFloat(formatEther(response)))
       } else {
-        const response = await getPaymentTokenBalance(contractAddress, contractAddress) as BigNumber
+        const response = await getPaymentTokenBalance(contractAddress, contractAddress) as bigint
         setBalance(parseFloat(formatEther(response)))
       }
     } 
