@@ -1,10 +1,10 @@
 import React from "react";
-import { usePrepareContractWrite, useContractWrite, useWaitForTransaction, useAccount, useContractRead } from "wagmi";
+import { usePrepareContractWrite, useNetwork, useContractWrite, useWaitForTransaction, useAccount, useContractRead } from "wagmi";
 import { erc20ABI, fetchBalance, prepareWriteContract, writeContract, getAccount, getNetwork } from "@wagmi/core";
 import MintingContractJSON from '../artifacts/contracts/MitchMinter.sol/MitchMinter.json'
 import { useState, useEffect } from "react";
 import { BigNumber } from "ethers";
-import { mintBatchTokens, mintBatchTokensNative, mintTokens, mintTokensNative, selectContractAddress, approveTokens, getNativeBalance, getPaymentTokenBalance } from "../utils/ContractHelper";
+import { mintBatchTokens, MintingContractProps, mintBatchTokensNative, mintTokens, mintTokensNative, selectContractAddress, approveTokens, getNativeBalance, getPaymentTokenBalance } from "../utils/ContractHelper";
 import { formatEther, parseEther } from "ethers/lib/utils.js";
 
 interface MintItems {
@@ -12,7 +12,7 @@ interface MintItems {
     itemSum: number;
     isMintModal: Function;
     isNativeMintEnabled: boolean;
-    contractAddress: string;
+    contractProps: MintingContractProps
 }
 
 
@@ -42,7 +42,7 @@ const LoadingSpinner = () => {
 }
 
 
-export const MintModal = ({ itemsArray, itemSum, isMintModal, isNativeMintEnabled, contractAddress }: MintItems) => {
+export const MintModal = ({ itemsArray, itemSum, isMintModal, isNativeMintEnabled, contractProps }: MintItems) => {
     const mintItems = Array.from(itemsArray).map((item) => <li key={item.tokenID}> {item.tokenPrice}</li>)
     const tokenId = itemsArray[0].tokenID;   
     const tokenBatchIds = itemsArray.map((item) => item.tokenID);
@@ -54,9 +54,14 @@ export const MintModal = ({ itemsArray, itemSum, isMintModal, isNativeMintEnable
     const [mintState, setMintState] = useState<string>('not approved');
     const connectedAddress = useAccount().address as string;
     const [errorMessage, setErrorMessage] = useState<string>("");
-    const [network, setNetwork] = useState<string>("");
+    const [network, setNetwork] = useState<string>(process.env.NEXT_PUBLIC_DEFAULT_NETWORK as string);
 
-    
+    const currentNetwork = useNetwork().chain?.network as string;
+  
+  useEffect(() => {
+    setNetwork(currentNetwork);
+    console.log(currentNetwork);
+  }, [currentNetwork]);
 
     const waitForMint = useWaitForTransaction({
         hash: `0x${mintTxHash}`,
@@ -98,7 +103,7 @@ const handleMint = async () => {
     if (isNativeMintEnabled) {
         if (itemsArray.length > 1){
             setMintState('mint pending')
-          mintBatchTokensNative(connectedAddress ,tokenBatchIds, tokenAmounts, itemSum, contractAddress)
+          mintBatchTokensNative(connectedAddress ,tokenBatchIds, tokenAmounts, itemSum, contractProps)
           .then((response) => {
             setMintTxHash(response.hash.substring(2));
             }
@@ -110,7 +115,7 @@ const handleMint = async () => {
 
         } else {
             setMintState('mint pending')
-            mintTokensNative(connectedAddress, tokenId, 1, itemSum, contractAddress)
+            mintTokensNative(connectedAddress, tokenId, 1, itemSum, contractProps)
             .then((response) => {setMintTxHash(response.hash.substring(2));
                 })
             .catch((error) => {console.log("this is a minting error", error);
@@ -121,7 +126,7 @@ const handleMint = async () => {
     } else if (connectedAddress) {
         if (itemsArray.length > 1){
             setMintState('mint pending')
-            mintBatchTokens(connectedAddress,tokenBatchIds, tokenAmounts, contractAddress)
+            mintBatchTokens(connectedAddress,tokenBatchIds, tokenAmounts, contractProps)
             .then((response) => {setMintTxHash(response.hash.substring(2));
                 })
             .catch((error) => {console.log("this is a minting error", error);
@@ -129,7 +134,7 @@ const handleMint = async () => {
             setErrorMessage(error.message);})
         } else {
             setMintState('mint pending')
-            mintTokens(connectedAddress, tokenId, 1, contractAddress)
+            mintTokens(connectedAddress, tokenId, 1, contractProps)
             .then((response) => {setMintTxHash(response.hash.substring(2));
                 })
             .catch((error) => {console.log("this is a minting error", error);
@@ -148,7 +153,7 @@ const handleMint = async () => {
             setConnectedAccount(connectedAddress);
             if (connectedAddress) {
                 setMintState('approve pending')
-                approveTokens(parseEther(itemSum.toString()), contractAddress)
+                approveTokens(parseEther(itemSum.toString()), contractProps)
                 .then((response) => {{
                     setApproveTxHash(response.hash.substring(2));
                 }})    
@@ -185,7 +190,7 @@ const handleMint = async () => {
                 if (isNativeMintEnabled && connectedAddress) {
                     getNativeBalance(connectedAddress).then((balance) => setUserBalance(balance))
                 } else if (connectedAddress) {
-                    getPaymentTokenBalance(connectedAddress, contractAddress).then((balance) => setUserBalance(balance))
+                    getPaymentTokenBalance(connectedAddress, contractProps).then((balance) => setUserBalance(balance as BigNumber))
                 }}
                 if (connectedAddress) {
                     getUserBalance(connectedAddress)

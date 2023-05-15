@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { NFTCard } from '../components/NFTCard';
 import Navbar from '../components/navbar';
 import { useUniqueTokens, useIfNativeTokenMinting, getUniqueTokens, getIsNativeMinting, selectContractAddress } from '../utils/ContractHelper';
@@ -9,6 +9,8 @@ import { WrongNetwork } from '../components/wrongNetwork';
 import { MintModal } from '../components/mint';
 import Head from 'next/head';
 import { checkNetwork } from '../utils/checkNetwork';
+import { MintingContractProps } from '../utils/ContractHelper';
+import { useNetwork } from 'wagmi';
 
 interface Item {
     tokenID: number;
@@ -17,62 +19,57 @@ interface Item {
 }
 
  const Store = () =>  { 
-    const [correctNetwork, setCorrectNetwork] = useState<string | null>(null);
   const [rightNetwork, setRightNetwork] = useState<boolean | undefined>(undefined);
   const [showMintModal, setShowMintModal] = React.useState(false);
   const [isNativeMint, setIsNativeMint] = useState(false);
   const [mintingCart, setMintingCart] = useState<Item[]>([]);
   const [uniqueTokens, setUniqueTokens] = useState(0)
+  const [correctNetwork, setCorrectNetwork] = useState<string[] | null>(null);
   const [nftCards, setNftCards] = useState([]) as [any, any]
-  const [network, setNetwork] = useState<string>("not set");
-  const [contractAddress, setContractAddress] = useState<string>(process.env.CONTRACT_ADDRESS as string);
-  const [isRightNetwork, correctNetworkArray] = checkNetwork(network) as Array<any>;
+  const [network, setNetwork] = useState<string>(process.env.NEXT_PUBLIC_DEFAULT_NETWORK as string);
+  const [contractProps, setContractProps] = useState<MintingContractProps>({ address: process.env.CONTRACT_ADDRESS as string, chainId: 5});
 
-
+  const currentNetwork = useNetwork().chain?.network as string;
+  
   useEffect(() => {
-    const interval = setInterval(() => {
-      const currentNetwork = getNetwork().chain?.network as string;
-      setNetwork(currentNetwork);
-      setContractAddress(selectContractAddress(currentNetwork))
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
+    setNetwork(currentNetwork);
+    console.log(currentNetwork);
+  }, [currentNetwork]);
 
   useEffect(() => {
     const [rightNetworkBoolean, connectedNetworkArray] = checkNetwork(network) as Array<any>;
-    setRightNetwork(isRightNetwork);
-     setCorrectNetwork(correctNetworkArray);
-     console.log("this is the correct network array",correctNetworkArray)
-     console.log("this is the right network state", isRightNetwork)
-     console.log("this is the network", network)
+    setRightNetwork(rightNetworkBoolean);
+     setCorrectNetwork(connectedNetworkArray);
+     setContractProps(selectContractAddress(network));
    }, [network]);
 
   useEffect(() => {
-    (getIsNativeMinting(contractAddress)).then((nativeMintBoolean) => {
+    getIsNativeMinting(contractProps).then((nativeMintBoolean) => {
       nativeMintBoolean = nativeMintBoolean as boolean;
     setIsNativeMint(nativeMintBoolean)
-  })}, [isNativeMint])
+  })}, [isNativeMint, contractProps])
 
 
   const isMintModal = (state: boolean) => {
     setShowMintModal(state);
   }
 
-    const addToCart = (item: Item) => {
+    const addToCart = useCallback((item: Item) => {
         setMintingCart((mintingCart) => [...mintingCart, item])
-    }
+    }, [])
 
-    const removeFromCart = (item: Item) => {
+    const removeFromCart = useCallback((item: Item) => {
         setMintingCart(mintingCart.filter(i => i.tokenID !== item.tokenID))
-    }
+    }, [])
 
     useEffect (() => { 
-        getUniqueTokens(contractAddress).then((uniqueTokens) => {
+        getUniqueTokens(contractProps).then((response) => {
+          
         setUniqueTokens(uniqueTokens)
         setNftCards(Array.from({ length: uniqueTokens})
-        .map((_, i) => <NFTCard contractAddress={contractAddress} addToCart={addToCart} 
+        .map((_, i) => <NFTCard contractProps={contractProps} addToCart={addToCart} 
         removeFromCart={removeFromCart} key={i} tokenId={(i + 1)} />))
-    }) }, [uniqueTokens, mintingCart])
+    }) }, [contractProps])
 
       const cartItems = Array.from(mintingCart).map((item) => <li key={item.tokenID}> {item.tokenName} {item.tokenPrice}</li>)
       const cartTotal = mintingCart.reduce((acc, item) => acc + parseFloat(item.tokenPrice), 0)
@@ -84,11 +81,11 @@ interface Item {
         {/* Add other metadata as needed */}
       </Head>
         <div>
-        <Navbar isRightNetwork={rightNetwork} contractAddress={contractAddress} />
+        <Navbar isRightNetwork={rightNetwork} contractProps={contractProps} />
             { showMintModal ? 
             <div className='fixed z-30 inset-0 flex items-center justify-center bg-black bg-opacity-40'>
             <div className="rise-up">
-               <MintModal  itemSum={cartTotal} itemsArray={mintingCart} isMintModal={isMintModal} isNativeMintEnabled={isNativeMint} contractAddress={contractAddress} /> 
+               <MintModal  itemSum={cartTotal} itemsArray={mintingCart} isMintModal={isMintModal} isNativeMintEnabled={isNativeMint} contractProps={contractProps} /> 
                </div>
                </div> : null }
         
@@ -108,7 +105,7 @@ interface Item {
         {!network || rightNetwork ? null : 
           <div className='fixed z-30 inset-0 flex items-center justify-center bg-black bg-opacity-40'>
             <div className='rise-up'>
-              <WrongNetwork rightNetwork={correctNetworkArray} />
+              <WrongNetwork rightNetwork={correctNetwork} />
                 </div>
                   </div> }     
         </div>

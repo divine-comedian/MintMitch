@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { useTokenInfo, getTokenInfo } from '../utils/ContractHelper';
+import { useTokenInfo, getTokenInfo, MintingContractProps } from '../utils/ContractHelper';
 import { useParseIpfsData, useParseIpfsImage } from '../utils/AxiosHelper';
 import { useState, useEffect } from 'react';
 
@@ -8,10 +8,10 @@ interface NFTCardProps {
     tokenId: number;
     addToCart: Function,
     removeFromCart: Function;
-    contractAddress: string;
+    contractProps: MintingContractProps
 }
 
-export const NFTCard: React.FC<NFTCardProps> = ({tokenId, addToCart, removeFromCart, contractAddress} ) => {
+export const NFTCard: React.FC<NFTCardProps> = ({tokenId, addToCart, removeFromCart, contractProps} ) => {
     
     const [ipfsData, setIpfsData] = useState({}) as any;
     const [ipfsImage, setIpfsImage] = useState() as any;
@@ -27,8 +27,8 @@ export const NFTCard: React.FC<NFTCardProps> = ({tokenId, addToCart, removeFromC
         setToggleText(!toggleText)
     };
 
-    const newIpfsImage = useParseIpfsImage(tokenId, contractAddress)
-    const newIpfsData = useParseIpfsData(tokenId, contractAddress)
+    const newIpfsImage = useParseIpfsImage(tokenId, contractProps)
+    const newIpfsData = useParseIpfsData(tokenId, contractProps)
 
     const tokenName = ipfsData.name
     const tokenDescription = ipfsData.description
@@ -41,12 +41,12 @@ export const NFTCard: React.FC<NFTCardProps> = ({tokenId, addToCart, removeFromC
     };
     
     useEffect(() => {
-        getTokenInfo(tokenId, contractAddress).then((tokenInfo) => {
+        getTokenInfo(tokenId, contractProps).then((tokenInfo) => {
             const [newTokenPrice, newTokenURI] = tokenInfo as [number, string]
             setTokenPrice(newTokenPrice)
             setTokenURI(newTokenURI)
         })
-    }, [tokenId, contractAddress])
+    }, [tokenId, contractProps])
 
 
 

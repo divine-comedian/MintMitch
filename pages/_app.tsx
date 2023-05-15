@@ -10,7 +10,8 @@ import { configureChains, createClient, WagmiConfig } from 'wagmi'
 import { mainnet, polygonMumbai, optimism, arbitrum, goerli, gnosis, polygon } from 'wagmi/chains'
 import { alchemyProvider } from 'wagmi/providers/alchemy'
 import { publicProvider } from 'wagmi/providers/public'
-
+import { jsonRpcProvider } from '@wagmi/core/providers/jsonRpc'
+ 
 import config from '../config/env-vars'
 const { NEXT_PUBLIC_ALCHEMY_ID, NEXT_PUBLIC_INFURA_ID, NEXT_PUBLIC_ETHERSCAN_API_KEY } = config
 
@@ -20,7 +21,25 @@ const etherscanApiKey = NEXT_PUBLIC_ETHERSCAN_API_KEY
 const { chains, provider} =
  configureChains(
   [polygonMumbai, gnosis, goerli],
-  [publicProvider()],
+  [publicProvider(),
+  alchemyProvider({ apiKey: 'SRWLpUQxML7F45zAvOmFmma1XFPsufnm' }),
+    jsonRpcProvider({
+    rpc: (polygonMumbai) => ({
+      http: `https://matic.getblock.io/77e89e7c-3a6d-46f7-86f3-99b9eafd3f2b/testnet/`
+    })
+    }
+  ),
+  jsonRpcProvider({
+    rpc: (gnosis) => ({
+      http: 'https://gno.getblock.io/77e89e7c-3a6d-46f7-86f3-99b9eafd3f2b/mainnet/'
+    })
+  }),
+  jsonRpcProvider({
+    rpc: (goerli) => ({
+      http: 'https://eth-goerli.g.alchemy.com/v2/SRWLpUQxML7F45zAvOmFmma1XFPsufnm'
+    })
+  })
+],
 )
 
 

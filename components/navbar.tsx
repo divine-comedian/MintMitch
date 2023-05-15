@@ -1,18 +1,18 @@
 import DarkModeToggle from './darkModeToggle'
 // import ConnectWallet from './connectWallet'
-import { ConnectWallet } from './customConnectWallet'
 import Link from 'next/link'
-import { selectContractAddress, getNativeBalance, getIsNativeMinting, getPaymentTokenBalance} from '../utils/ContractHelper'
+import { selectContractAddress, MintingContractProps, getNativeBalance, getIsNativeMinting, getPaymentTokenBalance} from '../utils/ContractHelper'
 import {useEffect, useState} from 'react'
 import {getAccount} from '@wagmi/core'
 import { formatEther } from 'ethers/lib/utils.js'
 import { BigNumber } from 'ethers'
+import ConnectWallet from './connectWallet'
 
 interface IProps {
   displayConnectButton?: boolean
   isDarkModeToggleVisible?: boolean
   isRightNetwork?: boolean | undefined
-  contractAddress: string
+  contractProps: MintingContractProps
 }
 
 /**
@@ -22,11 +22,11 @@ const Navbar = ({
   isDarkModeToggleVisible = true,
   displayConnectButton = true,
   isRightNetwork,
-  contractAddress
+  contractProps
 }: // isNetworkSwitcherVisible = true,
 IProps) => {
   const [progressBar, setProgressBar] = useState(0)
-  const [isNativeMintEnabled, setIsNativeMintEnabled] = useState<boolean>(false)
+  const [isNativeMintEnabled, setIsNativeMintEnabled] = useState<boolean | undefined>(undefined)
   const [balance, setBalance] = useState(0)
   const { address } = getAccount()
 
@@ -34,30 +34,36 @@ IProps) => {
   // setIsNativeMintEnabled(nativeMinting)
   useEffect(() => { 
     const getNativeMinting = async () => {
-        console.log("this is the contract address on the navbar", contractAddress)
-        const nativeMinting = await getIsNativeMinting(contractAddress) as boolean
-        await nativeMinting
+        const nativeMinting = await getIsNativeMinting(contractProps) as boolean
         setIsNativeMintEnabled(nativeMinting)
       }
-      if (isRightNetwork && contractAddress) {
+      if (isRightNetwork && contractProps) {    
         getNativeMinting()
       }
-    }, [isRightNetwork, contractAddress])
+    }, [contractProps, isRightNetwork])
 
   useEffect(() => {
     const getBalance = async () => {
-      if (isNativeMintEnabled) {
-        const response = await getNativeBalance(contractAddress) as BigNumber
-        setBalance(parseFloat(formatEther(response)))
-      } else {
-        const response = await getPaymentTokenBalance(contractAddress, contractAddress) as BigNumber
-        setBalance(parseFloat(formatEther(response)))
+      try {
+        if (isNativeMintEnabled) {
+          getNativeBalance(contractProps.address).then((response) => {
+            setBalance(parseFloat(formatEther(response)))
+          })
+        } else {
+          getPaymentTokenBalance(contractProps.address, contractProps).then((response) => {
+            const formattedBalance = parseFloat(formatEther(response as BigNumber))
+            setBalance(formattedBalance)
+          })
+        }
+      }
+      catch (e) {
+        console.log("error getting balance", e)
       }
     } 
-    if (isRightNetwork) {
-      getBalance()
-    }
-  }, [isNativeMintEnabled, contractAddress, isRightNetwork])
+    if (isRightNetwork && isNativeMintEnabled) {
+        getBalance()
+  }
+  }, [contractProps, isNativeMintEnabled])
 
 
   useEffect (() => {

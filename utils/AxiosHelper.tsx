@@ -1,5 +1,5 @@
 const axios = require('axios');
-import { useTokenInfo } from './ContractHelper';
+import { useTokenInfo, MintingContractProps } from './ContractHelper';
 import { useEffect, useState, useCallback  } from 'react';
  
 const ipfsGateways = process.env.IPFS_GATEWAYS!.split(',');
@@ -19,12 +19,12 @@ async function getDataFromGateways(path: any) {
 }
 
 
-export const useParseIpfsData = (tokenId: number, contractAddress: string) => {
+export const useParseIpfsData = (tokenId: number, contractProps: MintingContractProps) => {
   const [ipfsData, setIpfsData] = useState({
     name: 'Loading...',
     description: 'Loading...',
   });
-  const [tokenPriceHex, tokenURI] = useTokenInfo(tokenId, contractAddress);
+  const [tokenPriceHex, tokenURI] = useTokenInfo(tokenId, contractProps);
   
   const retrieveIpfsData = useCallback(async () => {
     if (tokenURI) {
@@ -51,9 +51,9 @@ export const useParseIpfsData = (tokenId: number, contractAddress: string) => {
 };
 
 
-export const useParseIpfsImage = (tokenId: number, contractAddress: string) => {
+export const useParseIpfsImage = (tokenId: number, contractProps: MintingContractProps) => {
   const [ipfsImage, setIpfsImage] = useState('');
-  const [tokenPriceHex, tokenURI] = useTokenInfo(tokenId, contractAddress);
+  const [tokenPriceHex, tokenURI] = useTokenInfo(tokenId, contractProps);
   const IPFS_GATEWAYS = process.env.IPFS_GATEWAYS!.split(',');
 
   const getImageFromGateways = async (cid: string, gateways: string[]) => {
