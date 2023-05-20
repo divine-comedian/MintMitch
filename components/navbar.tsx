@@ -7,6 +7,9 @@ import {getAccount} from '@wagmi/core'
 import { formatEther } from 'ethers/lib/utils.js'
 import { BigNumber } from 'ethers'
 import ConnectWallet from './connectWallet'
+import { useContractRead } from 'wagmi'
+import MintingContractJSON from '../artifacts/contracts/MitchMinter.sol/MitchMinter.json'
+
 
 interface IProps {
   displayConnectButton?: boolean
@@ -28,19 +31,30 @@ IProps) => {
   const [progressBar, setProgressBar] = useState(0)
   const [isNativeMintEnabled, setIsNativeMintEnabled] = useState<boolean | undefined>(undefined)
   const [balance, setBalance] = useState(0)
-  const { address } = getAccount()
 
   // const nativeMinting = await getIsNativeMinting()
   // setIsNativeMintEnabled(nativeMinting)
-  useEffect(() => { 
-    const getNativeMinting = async () => {
-        const nativeMinting = await getIsNativeMinting(contractProps) as boolean
-        setIsNativeMintEnabled(nativeMinting)
-      }
-      if (isRightNetwork && contractProps) {    
-        getNativeMinting()
-      }
-    }, [contractProps, isRightNetwork])
+   const { data: isNativeMinting, isSuccess: nativeMintEnabledSuccess, isError: nativeMintEnabledError, error: nativeMintEnabledErrorInfo } = useContractRead({
+    address: `0x${contractProps.address}`,
+    abi: MintingContractJSON.abi,
+    functionName: 'nativeMintEnabled',
+    args: [],
+    chainId: contractProps.chainId
+  })
+ 
+  useEffect(() => {
+    
+    if (isNativeMinting !== undefined) {
+      setIsNativeMintEnabled(isNativeMinting as boolean)
+    }
+    else if (nativeMintEnabledError) {
+      console.log("error getting native mint enabled", nativeMintEnabledErrorInfo)
+    }
+  }, [isNativeMinting, nativeMintEnabledSuccess])
+
+
+
+
 
   useEffect(() => {
     const getBalance = async () => {
@@ -77,8 +91,8 @@ IProps) => {
     <nav className="flex flex-col z-30 lg:flex-row items-center bg-gradient-to-r from-cyan-500 to-blue-500 dark:from-blue-500 dark:to-cyan-500 sm:max-w-screen justify-between py-2 px-4 navBarBorder">
       {/* Logo */}
       <div className=" flex  items-center justify-start">
-      <div className="mx-5 p-2 mt-2 font-bold hover:bg-cyan-400 dark:hover:bg-blue-400 rounded-lg "><Link href="/">Home</Link></div>
-      <div className="mr-5 p-2 mt-2 font-bold hover:bg-cyan-400 dark:hover:bg-blue-400 rounded-lg "><Link href="/store">Mint</Link></div>
+      <div className="mx-5 p-2 mt-2 font-bold hover:bg-cyan-400 dark:hover:bg-blue-400 rounded-lg "><Link href="/"><button className='text-xl'>Home</button></Link></div>
+      <div className="mr-5 p-2 mt-2 font-bold hover:bg-cyan-400 dark:hover:bg-blue-400 rounded-lg "><Link href="/store"><button className='text-xl'>Mint</button></Link></div>
       </div>
       <div className="sm:block flex items-center justify-center">
       {/* Progress bar */}

@@ -22,7 +22,6 @@ const Home: NextPage = () => {
   
   useEffect(() => {
     setNetwork(currentNetwork);
-    console.log(currentNetwork);
   }, [currentNetwork]);
 
   // useEffect(() => {

@@ -1,8 +1,11 @@
 import Image from 'next/image';
-import { useTokenInfo, getTokenInfo, MintingContractProps } from '../utils/ContractHelper';
+import {MintingContractProps } from '../utils/ContractHelper';
 import { useParseIpfsData, useParseIpfsImage } from '../utils/AxiosHelper';
 import { useState, useEffect } from 'react';
-
+import { useContractRead } from 'wagmi';
+import { useDebounce } from 'usehooks-ts';
+import MintingContractJSON from '../artifacts/contracts/MitchMinter.sol/MitchMinter.json'
+import { formatEther } from 'ethers/lib/utils.js';
 
 interface NFTCardProps { 
     tokenId: number;
@@ -15,13 +18,13 @@ export const NFTCard: React.FC<NFTCardProps> = ({tokenId, addToCart, removeFromC
     
     const [ipfsData, setIpfsData] = useState({}) as any;
     const [ipfsImage, setIpfsImage] = useState() as any;
-    // const [tokenPrice, tokenURI] = useTokenInfo(tokenId) as [number, string]
     const [tokenPrice, setTokenPrice] = useState(0)
     const [tokenURI, setTokenURI] = useState('')
-    const [isInCart, setIsInCart] = useState(false) as [boolean, any]
+    const [isInCart, setIsInCart] = useState<boolean>(false)
     const [showFadeText, setShowFadeText] = useState(false);
     const [randomMsg, setRandomMsg] = useState('');
     const [toggleText, setToggleText] = useState(false);
+    const debouncedContractProps = useDebounce(contractProps, 500);
 
     const handleToggle = () => {
         setToggleText(!toggleText)
@@ -40,32 +43,42 @@ export const NFTCard: React.FC<NFTCardProps> = ({tokenId, addToCart, removeFromC
         }, 500); // Adjust the duration as needed (in milliseconds)
     };
     
+    const {data: tokenInfo, isError: isTokenInfoError, error: tokenInfoError } = useContractRead({
+        address: `0x${debouncedContractProps.address}`,
+        abi: MintingContractJSON.abi,
+        functionName: 'getTokenInfo',
+        args: [tokenId],
+        chainId: debouncedContractProps.chainId
+    });
+
     useEffect(() => {
-        getTokenInfo(tokenId, contractProps).then((tokenInfo) => {
-            const [newTokenPrice, newTokenURI] = tokenInfo as [number, string]
+        if (tokenInfo) {
+            const [newTokenPriceHex, newTokenURI] = tokenInfo as [string, string]
+            const newTokenPrice = parseFloat(formatEther(newTokenPriceHex))
             setTokenPrice(newTokenPrice)
             setTokenURI(newTokenURI)
-        })
-    }, [tokenId, contractProps])
-
-
+        }
+        else if (isTokenInfoError) {
+            console.log(tokenInfoError)
+        }
+    }, [tokenInfo, debouncedContractProps, isTokenInfoError, tokenInfoError])
 
     useEffect(() => {
          setIpfsData(newIpfsData)
          setIpfsImage(newIpfsImage)
     }, [newIpfsData, newIpfsImage])
 
-    const handleCart = () => { 
-        setIsInCart(!isInCart)
-        setRandomMsg(randomMessage())
+    const handleCart = () => {
+        setIsInCart((prevIsInCart) => !prevIsInCart);
+        setRandomMsg(randomMessage());
+    
         if (!isInCart) {
-           addToCart({tokenID, tokenName, tokenPrice}) 
-           showFadeInOutText()
-    }
-        else {
-            removeFromCart({tokenID, tokenName, tokenPrice})
+          addToCart({ tokenID, tokenName, tokenPrice });
+          showFadeInOutText();
+        } else {
+          removeFromCart({ tokenID, tokenName, tokenPrice });
         }
-}
+      };
 
     const randomMessage = () => {
         const messages = ['Nice!','Fresh.', 'WOW!', 'Sweet!', 'Awesome!', 'Rad!', 'You da best!', 'Hell Yeah!', 'Magnificient!', 'Godlike!']

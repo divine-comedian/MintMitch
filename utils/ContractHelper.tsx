@@ -8,6 +8,8 @@ import { BigNumber } from 'ethers';
 export interface MintingContractProps {
     address: string;
     chainId?: number;
+    explorerLink?: string;
+    name?: string;
 }
 
 export const selectContractAddress = (network: string) => {
@@ -15,21 +17,29 @@ export const selectContractAddress = (network: string) => {
     if (process.env.NODE_ENV === 'development' && network === 'goerli') {
       props = {
         address: process.env.CONTRACT_ADDRESS as string,
-        chainId: 5
+        chainId: 5,
+        explorerLink: process.env.ETHERSCAN_URL as string,
+        name: 'Goerli'
       }
         return props
     }
     else if (network === 'maticmum') {
       props = {
         address: process.env.MUMBAI_CONTRACT_ADDRESS as string,
-        chainId: 80001
+        chainId: 80001,
+        explorerLink: process.env.NEXT_PUBLIC_MUMBAI_URL as string,
+        name: 'Polygon Mumbai'
+
       }
         return props
     }   
     else if (process.env.NODE_ENV === 'development' && network === 'gnosis') {
       props = {
         address: process.env.GNOSIS_CONTRACT_ADDRESS as string,
-        chainId: 100
+        chainId: 100,
+        explorerLink: process.env.NEXT_PUBLIC_GNOSISSCAN_URL as string,
+        name: 'Gnosis Chain'
+
       }
         return props
     }
@@ -163,7 +173,6 @@ export const getPaymentTokenBalance = async (address: string, mintingContractInf
       address: `0x${address}`,
       token: `0x${formattedTokenAddress.substring(2)}`
     })
-    console.log(`this is the payment token ${paymentTokenBalance.symbol} & this is the contract address ${mintingContractInfo.address}`)
     return paymentTokenBalance.value
   }
   

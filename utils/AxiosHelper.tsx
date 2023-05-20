@@ -1,7 +1,10 @@
 const axios = require('axios');
 import { useTokenInfo, MintingContractProps } from './ContractHelper';
 import { useEffect, useState, useCallback  } from 'react';
- 
+import { useDebounce } from 'usehooks-ts';
+import MintingContractJSON from '../artifacts/contracts/MitchMinter.sol/MitchMinter.json'
+import { useContractRead } from 'wagmi'; 
+
 const ipfsGateways = process.env.IPFS_GATEWAYS!.split(',');
 
 async function getDataFromGateways(path: any) {
@@ -20,14 +23,21 @@ async function getDataFromGateways(path: any) {
 
 
 export const useParseIpfsData = (tokenId: number, contractProps: MintingContractProps) => {
+  const debouncedContractProps = useDebounce(contractProps, 500);
   const [ipfsData, setIpfsData] = useState({
     name: 'Loading...',
     description: 'Loading...',
   });
-  const [tokenPriceHex, tokenURI] = useTokenInfo(tokenId, contractProps);
-  
-  const retrieveIpfsData = useCallback(async () => {
-    if (tokenURI) {
+  const {data: tokenInfo, isSuccess: isTokenInfoSuccess, isError: isTokenInfoError, error: tokenInfoError } = useContractRead({
+    address: `0x${debouncedContractProps.address}`,
+    abi: MintingContractJSON.abi,
+    functionName: 'getTokenInfo',
+    args: [tokenId],
+    chainId: debouncedContractProps.chainId
+});
+const retrieveIpfsData = useCallback(async () => {
+  if (isTokenInfoSuccess && tokenInfo) {
+    const [tokenPriceHex, tokenURI] = tokenInfo as [string, string]
       const tokenCID = tokenURI.replace("ipfs://", "");
       try {
         const response = await getDataFromGateways(tokenCID);
@@ -41,7 +51,7 @@ export const useParseIpfsData = (tokenId: number, contractProps: MintingContract
         console.error(error);
       }
     }
-  }, [tokenURI]);
+  }, [isTokenInfoSuccess]);
   
   useEffect(() => {
     retrieveIpfsData();
@@ -52,9 +62,19 @@ export const useParseIpfsData = (tokenId: number, contractProps: MintingContract
 
 
 export const useParseIpfsImage = (tokenId: number, contractProps: MintingContractProps) => {
+  const debouncedContractProps = useDebounce(contractProps, 500);
   const [ipfsImage, setIpfsImage] = useState('');
-  const [tokenPriceHex, tokenURI] = useTokenInfo(tokenId, contractProps);
-  const IPFS_GATEWAYS = process.env.IPFS_GATEWAYS!.split(',');
+  const {data: tokenInfo, isSuccess: isTokenInfoSuccess, isError: isTokenInfoError, error: tokenInfoError } = useContractRead({
+    address: `0x${debouncedContractProps.address}`,
+    abi: MintingContractJSON.abi,
+    functionName: 'getTokenInfo',
+    args: [tokenId],
+    chainId: debouncedContractProps.chainId
+});
+    
+   
+    const IPFS_GATEWAYS = process.env.IPFS_GATEWAYS!.split(',');
+
 
   const getImageFromGateways = async (cid: string, gateways: string[]) => {
     for (const gateway of gateways) {
@@ -69,7 +89,8 @@ export const useParseIpfsImage = (tokenId: number, contractProps: MintingContrac
   };
 
   const retrieveIpfsData = useCallback(async () => {
-    if (tokenURI) {
+    if (isTokenInfoSuccess && tokenInfo) {
+      const [tokenPriceHex, tokenURI] = tokenInfo as [string, string]
       const tokenCID = tokenURI.replace("ipfs://", "");
       try {
         const response = await getDataFromGateways(tokenCID);
@@ -82,7 +103,7 @@ export const useParseIpfsImage = (tokenId: number, contractProps: MintingContrac
         console.error(error);
       }
     }
-  }, [tokenURI, IPFS_GATEWAYS]);
+  }, [IPFS_GATEWAYS, isTokenInfoSuccess]);
 
   useEffect(() => {
     retrieveIpfsData();

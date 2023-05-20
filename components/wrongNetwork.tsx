@@ -1,6 +1,6 @@
-import { use } from "chai";
 import React from "react";
 import { useEffect, useState } from "react";
+import ConnectWallet from './connectWallet'
 
 interface WrongNetworkProps {
     rightNetwork: string[] | null;
@@ -39,6 +39,9 @@ export const WrongNetwork: React.FC<WrongNetworkProps> = ({ rightNetwork }) => {
                 <p>You are connected to the Wrong Network!</p>
                 {rightNetwork && networksFormatted ? 
                 <p>Please connect to any of the following networks: <br /> {networksFormatted}</p> : null}
+                <div className="pt-4 grid justify-items-center ">
+                <ConnectWallet />
+                </div>
         </div>
             </div>   
         </div>

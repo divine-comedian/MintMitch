@@ -55,12 +55,10 @@ export const MintModal = ({ itemsArray, itemSum, isMintModal, isNativeMintEnable
     const connectedAddress = useAccount().address as string;
     const [errorMessage, setErrorMessage] = useState<string>("");
     const [network, setNetwork] = useState<string>(process.env.NEXT_PUBLIC_DEFAULT_NETWORK as string);
-
     const currentNetwork = useNetwork().chain?.network as string;
   
   useEffect(() => {
     setNetwork(currentNetwork);
-    console.log(currentNetwork);
   }, [currentNetwork]);
 
     const waitForMint = useWaitForTransaction({
@@ -253,7 +251,10 @@ const handleMint = async () => {
                 ><LoadingSpinner />Minting...</button>;
             case 'minted':
                 return <div className="space-y-2 font-medium dark:text-white">
-                    <p>Amazing!! Thank you so much for minting some mitch and supporting me in my goals!</p><p><a className=" hover:dark:gray-300 hover:text-gray-700 font-bold" target="_blank" rel="noopener noreferrer" href={process.env.ETHERSCAN_URL + "tx/0x" + mintTxHash}>Click here to see your minting transaction.</a></p>
+                    <p>Amazing! Thank you so much for minting some mitch and supporting me in my goals!
+                    </p>
+                    <p>You also received {itemsArray.length} $MITCH token{itemsArray.length > 1 ? ('s') : ('') }. Remember: <i>...with great $MITCH comes great responsibility...</i></p><p><a className=" hover:dark:gray-300 hover:text-gray-700 font-bold" target="_blank" rel="noopener noreferrer" href={contractProps.explorerLink + "tx/0x" + mintTxHash}>Click here to see your minting transaction.</a>
+                    </p>
                     </div>;
             default:
                 return <button
@@ -268,7 +269,7 @@ const handleMint = async () => {
     
     
     return (
-        <div className=" bg-gradient-to-r from-cyan-400 to-blue-400 dark:from-blue-600 dark:to-cyan-600 md:min-w-[400px] xs:w-[200px] p-4 rounded-lg">
+        <div className=" bg-gradient-to-r from-cyan-400 to-blue-400 dark:from-blue-600 dark:to-cyan-600 md:min-w-[400px] xs:w-[200px] p-4 m-4 rounded-lg">
         <div className="float-right">
         <button className="font-bold text-lg py-0.5 px-2 hover:rounded-full hover:bg-gray-300/80" onClick={() => isMintModal(false) }>X</button>
         </div>
