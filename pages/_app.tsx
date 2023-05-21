@@ -4,10 +4,9 @@ import '@rainbow-me/rainbowkit/styles.css'
 
 import type { AppProps } from 'next/app'
 import { ThemeProvider } from 'next-themes'
-import { InjectedConnector } from 'wagmi/connectors/injected'
 import { getDefaultWallets, RainbowKitProvider } from '@rainbow-me/rainbowkit'
 import { configureChains, createClient, WagmiConfig } from 'wagmi'
-import { mainnet, polygonMumbai, optimism, arbitrum, goerli, gnosis, polygon } from 'wagmi/chains'
+import { polygonMumbai, optimism, arbitrum, goerli, gnosis, polygon } from 'wagmi/chains'
 import { alchemyProvider } from 'wagmi/providers/alchemy'
 import { publicProvider } from 'wagmi/providers/public'
 import { jsonRpcProvider } from '@wagmi/core/providers/jsonRpc'
@@ -16,13 +15,13 @@ import config from '../config/env-vars'
 
 const { NEXT_PUBLIC_ALCHEMY_ID, NEXT_PUBLIC_INFURA_ID, NEXT_PUBLIC_ETHERSCAN_API_KEY } = config
 
-const alchemyId = NEXT_PUBLIC_ALCHEMY_ID
+const alchemyId = NEXT_PUBLIC_ALCHEMY_ID as string
 const etherscanApiKey = NEXT_PUBLIC_ETHERSCAN_API_KEY
 
 const { chains, provider } = configureChains(
   [gnosis, polygonMumbai, goerli],
   [
-    alchemyProvider({ apiKey: alchemyId }),
+    alchemyProvider({ apiKey: (alchemyId as string) }),
     jsonRpcProvider({
       rpc: () => ({
         priority: 0,
