@@ -4,6 +4,7 @@ import MintingContractJSON from '../artifacts/contracts/MitchMinter.sol/MitchMin
 import { useEffect, useState } from 'react';
  import { formatEther, parseEther } from 'ethers/lib/utils.js';
 import { BigNumber } from 'ethers';
+import { constants } from './constants';
 
 export interface MintingContractProps {
     address: string;
@@ -16,18 +17,18 @@ export const selectContractAddress = (network: string) => {
     let props: MintingContractProps
     if (process.env.NODE_ENV === 'development' && network === 'goerli') {
       props = {
-        address: process.env.CONTRACT_ADDRESS as string,
+        address: constants.GOERLI_CONTRACT_ADDRESS ,
         chainId: 5,
-        explorerLink: process.env.ETHERSCAN_URL as string,
+        explorerLink: constants.GOERLI_ETHERSCAN_URL ,
         name: 'Goerli'
       }
         return props
     }
     else if (network === 'maticmum') {
       props = {
-        address: process.env.MUMBAI_CONTRACT_ADDRESS as string,
+        address: constants.MUMBAI_CONTRACT_ADDRESS ,
         chainId: 80001,
-        explorerLink: process.env.NEXT_PUBLIC_MUMBAI_URL as string,
+        explorerLink: constants.NEXT_PUBLIC_MUMBAI_URL ,
         name: 'Polygon Mumbai'
 
       }
@@ -35,9 +36,9 @@ export const selectContractAddress = (network: string) => {
     }   
     else if (process.env.NODE_ENV === 'development' && network === 'gnosis') {
       props = {
-        address: process.env.GNOSIS_CONTRACT_ADDRESS as string,
+        address: constants.GNOSIS_TEST_CONTRACT_ADDRESS ,
         chainId: 100,
-        explorerLink: process.env.NEXT_PUBLIC_GNOSISSCAN_URL as string,
+        explorerLink: constants.NEXT_PUBLIC_GNOSISSCAN_URL ,
         name: 'Gnosis Chain'
 
       }
@@ -45,7 +46,7 @@ export const selectContractAddress = (network: string) => {
     }
     else {
       props = {
-        address: process.env.CONTRACT_ADDRESS as string,
+        address: constants.GOERLI_CONTRACT_ADDRESS ,
         chainId: 5
       }
         console.log("no network deteced, using default")

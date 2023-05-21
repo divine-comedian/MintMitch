@@ -8,13 +8,14 @@ import { selectContractAddress, MintingContractProps } from '../utils/ContractHe
 import { WrongNetwork } from '../components/wrongNetwork'
 import { checkNetwork } from '../utils/checkNetwork'
 import { useNetwork } from 'wagmi'
+import { constants } from '../utils/constants'
 
 const Home: NextPage = () => {
   const [correctNetwork, setCorrectNetwork] = useState<string[] | null>(null)
   const [rightNetwork, setRightNetwork] = useState<boolean | undefined>(undefined)
   const [network, setNetwork] = useState<string>('goerli')
   const [contractProps, setContractProps] = useState<MintingContractProps>({
-    address: process.env.CONTRACT_ADDRESS as string,
+    address: constants.GOERLI_CONTRACT_ADDRESS,
     chainId: 5,
   })
 

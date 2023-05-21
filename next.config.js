@@ -1,13 +1,6 @@
 /** @type {import('next').NextConfig} */
 module.exports = {
   env: {
-    CONTRACT_ADDRESS: process.env.CONTRACT_ADDRESS,
-    IPFS_GATEWAYS: process.env.IPFS_GATEWAYS,
-    ETHERSCAN_URL: process.env.ETHERSCAN_URL,
-    GNOSIS_CONTRACT_ADDRESS: process.env.GNOSIS_CONTRACT_ADDRESS,
-    MUMBAI_CONTRACT_ADDRESS: process.env.MUMBAI_CONTRACT_ADDRESS,
-    NEXT_PUBLIC_GNOSISSCAN_URL: process.env.NEXT_PUBLIC_GNOSISSCAN_URL,
-    NEXT_PUBLIC_MUMBAI_URL: process.env.NEXT_PUBLIC_MUMBAI_URL,
     GNOSIS_RPC_URL: process.env.GNOSIS_RPC_URL,
   },
   reactStrictMode: true,

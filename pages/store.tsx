@@ -12,6 +12,7 @@ import { MintingContractProps } from '../utils/ContractHelper'
 import { useNetwork, useContractRead } from 'wagmi'
 import MintingContractJSON from '../artifacts/contracts/MitchMinter.sol/MitchMinter.json'
 import { fetchToken } from '@wagmi/core'
+import { constants } from '../utils/constants'
 
 interface Item {
   tokenID: number
@@ -29,7 +30,7 @@ const Store = () => {
   const [nftCards, setNftCards] = useState([]) as [any, any]
   const [network, setNetwork] = useState<string>(process.env.NEXT_PUBLIC_DEFAULT_NETWORK as string)
   const [contractProps, setContractProps] = useState<MintingContractProps>({
-    address: process.env.CONTRACT_ADDRESS as string,
+    address: constants.GOERLI_CONTRACT_ADDRESS,
     chainId: 5,
   })
   const [paymentTokenAddress, setPaymentTokenAddress] = useState<string>('')

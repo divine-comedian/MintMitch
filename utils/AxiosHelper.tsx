@@ -4,8 +4,9 @@ import { useEffect, useState, useCallback  } from 'react';
 import { useDebounce } from 'usehooks-ts';
 import MintingContractJSON from '../artifacts/contracts/MitchMinter.sol/MitchMinter.json'
 import { useContractRead } from 'wagmi'; 
+import { constants } from './constants';
 
-const ipfsGateways = process.env.IPFS_GATEWAYS!.split(',');
+const ipfsGateways = constants.IPFS_GATEWAYS!.split(',');
 
 async function getDataFromGateways(path: any) {
   for (const gateway of ipfsGateways ) {
@@ -73,7 +74,7 @@ export const useParseIpfsImage = (tokenId: number, contractProps: MintingContrac
 });
     
    
-    const IPFS_GATEWAYS = process.env.IPFS_GATEWAYS!.split(',');
+    // const IPFS_GATEWAYS = process.env.IPFS_GATEWAYS!.split(',');
 
 
   const getImageFromGateways = async (cid: string, gateways: string[]) => {
@@ -95,7 +96,7 @@ export const useParseIpfsImage = (tokenId: number, contractProps: MintingContrac
       try {
         const response = await getDataFromGateways(tokenCID);
         const imgHash = response.data.image.replace("ipfs://", "");
-        const imageResponse = await getImageFromGateways(imgHash, IPFS_GATEWAYS);
+        const imageResponse = await getImageFromGateways(imgHash, ipfsGateways);
         const imageBuffer = Buffer.from(imageResponse.data, 'binary');
         const imageSrc = 'data:image/jpeg;base64,' + imageBuffer.toString('base64');
         setIpfsImage(imageSrc);
@@ -103,7 +104,7 @@ export const useParseIpfsImage = (tokenId: number, contractProps: MintingContrac
         console.error(error);
       }
     }
-  }, [IPFS_GATEWAYS, isTokenInfoSuccess]);
+  }, [ipfsGateways, isTokenInfoSuccess]);
 
   useEffect(() => {
     retrieveIpfsData();

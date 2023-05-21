@@ -21,7 +21,7 @@ const etherscanApiKey = NEXT_PUBLIC_ETHERSCAN_API_KEY
 const { chains, provider } = configureChains(
   [gnosis, polygonMumbai, goerli],
   [
-    alchemyProvider({ apiKey: (alchemyId as string) }),
+    alchemyProvider({ apiKey: alchemyId as string }),
     jsonRpcProvider({
       rpc: () => ({
         priority: 0,
