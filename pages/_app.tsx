@@ -6,20 +6,28 @@ import type { AppProps } from 'next/app'
 import { ThemeProvider } from 'next-themes'
 import { getDefaultWallets, RainbowKitProvider } from '@rainbow-me/rainbowkit'
 import { configureChains, createClient, WagmiConfig } from 'wagmi'
-import { polygonMumbai, optimism, arbitrum, goerli, gnosis, polygon } from 'wagmi/chains'
+import { polygonMumbai, optimism, goerli, gnosis, polygon } from 'wagmi/chains'
 import { alchemyProvider } from 'wagmi/providers/alchemy'
 import { publicProvider } from 'wagmi/providers/public'
 import { jsonRpcProvider } from '@wagmi/core/providers/jsonRpc'
-import { getNetwork } from '@wagmi/core'
 import config from '../config/env-vars'
+import { constants } from '../utils/constants'
 
 const { NEXT_PUBLIC_ALCHEMY_ID, NEXT_PUBLIC_INFURA_ID, NEXT_PUBLIC_ETHERSCAN_API_KEY } = config
-
 const alchemyId = NEXT_PUBLIC_ALCHEMY_ID as string
 const etherscanApiKey = NEXT_PUBLIC_ETHERSCAN_API_KEY
 
+let appChains: any[] = []
+if (process.env.NODE_ENV === 'development') {
+  appChains = constants.DEVELOPMENT_CHAINS
+}
+else if (process.env.NODE_ENV === 'production') {
+  appChains = constants.PRODUCTION_CHAINS
+}
+
+
 const { chains, provider } = configureChains(
-  [gnosis, polygonMumbai, goerli],
+ appChains,
   [
     alchemyProvider({ apiKey: alchemyId as string }),
     jsonRpcProvider({
@@ -33,7 +41,7 @@ const { chains, provider } = configureChains(
 )
 
 const { connectors } = getDefaultWallets({
-  appName: 'Web 3 Starter App',
+  appName: 'Mint Mitch',
   chains,
 })
 
@@ -43,7 +51,7 @@ const wagmiClient = createClient({
   provider,
 })
 
-const currentNetwork = getNetwork().chain?.network as string
+
 
 const App = ({ Component, pageProps }: AppProps) => {
   return (

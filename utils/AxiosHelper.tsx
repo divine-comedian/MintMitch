@@ -51,8 +51,10 @@ const retrieveIpfsData = useCallback(async () => {
       } catch (error) {
         console.error(error);
       }
+    } else if (isTokenInfoError) {
+      console.log(tokenInfoError)
     }
-  }, [isTokenInfoSuccess]);
+  }, [isTokenInfoSuccess, isTokenInfoError, tokenInfo]);
   
   useEffect(() => {
     retrieveIpfsData();
@@ -103,8 +105,10 @@ export const useParseIpfsImage = (tokenId: number, contractProps: MintingContrac
       } catch (error) {
         console.error(error);
       }
+    } else if (isTokenInfoError) {
+      console.log(tokenInfoError)
     }
-  }, [ipfsGateways, isTokenInfoSuccess]);
+  }, [ipfsGateways, isTokenInfoSuccess, isTokenInfoError]);
 
   useEffect(() => {
     retrieveIpfsData();

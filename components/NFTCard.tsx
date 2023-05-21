@@ -63,7 +63,7 @@ export const NFTCard: React.FC<NFTCardProps> = ({ tokenId, addToCart, removeFrom
     } else if (isTokenInfoError) {
       console.log(tokenInfoError)
     }
-  }, [tokenInfo, debouncedContractProps, isTokenInfoError, tokenInfoError])
+  }, [tokenInfo, debouncedContractProps, isTokenInfoError])
 
   useEffect(() => {
     setIpfsData(newIpfsData)

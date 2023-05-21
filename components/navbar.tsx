@@ -9,6 +9,7 @@ import ConnectWallet from './connectWallet'
 import { useContractRead } from 'wagmi'
 import MintingContractJSON from '../artifacts/contracts/MitchMinter.sol/MitchMinter.json'
 
+
 interface IProps {
   displayConnectButton?: boolean
   isDarkModeToggleVisible?: boolean
@@ -51,7 +52,7 @@ IProps) => {
     } else if (nativeMintEnabledError) {
       console.log('error getting native mint enabled', nativeMintEnabledErrorInfo)
     }
-  }, [isNativeMinting, nativeMintEnabledSuccess])
+  }, [isNativeMinting, nativeMintEnabledSuccess,nativeMintEnabledError])
 
   useEffect(() => {
     const getBalance = async () => {

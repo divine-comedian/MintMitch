@@ -21,9 +21,9 @@ interface Item {
 }
 
 const Store = () => {
-  const [rightNetwork, setRightNetwork] = useState<boolean | undefined>(undefined)
+  const [isRightNetwork, setisRightNetwork] = useState<boolean | undefined>(undefined)
   const [showMintModal, setShowMintModal] = React.useState(false)
-  const [isNativeMint, setIsNativeMint] = useState(false)
+  const [isNativeMint, setIsNativeMint] = useState<boolean>(false)
   const [mintingCart, setMintingCart] = useState<Item[]>([])
   const [uniqueTokens, setUniqueTokens] = useState(0)
   const [correctNetwork, setCorrectNetwork] = useState<string[] | null>(null)
@@ -36,25 +36,14 @@ const Store = () => {
   const [paymentTokenAddress, setPaymentTokenAddress] = useState<string>('')
   const [paymentTokenSymbol, setPaymentTokenSymbol] = useState<string>('')
   const currentNetwork = useNetwork().chain?.network as string
-  const { data: isNativeMinting } = useContractRead({
+
+  const { data: isNativeMinting, isSuccess: isNativeMintingSuccess, isError: isNativeMintingError, error: isNativeMintingErrorInfo  } = useContractRead({
     address: `0x${contractProps.address}`,
     abi: MintingContractJSON.abi,
     functionName: 'nativeMintEnabled',
     args: [],
     chainId: contractProps.chainId,
   })
-
-  const isMintModal = (state: boolean) => {
-    setShowMintModal(state)
-  }
-
-  const addToCart = useCallback((item: Item) => {
-    setMintingCart((prevMintingCart) => [...prevMintingCart, item])
-  }, [])
-
-  const removeFromCart = useCallback((item: Item) => {
-    setMintingCart((prevMintingCart) => prevMintingCart.filter((i) => i.tokenID !== item.tokenID))
-  }, [])
 
   const {
     data: paymentTokenAddressData,
@@ -81,6 +70,19 @@ const Store = () => {
     args: [],
   })
 
+  const isMintModal = (state: boolean) => {
+    setShowMintModal(state)
+  }
+
+  const addToCart = useCallback((item: Item) => {
+    setMintingCart((prevMintingCart) => [...prevMintingCart, item])
+  }, [])
+
+  const removeFromCart = useCallback((item: Item) => {
+    setMintingCart((prevMintingCart) => prevMintingCart.filter((i) => i.tokenID !== item.tokenID))
+  }, [])
+
+
   // welcome to the use effect jungle
   useEffect(() => {
     if (isPaymentTokenAddressSuccess) {
@@ -89,7 +91,6 @@ const Store = () => {
         chainId: contractProps.chainId,
       }).then((response) => {
         setPaymentTokenSymbol(response.symbol)
-        console.log(response.symbol)
       })
       setPaymentTokenAddress(paymentTokenAddressData as string)
     } else if (isPaymentTokenAddressError) {
@@ -97,11 +98,7 @@ const Store = () => {
     }
   }, [paymentTokenAddressData])
 
-  useEffect(() => {
-    if (isNativeMinting) {
-      setIsNativeMint(isNativeMinting as boolean)
-    }
-  }, [isNativeMinting])
+  
   useEffect(() => {
     if (newUniqueTokens !== undefined) {
       setUniqueTokens(newUniqueTokens as number)
@@ -128,53 +125,14 @@ const Store = () => {
 
   useEffect(() => {
     setNetwork(currentNetwork)
-    console.log(currentNetwork)
   }, [currentNetwork])
 
   useEffect(() => {
-    const [rightNetworkBoolean, connectedNetworkArray] = checkNetwork(currentNetwork) as Array<any>
-    setRightNetwork(rightNetworkBoolean)
+    const [isRightNetworkBoolean, connectedNetworkArray] = checkNetwork(currentNetwork) as Array<any>
+    setisRightNetwork(isRightNetworkBoolean)
     setCorrectNetwork(connectedNetworkArray)
     setContractProps(selectContractAddress(currentNetwork))
   }, [currentNetwork])
-
-  const MintingInfo = (props: MintingContractProps) => {
-    let message: any
-    switch (props.chainId) {
-      case 5:
-        message = (
-          <div>
-            You are currently connected to {props.name}, you'll need a bit of{' '}
-            <a
-              className="text-purple-600"
-              href={contractProps.explorerLink + 'token/0x' + paymentTokenAddress}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {paymentTokenSymbol}
-            </a>{' '}
-            to mint a Mitch.
-          </div>
-        )
-      case 137:
-        return (
-          <div>
-            You can Mint any Mitchs you like on Gnosis Chain, Optimism and Polygon! You are currently connected to{' '}
-            {props.name}, you'll need a bit of{' '}
-            <a
-              className="text-purple-600"
-              href={contractProps.explorerLink + 'token/0x' + paymentTokenAddress}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {paymentTokenSymbol}
-            </a>{' '}
-            to mint a Mitch.
-          </div>
-        )
-    }
-    return message
-  }
 
   const cartItems = Array.from(mintingCart).map((item) => (
     <li key={item.tokenID}>
@@ -194,7 +152,7 @@ const Store = () => {
         {/* Add other metadata as needed */}
       </Head>
       <div>
-        <Navbar isRightNetwork={rightNetwork} contractProps={contractProps} />
+        <Navbar isRightNetwork={isRightNetwork} contractProps={contractProps} />
         {showMintModal ? (
           <div className="fixed z-30 inset-0 flex items-center justify-center bg-black bg-opacity-40">
             <div className="rise-up">
@@ -216,9 +174,9 @@ const Store = () => {
               <p>You can Mint any Mitchs you like on Gnosis Chain, Optimism and Polygon!</p>
               <p>
                 You are currently connected to <b>{contractProps.name}</b>,{' '}
-                {isNativeMint ? (
-                  <span>So you'll need a bit of ETH to mint some Mitchs.</span>
-                ) : (
+                {isNativeMinting && isNativeMintingSuccess ? 
+                  <span>so you'll need a bit of <b>ETH</b> to mint some Mitchs.</span>
+                 : 
                   <span>
                     so you'll need a bit of{' '}
                     <a
@@ -231,7 +189,7 @@ const Store = () => {
                     </a>{' '}
                     to mint a Mitch.
                   </span>
-                )}
+                }
               </p>
               <h3 className="text-lg font-semibold">
                 Don't see a Mitch you like, or have a special request for a Mitch Pin NFT?
@@ -263,10 +221,10 @@ const Store = () => {
             )}
           </div>
         </div>
-        {!network || rightNetwork ? null : (
+        {!network || isRightNetwork ? null : (
           <div className="fixed z-30 inset-0 flex items-center justify-center bg-black bg-opacity-40">
             <div className="rise-up">
-              <WrongNetwork rightNetwork={correctNetwork} />
+              <WrongNetwork isRightNetwork={correctNetwork} />
             </div>
           </div>
         )}

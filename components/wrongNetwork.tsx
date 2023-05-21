@@ -1,42 +1,36 @@
 import React from 'react'
 import { useEffect, useState } from 'react'
 import ConnectWallet from './connectWallet'
+import { gnosisTestInfo, mumbaiInfo, goerliInfo } from '../utils/networksInfo'
+import { polygon, gnosis, goerli } from 'wagmi/dist/chains'
+import { constants } from '../utils/constants'
 
 interface WrongNetworkProps {
-  rightNetwork: string[] | null
+  isRightNetwork: string[] | null
 }
 
-export const WrongNetwork: React.FC<WrongNetworkProps> = ({ rightNetwork }) => {
+export const WrongNetwork: React.FC<WrongNetworkProps> = ({ isRightNetwork }) => {
   const [networksFormatted, setNetworksFormatted] = useState<string>('')
-  const formatNetworkMessage = (networkArray: string[]) => {
-    const formattedNetworks = networkArray.map((network) => {
-      if (network === 'polygonMumbai') {
-        return 'Polygon Mumbai'
-      } else if (network === 'polygon') {
-        return 'Polygon'
-      } else if (network === 'goerli') {
-        return 'Goerli'
-      } else if (network === 'gnosis') {
-        return 'Gnosis'
-      } else if (network === 'optimism') {
-        return 'Optimism'
-      } else if (network === 'arbitrum') {
-        return 'Arbitrum'
-      }
-    })
-    return formattedNetworks.join(', ')
-  }
-  useEffect(() => {
-    if (rightNetwork) {
-      setNetworksFormatted(formatNetworkMessage(rightNetwork!))
+  let networkNames: String[]
+  if (process.env.NODE_ENV === 'development') {
+    networkNames = constants.DEVELOPMENT_CHAINS.map((chain) => 
+      chain.name.toString())
+    } else {
+      networkNames = constants.PRODUCTION_CHAINS.map((chain) => 
+      chain.name.toString())
     }
-  }, [rightNetwork])
+
+  useEffect(() => {
+    if (isRightNetwork) {
+      setNetworksFormatted(networkNames.join(', '))
+    }
+  }, [isRightNetwork])
   return (
     <div className="min-h-screen z-30">
       <div className="p-4 flex justify-center">
         <div className="place-content-center max-w-[100%] text-2xl p-10 text-center border-solid border-2 bg-gradient-to-br from-[#9D4EDD] to-[#FF9E00] dark:from-[#240046] dark:to-[#ff4800] font-bold rounded-lg border-grey-600 ">
           <p>You are connected to the Wrong Network!</p>
-          {rightNetwork && networksFormatted ? (
+          {isRightNetwork && networksFormatted ? (
             <p>
               Please connect to any of the following networks: <br /> {networksFormatted}
             </p>

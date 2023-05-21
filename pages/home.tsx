@@ -36,7 +36,7 @@ export default function HomePage() {
             <p>
               <b>
                 Want to earn a cool 5-7% interest on 32 ETH you didn't have to buy and hardware you didn't have to run?
-                Come and get it! Want to DONATE that interest to your favourite public good? Now we're talkin'.
+                Come and get it! Want to DONATE that interest to your favourite public good? OH HELL YEAH!🔥🔥
               </b>
             </p>
             <h3 className="text-3xl">What's the deal with Mitch?</h3>
