@@ -19,21 +19,19 @@ const { NEXT_PUBLIC_ALCHEMY_ID, NEXT_PUBLIC_INFURA_ID, NEXT_PUBLIC_ETHERSCAN_API
 const alchemyId = NEXT_PUBLIC_ALCHEMY_ID
 const etherscanApiKey = NEXT_PUBLIC_ETHERSCAN_API_KEY
 
-const { chains, provider} =
- configureChains(
+const { chains, provider } = configureChains(
   [gnosis, polygonMumbai, goerli],
   [
-  alchemyProvider({ apiKey: alchemyId }),
-  jsonRpcProvider({
-    rpc: () => ({
-      priority: 0,
-      http: process.env.GNOSIS_RPC_URL as string
-    })
-  }),
-  publicProvider(),
-],
+    alchemyProvider({ apiKey: alchemyId }),
+    jsonRpcProvider({
+      rpc: () => ({
+        priority: 0,
+        http: process.env.GNOSIS_RPC_URL as string,
+      }),
+    }),
+    publicProvider(),
+  ],
 )
-
 
 const { connectors } = getDefaultWallets({
   appName: 'Web 3 Starter App',
@@ -46,8 +44,7 @@ const wagmiClient = createClient({
   provider,
 })
 
-const currentNetwork = getNetwork().chain?.network as string;
-
+const currentNetwork = getNetwork().chain?.network as string
 
 const App = ({ Component, pageProps }: AppProps) => {
   return (

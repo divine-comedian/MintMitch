@@ -1,28 +1,28 @@
 import type { NextPage } from 'next'
 import Head from 'next/head'
 import { Toaster } from 'react-hot-toast'
-import HomePage from './home';
+import HomePage from './home'
 import Navbar from '../components/navbar'
-import React, { useEffect, useState } from 'react';
-import { selectContractAddress, MintingContractProps } from '../utils/ContractHelper';
-import { getNetwork } from '@wagmi/core';
-import { WrongNetwork } from '../components/wrongNetwork';
-import { checkNetwork } from '../utils/checkNetwork';
-import { useNetwork } from 'wagmi';
-
- 
+import React, { useEffect, useState } from 'react'
+import { selectContractAddress, MintingContractProps } from '../utils/ContractHelper'
+import { WrongNetwork } from '../components/wrongNetwork'
+import { checkNetwork } from '../utils/checkNetwork'
+import { useNetwork } from 'wagmi'
 
 const Home: NextPage = () => {
-  const [correctNetwork, setCorrectNetwork] = useState<string[] | null>(null);
-  const [rightNetwork, setRightNetwork] = useState<boolean | undefined>(undefined);
-  const [network, setNetwork] = useState<string>("goerli");
-  const [contractProps, setContractProps] = useState<MintingContractProps>({ address: process.env.CONTRACT_ADDRESS as string, chainId: 5});
-  
-  const currentNetwork = useNetwork().chain?.network as string;
-  
+  const [correctNetwork, setCorrectNetwork] = useState<string[] | null>(null)
+  const [rightNetwork, setRightNetwork] = useState<boolean | undefined>(undefined)
+  const [network, setNetwork] = useState<string>('goerli')
+  const [contractProps, setContractProps] = useState<MintingContractProps>({
+    address: process.env.CONTRACT_ADDRESS as string,
+    chainId: 5,
+  })
+
+  const currentNetwork = useNetwork().chain?.network as string
+
   useEffect(() => {
-    setNetwork(currentNetwork);
-  }, [currentNetwork]);
+    setNetwork(currentNetwork)
+  }, [currentNetwork])
 
   // useEffect(() => {
   //   const interval = setInterval(() => {
@@ -33,15 +33,14 @@ const Home: NextPage = () => {
   // }, []);
 
   useEffect(() => {
-    setContractProps(selectContractAddress(network));
-  }, [network]);
-
+    setContractProps(selectContractAddress(network))
+  }, [network])
 
   useEffect(() => {
-   const [isRightNetwork, correctNetworkArray] = checkNetwork(network) as Array<any>;
-   setRightNetwork(isRightNetwork);
-    setCorrectNetwork(correctNetworkArray);
-  }, [network]);
+    const [isRightNetwork, correctNetworkArray] = checkNetwork(network) as Array<any>
+    setRightNetwork(isRightNetwork)
+    setCorrectNetwork(correctNetworkArray)
+  }, [network])
   return (
     <div>
       <Head>
@@ -49,18 +48,18 @@ const Home: NextPage = () => {
         <meta name="This is the place to mint your favourite Mitch!" content="" />
         <link rel="icon" href="/Favicon.ico" />
       </Head>
-      <Toaster /> 
-      <Navbar isRightNetwork={rightNetwork} contractProps={contractProps}/>
-      <HomePage/> 
-      {!network || rightNetwork ? null : 
-        <div className='fixed z-20 inset-0 flex items-center justify-center bg-black bg-opacity-40'>
-        <div className='rise-up'>
-          <WrongNetwork rightNetwork={correctNetwork} />
+      <Toaster />
+      <Navbar isRightNetwork={rightNetwork} contractProps={contractProps} />
+      <HomePage />
+      {!network || rightNetwork ? null : (
+        <div className="fixed z-20 inset-0 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="rise-up">
+            <WrongNetwork rightNetwork={correctNetwork} />
           </div>
         </div>
-      }     
+      )}
     </div>
   )
 }
 
-export default Home;
+export default Home

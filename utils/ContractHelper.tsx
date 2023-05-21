@@ -1,5 +1,5 @@
-import { useContractRead, useContractWrite, usePrepareContractWrite, erc20ABI, useAccount } from 'wagmi';
-import {prepareWriteContract, writeContract, fetchBalance, waitForTransaction, readContract,getNetwork} from '@wagmi/core'
+import { useContractRead, erc20ABI } from 'wagmi';
+import {prepareWriteContract, writeContract, fetchBalance, readContract,} from '@wagmi/core'
 import MintingContractJSON from '../artifacts/contracts/MitchMinter.sol/MitchMinter.json'
 import { useEffect, useState } from 'react';
  import { formatEther, parseEther } from 'ethers/lib/utils.js';
