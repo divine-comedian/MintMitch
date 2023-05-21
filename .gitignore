@@ -36,4 +36,5 @@ yarn-error.log*
 
 # Hardhat generated files
 cache/
-artifacts/
+artifacts/@openzeppelin
+artifacts/build-info
