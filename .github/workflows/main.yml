@@ -24,5 +24,5 @@ jobs:
 
     - name: Build
       run: |
-        npx hardhat compile
         yarn install
+        npx hardhat compile
