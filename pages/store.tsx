@@ -191,7 +191,7 @@ const Store = () => {
                     so you'll need a bit of{' '}
                     <a
                       className="text-purple-600"
-                      href={contractProps.explorerLink + 'token/0x' + paymentTokenAddress.substring(2)}
+                      href={contractProps.dexLink + '0x' + paymentTokenAddress.substring(2)}
                       target="_blank"
                       rel="noopener noreferrer"
                     >

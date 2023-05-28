@@ -10,6 +10,7 @@ export interface MintingContractProps {
     address: string;
     chainId?: number;
     explorerLink?: string;
+    dexLink?: string;
     name?: string;
 }
 
@@ -20,6 +21,7 @@ export const selectContractAddress = (network: string) => {
         address: constants.GOERLI_CONTRACT_ADDRESS ,
         chainId: 5,
         explorerLink: constants.GOERLI_ETHERSCAN_URL ,
+        dexLink: 'https://app.uniswap.org/#/swap?outputCurrency=',
         name: 'Goerli'
       }
       console.log("connected to", props.name)
@@ -31,6 +33,7 @@ export const selectContractAddress = (network: string) => {
         address: constants.MUMBAI_CONTRACT_ADDRESS ,
         chainId: 80001,
         explorerLink: constants.NEXT_PUBLIC_MUMBAI_URL ,
+        dexLink: 'https://app.uniswap.org/#/swap?outputCurrency=',
         name: 'Polygon Mumbai'
 
       }
@@ -43,6 +46,7 @@ export const selectContractAddress = (network: string) => {
         address: constants.GNOSIS_TEST_CONTRACT_ADDRESS ,
         chainId: 100,
         explorerLink: constants.NEXT_PUBLIC_GNOSISSCAN_URL ,
+        dexLink: 'https://swap.cow.fi/#/100/swap/XDAI/',
         name: 'Gnosis Chain'
 
       }
@@ -55,6 +59,7 @@ export const selectContractAddress = (network: string) => {
         address: constants.GNOSIS_PROD_CONTRACT ,
         chainId: 100,
         explorerLink: constants.NEXT_PUBLIC_GNOSISSCAN_URL ,
+        dexLink: 'https://swap.cow.fi/#/100/swap/XDAI/',
         name: 'Gnosis Chain'
       }
         console.log("connected to", props.name)
@@ -64,6 +69,7 @@ export const selectContractAddress = (network: string) => {
         address: constants.OPTIMISM_CONTRACT_ADDRESS ,
         chainId: 10,
         explorerLink: constants.NEXT_PUBLIC_OPTIMISM_URL ,
+        dexLink: 'https://app.uniswap.org/#/swap?outputCurrency=',
         name: 'Optimism'
       }
       console.log("connected to", props.name)
@@ -74,6 +80,7 @@ export const selectContractAddress = (network: string) => {
         address: constants.POLYGON_CONTRACT_ADDRESS ,
         chainId: 137,
         explorerLink: constants.NEXT_PUBLIC_POLYGON_URL ,
+        dexLink: 'https://quickswap.exchange/#/swap?currency1=',
         name: 'Polygon'
       }
       console.log("connected to", props.name)
