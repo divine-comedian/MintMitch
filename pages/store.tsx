@@ -85,6 +85,14 @@ const Store = () => {
 
   // welcome to the use effect jungle
   useEffect(() => {
+    if (isNativeMinting) {
+      setIsNativeMint(isNativeMinting as boolean)
+    } else if (isNativeMintingError) {
+      console.log(isNativeMintingErrorInfo)
+    }
+  }, [isNativeMinting, isNativeMintingError])
+
+  useEffect(() => {
     if (isPaymentTokenAddressSuccess) {
       fetchToken({
         address: `0x${(paymentTokenAddressData as string).substring(2)}`,
