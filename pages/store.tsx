@@ -149,6 +149,8 @@ const Store = () => {
           name="This is the page to see all the mitches"
           content="Find all you favourite mitches here and mint them"
         />
+                <link rel="icon" href="/Favicon.ico" />
+
         {/* Add other metadata as needed */}
       </Head>
       <div>

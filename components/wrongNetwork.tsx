@@ -1,8 +1,6 @@
 import React from 'react'
 import { useEffect, useState } from 'react'
 import ConnectWallet from './connectWallet'
-import { gnosisTestInfo, mumbaiInfo, goerliInfo } from '../utils/networksInfo'
-import { polygon, gnosis, goerli } from 'wagmi/dist/chains'
 import { constants } from '../utils/constants'
 
 interface WrongNetworkProps {

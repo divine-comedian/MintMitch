@@ -18,11 +18,15 @@ const alchemyId = NEXT_PUBLIC_ALCHEMY_ID as string
 const etherscanApiKey = NEXT_PUBLIC_ETHERSCAN_API_KEY
 
 let appChains: any[] = []
+let defaultChain: any;
 if (process.env.NODE_ENV === 'development') {
   appChains = constants.DEVELOPMENT_CHAINS
+  defaultChain = constants.DEVELOPMENT_CHAINS[0]
 }
 else if (process.env.NODE_ENV === 'production') {
   appChains = constants.PRODUCTION_CHAINS
+  defaultChain = constants.PRODUCTION_CHAINS[0]
+
 }
 
 
@@ -58,7 +62,7 @@ const App = ({ Component, pageProps }: AppProps) => {
     <ThemeProvider attribute="class">
       <div className="min-h-screen bg-white dark:bg-gray-900 dark:text-white">
         <WagmiConfig client={wagmiClient}>
-          <RainbowKitProvider chains={chains}>
+          <RainbowKitProvider chains={chains} initialChain={defaultChain}>
             <Component {...pageProps} />
           </RainbowKitProvider>
         </WagmiConfig>

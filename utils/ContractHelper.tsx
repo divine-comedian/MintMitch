@@ -22,6 +22,8 @@ export const selectContractAddress = (network: string) => {
         explorerLink: constants.GOERLI_ETHERSCAN_URL ,
         name: 'Goerli'
       }
+      console.log("connected to", props.name)
+
         return props
     }
     else if (network === 'maticmum') {
@@ -32,6 +34,8 @@ export const selectContractAddress = (network: string) => {
         name: 'Polygon Mumbai'
 
       }
+      console.log("connected to", props.name)
+
         return props
     }   
     else if (process.env.NODE_ENV === 'development' && network === 'gnosis') {
@@ -42,6 +46,38 @@ export const selectContractAddress = (network: string) => {
         name: 'Gnosis Chain'
 
       }
+      console.log("connected to", props.name)
+
+        return props
+    }
+    else if (process.env.NODE_ENV === 'production' && network === 'gnosis') {
+      props = {
+        address: constants.GNOSIS_PROD_CONTRACT ,
+        chainId: 100,
+        explorerLink: constants.NEXT_PUBLIC_GNOSISSCAN_URL ,
+        name: 'Gnosis Chain'
+      }
+        console.log("connected to", props.name)
+        return props
+    } else if (network === 'optimism') {
+      props = {
+        address: constants.OPTIMISM_CONTRACT_ADDRESS ,
+        chainId: 10,
+        explorerLink: constants.NEXT_PUBLIC_OPTIMISM_URL ,
+        name: 'Optimism'
+      }
+      console.log("connected to", props.name)
+
+        return props
+    } else if (network === 'matic') {
+      props = {
+        address: constants.POLYGON_CONTRACT_ADDRESS ,
+        chainId: 137,
+        explorerLink: constants.NEXT_PUBLIC_POLYGON_URL ,
+        name: 'Polygon'
+      }
+      console.log("connected to", props.name)
+
         return props
     }
     else {
@@ -50,6 +86,7 @@ export const selectContractAddress = (network: string) => {
         chainId: 5
       }
         console.log("no network deteced, using default")
+        console.log("node env is", process.env.NODE_ENV)
         return props
         
     }
