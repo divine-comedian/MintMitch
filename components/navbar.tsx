@@ -15,6 +15,7 @@ interface IProps {
   isDarkModeToggleVisible?: boolean
   isRightNetwork?: boolean | undefined
   contractProps: MintingContractProps
+  updateBalance?: boolean;
 }
 
 /**
@@ -25,6 +26,7 @@ const Navbar = ({
   displayConnectButton = true,
   isRightNetwork,
   contractProps,
+  updateBalance,
 }: // isNetworkSwitcherVisible = true,
 IProps) => {
   const [progressBar, setProgressBar] = useState(0)
@@ -53,33 +55,38 @@ IProps) => {
       console.log('error getting native mint enabled', nativeMintEnabledErrorInfo)
     }
   }, [isNativeMinting, nativeMintEnabledSuccess,nativeMintEnabledError])
-
-  useEffect(() => {
-    const getBalance = async () => {
-      try {
-        if (isNativeMintEnabled) {
-          getNativeBalance(contractProps.address).then((response) => {
-            setBalance(parseFloat(formatEther(response)))
-          })
-        } else {
-          getPaymentTokenBalance(contractProps.address, contractProps).then((response) => {
-            const formattedBalance = parseFloat(formatEther(response as BigNumber))
-            setBalance(formattedBalance)
-          })
-        }
-      } catch (e) {
-        console.log('error getting balance', e)
+  
+  const getBalance = async () => {
+    try {
+      if (isNativeMinting === true) {
+        getNativeBalance(contractProps.address).then((response) => {
+          setBalance(parseFloat(formatEther(response)))
+        })
+      } else {
+        getPaymentTokenBalance(contractProps.address, contractProps).then((response) => {
+          const formattedBalance = parseFloat(formatEther(response as BigNumber))
+          setBalance(formattedBalance)
+        })
       }
+    } catch (e) {
+      console.log('error getting balance', e)
     }
-    if (isRightNetwork && isNativeMintEnabled) {
+  }
+  useEffect(() => {
+    if (isRightNetwork && isNativeMintEnabled !== undefined) {
       getBalance()
     }
-  }, [contractProps, isNativeMintEnabled])
+  }, [contractProps, isNativeMinting])
+
+  useEffect(() => {
+    getBalance()
+  }, [updateBalance])
+
 
   useEffect(() => {
     const maxEthNeeded = 32
-    const percentComplete = (balance! / maxEthNeeded) * 100
-    setProgressBar(percentComplete)
+    const percentComplete = ((2 + balance!) / maxEthNeeded) * 100
+    setProgressBar(Number(percentComplete.toFixed(3)))
   }, [balance])
 
   return (

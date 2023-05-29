@@ -80,7 +80,7 @@ export const selectContractAddress = (network: string) => {
         address: constants.POLYGON_CONTRACT_ADDRESS ,
         chainId: 137,
         explorerLink: constants.NEXT_PUBLIC_POLYGON_URL ,
-        dexLink: 'https://quickswap.exchange/#/swap?currency1=',
+        dexLink: 'https://app.uniswap.org/#/swap?outputCurrency=',
         name: 'Polygon'
       }
       console.log("connected to", props.name)
@@ -93,7 +93,6 @@ export const selectContractAddress = (network: string) => {
         chainId: 5
       }
         console.log("no network deteced, using default")
-        console.log("node env is", process.env.NODE_ENV)
         return props
         
     }
@@ -213,6 +212,7 @@ export const getPaymentTokenBalance = async (address: string, mintingContractInf
     functionName: 'paymentToken',
     args: [],
     });
+    console.log(paymentTokenAddress)
     const formattedTokenAddress = await paymentTokenAddress as string;
     const paymentTokenBalance = await fetchBalance({
       address: `0x${address}`,
@@ -242,7 +242,6 @@ export const getIsNativeMinting = async (mintingContractInfo: MintingContractPro
       functionName: 'nativeMintEnabled',  
       args: [],
     })
-    console.log("is native minting inside contract", isNativeMinting)
     return isNativeMinting as boolean
   } catch (error) {
     console.log(error)

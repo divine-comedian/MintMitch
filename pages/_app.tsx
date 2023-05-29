@@ -62,7 +62,7 @@ const App = ({ Component, pageProps }: AppProps) => {
     <ThemeProvider attribute="class">
       <div className="min-h-screen bg-white dark:bg-gray-900 dark:text-white">
         <WagmiConfig client={wagmiClient}>
-          <RainbowKitProvider chains={chains} initialChain={defaultChain}>
+          <RainbowKitProvider chains={chains}>
             <Component {...pageProps} />
           </RainbowKitProvider>
         </WagmiConfig>

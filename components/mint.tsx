@@ -30,6 +30,8 @@ interface MintItems {
   isMintModal: Function
   isNativeMintEnabled: boolean
   contractProps: MintingContractProps
+  updateBalance: boolean;
+  setUpdateBalance: Function;
 }
 
 const LoadingSpinner = () => {
@@ -50,7 +52,7 @@ const LoadingSpinner = () => {
   )
 }
 
-export const MintModal = ({ itemsArray, itemSum, isMintModal, isNativeMintEnabled, contractProps }: MintItems) => {
+export const MintModal = ({ itemsArray, itemSum, isMintModal, isNativeMintEnabled, contractProps, setUpdateBalance }: MintItems) => {
   const mintItems = Array.from(itemsArray).map((item) => <li key={item.tokenID}> {item.tokenPrice}</li>)
   const tokenId = itemsArray[0].tokenID
   const tokenBatchIds = itemsArray.map((item) => item.tokenID)
@@ -79,6 +81,8 @@ export const MintModal = ({ itemsArray, itemSum, isMintModal, isNativeMintEnable
     onSuccess(data) {
       console.log('mint tx has succeeded', data)
       setMintState('minted')
+      setUpdateBalance(data)
+      
     },
     onSettled(data) {
       console.log('mint tx has settled', data)
@@ -208,7 +212,6 @@ export const MintModal = ({ itemsArray, itemSum, isMintModal, isNativeMintEnable
     if (connectedAddress) {
       getUserBalance(connectedAddress)
     }
-    console.log(connectedAccount)
   }, [isNativeMintEnabled, connectedAccount])
 
   useEffect(() => {
@@ -354,7 +357,7 @@ export const MintModal = ({ itemsArray, itemSum, isMintModal, isNativeMintEnable
   }
 
   return (
-    <div className=" bg-gradient-to-r from-cyan-400 to-blue-400 dark:from-blue-600 dark:to-cyan-600 md:min-w-[400px] xs:w-[200px] p-4 m-4 rounded-lg">
+    <div className=" bg-gradient-to-r from-cyan-400 to-blue-400 dark:from-blue-600 dark:to-cyan-600 max-w-[500px] md:min-w-[400px] xs:w-[200px] p-4 m-4 rounded-lg">
       <div className="float-right">
         <button
           className="font-bold text-lg py-0.5 px-2 hover:rounded-full hover:bg-gray-300/80"
@@ -364,13 +367,13 @@ export const MintModal = ({ itemsArray, itemSum, isMintModal, isNativeMintEnable
         </button>
       </div>
       <h2 className="text-2xl font-bold mb-4">Minting Time. 😎 </h2>
-      <p className="text-gray-600">
+      <div className="text-gray-600">
         {parseFloat(formatEther(userBalance)) < itemSum ? (
           <p className="text-red-600 text-lg">You don't have the required funds! Your current balance is {itemSum} </p>
         ) : (
           mintStateRender()
         )}
-      </p>
+      </div>
     </div>
   )
 }

@@ -4,13 +4,14 @@ interface cartItems {
   itemsArray: any[]
   itemSum: number
   isMintModal: Function
+  paymentTokenSymbol: string
 }
 
-export const CartModal = ({ itemsArray, itemSum, isMintModal }: cartItems) => {
+export const CartModal = ({ itemsArray, itemSum, isMintModal, paymentTokenSymbol }: cartItems) => {
   const cartItems = Array.from(itemsArray).map((item) => (
     <li key={item.tokenID}>
       {' '}
-      {item.tokenName}: {item.tokenPrice} ETH
+      {item.tokenName}: {item.tokenPrice} {paymentTokenSymbol}
     </li>
   ))
   return (
@@ -21,7 +22,7 @@ export const CartModal = ({ itemsArray, itemSum, isMintModal }: cartItems) => {
           <hr className="border-t border-gray-400 dark:border-gray-300 my-4" />
 
           <ul>{itemsArray.length === 0 ? "No items added yet! :'(" : cartItems}</ul>
-          <p>Final Price: {itemSum} ETH</p>
+          <p>Final Price: {itemSum} {paymentTokenSymbol}</p>
           <button
             className={
               itemsArray.length === 0

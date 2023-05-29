@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { createContext, useCallback } from 'react'
 import { NFTCard } from '../components/NFTCard'
 import Navbar from '../components/navbar'
 import { selectContractAddress } from '../utils/ContractHelper'
@@ -21,6 +21,7 @@ interface Item {
 }
 
 const Store = () => {
+  const [updateBalance, setUpdateBalance ] = useState<any>()
   const [isRightNetwork, setisRightNetwork] = useState<boolean | undefined>(undefined)
   const [showMintModal, setShowMintModal] = React.useState(false)
   const [isNativeMint, setIsNativeMint] = useState<boolean>(false)
@@ -84,8 +85,9 @@ const Store = () => {
 
 
   // welcome to the use effect jungle
+
   useEffect(() => {
-    if (isNativeMinting) {
+    if (isNativeMinting !== undefined) {
       setIsNativeMint(isNativeMinting as boolean)
     } else if (isNativeMintingError) {
       console.log(isNativeMintingErrorInfo)
@@ -162,7 +164,7 @@ const Store = () => {
         {/* Add other metadata as needed */}
       </Head>
       <div>
-        <Navbar isRightNetwork={isRightNetwork} contractProps={contractProps} />
+        <Navbar isRightNetwork={isRightNetwork} contractProps={contractProps} updateBalance={updateBalance} />
         {showMintModal ? (
           <div className="fixed z-30 inset-0 flex items-center justify-center bg-black bg-opacity-40">
             <div className="rise-up">
@@ -172,6 +174,8 @@ const Store = () => {
                 isMintModal={isMintModal}
                 isNativeMintEnabled={isNativeMint}
                 contractProps={contractProps}
+                updateBalance={updateBalance}
+                setUpdateBalance={setUpdateBalance}
               />
             </div>
           </div>
@@ -220,7 +224,7 @@ const Store = () => {
               </p>
             </div>
             <div className="lg:fixed lg:float-right z-20 lg:top-40 right-10 mr-5 xl:max-w-[26%]">
-              <CartModal itemsArray={mintingCart} itemSum={cartTotal} isMintModal={isMintModal} />
+              <CartModal itemsArray={mintingCart} itemSum={cartTotal} isMintModal={isMintModal} paymentTokenSymbol={paymentTokenSymbol} />
             </div>
             {nftCards ? (
               <div className="flex-initial grid xl:grid-cols-2 grid-cols-1 gap-2 gap-x-6 sm:max-w-[50%] xl:max-w-[66%] ">
