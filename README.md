@@ -10,7 +10,9 @@ This application uses these frameworks:
 - wagmi
 - rainbow kit
 
-You can visit the production site at [mintmitch.xyz](https://mintmitch.xyz)
+You can visit the production site at [mintmitch.xyz](https://mintmitch.xyz). 
+
+Also, you can find me on twitter at [@divine_comedian](https://twitter.com/divine_comedian).
 
 
 ## How to run locally
@@ -22,3 +24,8 @@ You can visit the production site at [mintmitch.xyz](https://mintmitch.xyz)
 
 
 ## Env Variables
+
+1. copy `.env.example` to `.env.development`
+2. fill in the variables with your own values
+3. run `yarn dev` to start the dev server
+
