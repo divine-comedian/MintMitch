@@ -1,7 +1,6 @@
-import { useContractRead, erc20ABI } from 'wagmi';
+import { erc20ABI } from 'wagmi';
 import {prepareWriteContract, writeContract, fetchBalance, readContract,} from '@wagmi/core'
 import MintingContractJSON from '../artifacts/contracts/MitchMinter.sol/MitchMinter.json'
-import { useEffect, useState } from 'react';
  import { formatEther, parseEther } from 'ethers/lib/utils.js';
 import { BigNumber } from 'ethers';
 import { constants } from './constants';
@@ -248,93 +247,4 @@ export const getIsNativeMinting = async (mintingContractInfo: MintingContractPro
   }
 }
 
-export const useTokenInfo = (tokenId: number, mintingContractInfo: MintingContractProps) => {
-    const [tokenURI, setTokenURI] = useState('')
-    const [tokenPrice, setTokenPrice] = useState('')
-    const _tokenInfo = useContractRead({
-        address: `0x${mintingContractInfo.address}`,
-        abi: MintingContractJSON.abi,
-        functionName: 'getTokenInfo',
-        args: [tokenId]
-    });
-    async function fetchData(tokenId: number) {
-        const [newTokenPriceHex, newTokenURI] = await _tokenInfo.data as [string, string]
-        const newTokenPrice = formatEther(newTokenPriceHex) 
-        setTokenURI(newTokenURI)
-        setTokenPrice(newTokenPrice)
-    }
-
-    useEffect(() => {
-      if (_tokenInfo.data) {
-        fetchData(tokenId);
-      }
-    }, [_tokenInfo.data]);
-   // const [tokenPrice, tokenURI] = tokenInfo.data as [BigNumber, string]
-    return  ([tokenPrice, tokenURI]) 
-}
-
-
-export const useUniqueTokens = (mintingContractInfo: MintingContractProps) => { 
-    const [uniqueToken, setUniqueToken] = useState(0)
-    const getUniqueTokens = useContractRead({
-        address: `0x${mintingContractInfo.address}`,
-        abi: MintingContractJSON.abi,
-        functionName: 'getUniqueTokens',
-        args: []
-    });
-   
-    useEffect(() => {
-        if (getUniqueTokens.data) {
-            const updatedUniqueToken = getUniqueTokens.data as number;
-            setUniqueToken(updatedUniqueToken);
-        }
-     } , [getUniqueTokens.data]);
-    return uniqueToken
-}
-
-
-export const usePaymentTokenBalance = (addressToCheck: string, mintingContractInfo: MintingContractProps) => {
-    const [paymentTokenBalance, setPaymentTokenBalance] = useState<number | null>(null);
-    const [paymentTokenAddress, setPaymentTokenAddress] = useState<string | null>(null);
-    const getPaymentTokenAddress = useContractRead({
-      address: `0x${mintingContractInfo.address}`,
-      abi: MintingContractJSON.abi,
-      functionName: 'paymentToken',
-      args: [],
-    });
   
-    useEffect(() => {
-      if (getPaymentTokenAddress.data) {
-        const updatedPaymentTokenAddress = getPaymentTokenAddress.data as string;
-        setPaymentTokenAddress(updatedPaymentTokenAddress.slice(2));
-      }
-    }, [getPaymentTokenAddress.data]);
-  
-    const getBalanceData = useContractRead({
-      address: `0x${paymentTokenAddress}`,
-      abi: erc20ABI,
-      functionName: 'balanceOf',
-      args: [`0x${addressToCheck}`],
-    });
-  
-    useEffect(() => {
-      if (getBalanceData.data) {
-        const formattedBalance = parseFloat(formatEther(getBalanceData.data as BigNumber));
-        setPaymentTokenBalance(formattedBalance);
-      }
-    }, [getBalanceData.data]);
-  
-    return paymentTokenBalance;
-  };
-  
-
-  export const useIfNativeTokenMinting = (mintingContractInfo: MintingContractProps) => {
-    const response = useContractRead({
-    address: `0x${mintingContractInfo.address}`,
-    abi: MintingContractJSON.abi,
-    functionName: 'nativeMintEnabled',  
-    args: [],
-  })
-
-  return response.data as boolean
-};
