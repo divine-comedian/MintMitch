@@ -39,6 +39,25 @@ export default function HomePage() {
                 Come and get it! Want to DONATE that interest to your favourite public good? OH HELL YEAH!🔥🔥
               </b>
             </p>
+            <h3 className='text-2xl pt-4'><code>Show me the code!</code></h3>
+              <p>
+                If you're one of those <code>code</code> guys that likes to see what's under the hood before you get in the car then give a look and a like ⭐ to my Github repositories.
+                </p>
+                 <ul className='list-disc list-inside pb-4'>
+                  <li className=''><a
+                className="text-purple-600"
+                target="_blank"
+                rel="noopener noreferrer"
+                href="https://github.com/divine-comedian/MintMitch"
+              >Mint Mitch Website</a></li>
+                  <li><a
+                className="text-purple-600"
+                target="_blank"
+                rel="noopener noreferrer"
+                href="https://github.com/divine-comedian/MitchMinterContracts"
+              >MitchMinter Contracts & Tests</a></li>
+                 </ul>
+              
             <h3 className="text-3xl">What's the deal with Mitch?</h3>
             <p>
               I imagine most of you visiting this page are my beloved friends, but if for some reason this bad boy goes
