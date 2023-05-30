@@ -9,13 +9,12 @@ import ConnectWallet from './connectWallet'
 import { useContractRead } from 'wagmi'
 import MintingContractJSON from '../artifacts/contracts/MitchMinter.sol/MitchMinter.json'
 
-
 interface IProps {
   displayConnectButton?: boolean
   isDarkModeToggleVisible?: boolean
   isRightNetwork?: boolean | undefined
   contractProps: MintingContractProps
-  updateBalance?: boolean;
+  updateBalance?: boolean
 }
 
 /**
@@ -54,8 +53,8 @@ IProps) => {
     } else if (nativeMintEnabledError) {
       console.log('error getting native mint enabled', nativeMintEnabledErrorInfo)
     }
-  }, [isNativeMinting, nativeMintEnabledSuccess,nativeMintEnabledError])
-  
+  }, [isNativeMinting, nativeMintEnabledSuccess, nativeMintEnabledError])
+
   const getBalance = async () => {
     try {
       if (isNativeMinting === true) {
@@ -81,7 +80,6 @@ IProps) => {
   useEffect(() => {
     getBalance()
   }, [updateBalance])
-
 
   useEffect(() => {
     const maxEthNeeded = 32

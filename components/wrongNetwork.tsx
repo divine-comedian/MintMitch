@@ -11,12 +11,10 @@ export const WrongNetwork: React.FC<WrongNetworkProps> = ({ isRightNetwork }) =>
   const [networksFormatted, setNetworksFormatted] = useState<string>('')
   let networkNames: String[]
   if (process.env.NODE_ENV === 'development') {
-    networkNames = constants.DEVELOPMENT_CHAINS.map((chain) => 
-      chain.name.toString())
-    } else {
-      networkNames = constants.PRODUCTION_CHAINS.map((chain) => 
-      chain.name.toString())
-    }
+    networkNames = constants.DEVELOPMENT_CHAINS.map((chain) => chain.name.toString())
+  } else {
+    networkNames = constants.PRODUCTION_CHAINS.map((chain) => chain.name.toString())
+  }
 
   useEffect(() => {
     if (isRightNetwork) {

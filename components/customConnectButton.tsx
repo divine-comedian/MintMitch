@@ -1,30 +1,18 @@
-import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { ConnectButton } from '@rainbow-me/rainbowkit'
 export const CustomConnectButton = () => {
   return (
     <ConnectButton.Custom>
-      {({
-        account,
-        chain,
-        openAccountModal,
-        openChainModal,
-        openConnectModal,
-        authenticationStatus,
-        mounted,
-      }) => {
+      {({ account, chain, openAccountModal, openChainModal, openConnectModal, authenticationStatus, mounted }) => {
         // Note: If your app doesn't use authentication, you
         // can remove all 'authenticationStatus' checks
-        const ready = mounted && authenticationStatus !== 'loading';
+        const ready = mounted && authenticationStatus !== 'loading'
         const connected =
-          ready &&
-          account &&
-          chain &&
-          (!authenticationStatus ||
-            authenticationStatus === 'authenticated');
+          ready && account && chain && (!authenticationStatus || authenticationStatus === 'authenticated')
         return (
           <div
             {...(!ready && {
               'aria-hidden': true,
-              'style': {
+              style: {
                 opacity: 0,
                 pointerEvents: 'none',
                 userSelect: 'none',
@@ -37,22 +25,18 @@ export const CustomConnectButton = () => {
                   <button onClick={openConnectModal} type="button">
                     Connect Wallet
                   </button>
-                );
+                )
               }
               if (chain.unsupported) {
                 return (
                   <button onClick={openChainModal} type="button">
                     Wrong network
                   </button>
-                );
+                )
               }
               return (
                 <div style={{ display: 'flex', gap: 12 }}>
-                  <button
-                    onClick={openChainModal}
-                    style={{ display: 'flex', alignItems: 'center' }}
-                    type="button"
-                  >
+                  <button onClick={openChainModal} style={{ display: 'flex', alignItems: 'center' }} type="button">
                     {chain.hasIcon && (
                       <div
                         style={{
@@ -65,11 +49,7 @@ export const CustomConnectButton = () => {
                         }}
                       >
                         {chain.iconUrl && (
-                          <img
-                            alt={chain.name ?? 'Chain icon'}
-                            src={chain.iconUrl}
-                            style={{ width: 12, height: 12 }}
-                          />
+                          <img alt={chain.name ?? 'Chain icon'} src={chain.iconUrl} style={{ width: 12, height: 12 }} />
                         )}
                       </div>
                     )}
@@ -77,16 +57,14 @@ export const CustomConnectButton = () => {
                   </button>
                   <button onClick={openAccountModal} type="button">
                     {account.displayName}
-                    {account.displayBalance
-                      ? ` (${account.displayBalance})`
-                      : ''}
+                    {account.displayBalance ? ` (${account.displayBalance})` : ''}
                   </button>
                 </div>
-              );
+              )
             })()}
           </div>
-        );
+        )
       }}
     </ConnectButton.Custom>
-  );
-};
+  )
+}

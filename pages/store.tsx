@@ -1,4 +1,4 @@
-import React, { createContext, useCallback } from 'react'
+import React, { useCallback } from 'react'
 import { NFTCard } from '../components/NFTCard'
 import Navbar from '../components/navbar'
 import { selectContractAddress } from '../utils/ContractHelper'
@@ -21,7 +21,7 @@ interface Item {
 }
 
 const Store = () => {
-  const [updateBalance, setUpdateBalance ] = useState<any>()
+  const [updateBalance, setUpdateBalance] = useState<any>()
   const [isRightNetwork, setisRightNetwork] = useState<boolean | undefined>(undefined)
   const [showMintModal, setShowMintModal] = React.useState(false)
   const [isNativeMint, setIsNativeMint] = useState<boolean>(false)
@@ -38,7 +38,12 @@ const Store = () => {
   const [paymentTokenSymbol, setPaymentTokenSymbol] = useState<string>('')
   const currentNetwork = useNetwork().chain?.network as string
 
-  const { data: isNativeMinting, isSuccess: isNativeMintingSuccess, isError: isNativeMintingError, error: isNativeMintingErrorInfo  } = useContractRead({
+  const {
+    data: isNativeMinting,
+    isSuccess: isNativeMintingSuccess,
+    isError: isNativeMintingError,
+    error: isNativeMintingErrorInfo,
+  } = useContractRead({
     address: `0x${contractProps.address}`,
     abi: MintingContractJSON.abi,
     functionName: 'nativeMintEnabled',
@@ -83,7 +88,6 @@ const Store = () => {
     setMintingCart((prevMintingCart) => prevMintingCart.filter((i) => i.tokenID !== item.tokenID))
   }, [])
 
-
   // welcome to the use effect jungle
 
   useEffect(() => {
@@ -108,7 +112,6 @@ const Store = () => {
     }
   }, [paymentTokenAddressData])
 
-  
   useEffect(() => {
     if (newUniqueTokens !== undefined) {
       setUniqueTokens(newUniqueTokens as number)
@@ -159,7 +162,7 @@ const Store = () => {
           name="This is the page to see all the mitches"
           content="Find all you favourite mitches here and mint them"
         />
-                <link rel="icon" href="/Favicon.ico" />
+        <link rel="icon" href="/Favicon.ico" />
 
         {/* Add other metadata as needed */}
       </Head>
@@ -188,9 +191,11 @@ const Store = () => {
               <p>You can Mint any Mitchs you like on Gnosis Chain, Optimism and Polygon!</p>
               <p>
                 You are currently connected to <b>{contractProps.name}</b>,{' '}
-                {isNativeMinting && isNativeMintingSuccess ? 
-                  <span>so you'll need a bit of <b>ETH</b> to mint some Mitchs.</span>
-                 : 
+                {isNativeMinting && isNativeMintingSuccess ? (
+                  <span>
+                    so you'll need a bit of <b>ETH</b> to mint some Mitchs.
+                  </span>
+                ) : (
                   <span>
                     so you'll need a bit of{' '}
                     <a
@@ -203,7 +208,7 @@ const Store = () => {
                     </a>{' '}
                     to mint a Mitch.
                   </span>
-                }
+                )}
               </p>
               <h3 className="text-lg font-semibold">
                 Don't see a Mitch you like, or have a special request for a Mitch Pin NFT?
@@ -224,7 +229,12 @@ const Store = () => {
               </p>
             </div>
             <div className="lg:fixed lg:float-right z-20 lg:top-40 right-10 mr-5 xl:max-w-[26%]">
-              <CartModal itemsArray={mintingCart} itemSum={cartTotal} isMintModal={isMintModal} paymentTokenSymbol={paymentTokenSymbol} />
+              <CartModal
+                itemsArray={mintingCart}
+                itemSum={cartTotal}
+                isMintModal={isMintModal}
+                paymentTokenSymbol={paymentTokenSymbol}
+              />
             </div>
             {nftCards ? (
               <div className="flex-initial grid xl:grid-cols-2 grid-cols-1 gap-2 gap-x-6 sm:max-w-[50%] xl:max-w-[66%] ">

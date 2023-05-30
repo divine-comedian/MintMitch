@@ -22,7 +22,9 @@ export const CartModal = ({ itemsArray, itemSum, isMintModal, paymentTokenSymbol
           <hr className="border-t border-gray-400 dark:border-gray-300 my-4" />
 
           <ul>{itemsArray.length === 0 ? "No items added yet! :'(" : cartItems}</ul>
-          <p>Final Price: {itemSum} {paymentTokenSymbol}</p>
+          <p>
+            Final Price: {itemSum} {paymentTokenSymbol}
+          </p>
           <button
             className={
               itemsArray.length === 0

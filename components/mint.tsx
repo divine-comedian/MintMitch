@@ -1,14 +1,6 @@
 import React from 'react'
-import {
-  usePrepareContractWrite,
-  useNetwork,
-  useContractWrite,
-  useWaitForTransaction,
-  useAccount,
-  useContractRead,
-} from 'wagmi'
-import { erc20ABI, fetchBalance, prepareWriteContract, writeContract, getAccount, getNetwork } from '@wagmi/core'
-import MintingContractJSON from '../artifacts/contracts/MitchMinter.sol/MitchMinter.json'
+import { useNetwork, useWaitForTransaction, useAccount } from 'wagmi'
+import { getAccount } from '@wagmi/core'
 import { useState, useEffect } from 'react'
 import { BigNumber } from 'ethers'
 import {
@@ -17,7 +9,6 @@ import {
   mintBatchTokensNative,
   mintTokens,
   mintTokensNative,
-  selectContractAddress,
   approveTokens,
   getNativeBalance,
   getPaymentTokenBalance,
@@ -30,8 +21,8 @@ interface MintItems {
   isMintModal: Function
   isNativeMintEnabled: boolean
   contractProps: MintingContractProps
-  updateBalance: boolean;
-  setUpdateBalance: Function;
+  updateBalance: boolean
+  setUpdateBalance: Function
 }
 
 const LoadingSpinner = () => {
@@ -52,7 +43,14 @@ const LoadingSpinner = () => {
   )
 }
 
-export const MintModal = ({ itemsArray, itemSum, isMintModal, isNativeMintEnabled, contractProps, setUpdateBalance }: MintItems) => {
+export const MintModal = ({
+  itemsArray,
+  itemSum,
+  isMintModal,
+  isNativeMintEnabled,
+  contractProps,
+  setUpdateBalance,
+}: MintItems) => {
   const mintItems = Array.from(itemsArray).map((item) => <li key={item.tokenID}> {item.tokenPrice}</li>)
   const tokenId = itemsArray[0].tokenID
   const tokenBatchIds = itemsArray.map((item) => item.tokenID)
@@ -82,7 +80,6 @@ export const MintModal = ({ itemsArray, itemSum, isMintModal, isNativeMintEnable
       console.log('mint tx has succeeded', data)
       setMintState('minted')
       setUpdateBalance(data)
-      
     },
     onSettled(data) {
       console.log('mint tx has settled', data)
