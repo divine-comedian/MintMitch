@@ -1,4 +1,4 @@
-import { polygonMumbai, optimism, goerli, gnosis, polygon } from 'wagmi/chains'
+import { polygonMumbai, optimism, goerli, gnosis, polygon, } from 'wagmi/chains'
 
 export const constants = {
      GOERLI_CONTRACT_ADDRESS: '0B69e08D2dfc3aed5F27cbD3ec8B7015053472ad',
@@ -13,6 +13,6 @@ export const constants = {
      NEXT_PUBLIC_MUMBAI_URL: 'https://mumbai.polygonscan.com/',
      NEXT_PUBLIC_POLYGON_URL: 'https://polygonscan.com/',
      NEXT_PUBLIC_OPTIMISM_URL: 'https://optimistic.etherscan.io/',
-     PRODUCTION_CHAINS: [optimism, polygon, gnosis],
-     DEVELOPMENT_CHAINS: [goerli, polygonMumbai, gnosis],
+     PRODUCTION_CHAINS: [optimism, polygon, {...gnosis, iconUrl: 'https://honeyswap.1hive.eth.limo/static/media/gnosis-chain-logo.png'}],
+     DEVELOPMENT_CHAINS: [goerli, polygonMumbai, {...gnosis, iconUrl: 'https://honeyswap.1hive.eth.limo/static/media/gnosis-chain-logo.png'}],
 } 

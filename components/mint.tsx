@@ -1,5 +1,5 @@
 import React from 'react'
-import { useNetwork, useWaitForTransaction, useAccount } from 'wagmi'
+import { useWaitForTransaction, useAccount } from 'wagmi'
 import { getAccount } from '@wagmi/core'
 import { useState, useEffect } from 'react'
 import { BigNumber } from 'ethers'
@@ -10,8 +10,8 @@ import {
   mintTokens,
   mintTokensNative,
   approveTokens,
-  getNativeBalance,
-  getPaymentTokenBalance,
+  // getNativeBalance,
+  // getPaymentTokenBalance,
 } from '../utils/ContractHelper'
 import { formatEther, parseEther } from 'ethers/lib/utils.js'
 
@@ -23,6 +23,7 @@ interface MintItems {
   contractProps: MintingContractProps
   updateBalance: boolean
   setUpdateBalance: Function
+  userBalance: BigNumber
 }
 
 const LoadingSpinner = () => {
@@ -50,24 +51,35 @@ export const MintModal = ({
   isNativeMintEnabled,
   contractProps,
   setUpdateBalance,
+  userBalance,
 }: MintItems) => {
-  const mintItems = Array.from(itemsArray).map((item) => <li key={item.tokenID}> {item.tokenPrice}</li>)
   const tokenId = itemsArray[0].tokenID
   const tokenBatchIds = itemsArray.map((item) => item.tokenID)
+  const tokenLinks = itemsArray.map((item) => (
+    <li className="text-purple-600 py-1 text-lg hover:text-purple-700 font-bold" key={item.tokenID}>
+      {' '}
+      <a
+        target="_blank"
+        rel="noreferrer noopener"
+        href={`${contractProps.nftExplorerLink}0x` + contractProps.address + '/' + item.tokenID}
+      >
+        {item.tokenName}
+      </a>
+    </li>
+  ))
   const tokenAmounts = itemsArray.map((item) => 1)
-  const [connectedAccount, setConnectedAccount] = useState<string | undefined>('')
-  const [userBalance, setUserBalance] = useState<BigNumber>(BigNumber.from(0))
+  // const [connectedAccount, setConnectedAccount] = useState<string | undefined>('')
   const [mintTxHash, setMintTxHash] = useState<string | undefined>(undefined)
   const [approveTxHash, setApproveTxHash] = useState<string | undefined>(undefined)
   const [mintState, setMintState] = useState<string>('not approved')
   const connectedAddress = useAccount().address as string
   const [errorMessage, setErrorMessage] = useState<string>('')
-  const [network, setNetwork] = useState<string>(process.env.NEXT_PUBLIC_DEFAULT_NETWORK as string)
-  const currentNetwork = useNetwork().chain?.network as string
+  // const [network, setNetwork] = useState<string>(process.env.NEXT_PUBLIC_DEFAULT_NETWORK as string)
+  // const currentNetwork = useNetwork().chain?.network as string
 
-  useEffect(() => {
-    setNetwork(currentNetwork)
-  }, [currentNetwork])
+  // useEffect(() => {
+  //   setNetwork(currentNetwork)
+  // }, [currentNetwork])
 
   const waitForMint = useWaitForTransaction({
     hash: `0x${mintTxHash}`,
@@ -162,7 +174,6 @@ export const MintModal = ({
   const handleApprove = async () => {
     console.log(mintTxHash)
     const connectedAddress = await getAccount().address?.toString().substring(2)
-    setConnectedAccount(connectedAddress)
     if (connectedAddress) {
       setMintState('approve pending')
       approveTokens(parseEther(itemSum.toString()), contractProps)
@@ -196,20 +207,20 @@ export const MintModal = ({
     }
   }, [isNativeMintEnabled])
 
-  useEffect(() => {
-    const connectedAddress = getAccount().address?.toString().substring(2)
-    setConnectedAccount(connectedAddress)
-    const getUserBalance = async (accountAddress: string) => {
-      if (isNativeMintEnabled && connectedAddress) {
-        getNativeBalance(connectedAddress).then((balance) => setUserBalance(balance))
-      } else if (connectedAddress) {
-        getPaymentTokenBalance(connectedAddress, contractProps).then((balance) => setUserBalance(balance as BigNumber))
-      }
-    }
-    if (connectedAddress) {
-      getUserBalance(connectedAddress)
-    }
-  }, [isNativeMintEnabled, connectedAccount])
+  // useEffect(() => {
+  //   const connectedAddress = getAccount().address?.toString().substring(2)
+  //   setConnectedAccount(connectedAddress)
+  //   const getUserBalance = async (accountAddress: string) => {
+  //     if (isNativeMintEnabled && connectedAddress) {
+  //       getNativeBalance(connectedAddress).then((balance) => setUserBalance(balance))
+  //     } else if (connectedAddress) {
+  //       getPaymentTokenBalance(connectedAddress, contractProps).then((balance) => setUserBalance(balance as BigNumber))
+  //     }
+  //   }
+  //   if (connectedAddress) {
+  //     getUserBalance(connectedAddress)
+  //   }
+  // }, [isNativeMintEnabled, connectedAccount])
 
   useEffect(() => {
     if (approveTxHash) {
@@ -328,6 +339,10 @@ export const MintModal = ({
         return (
           <div className="space-y-2 font-medium dark:text-white">
             <p>Amazing! Thank you so much for minting some mitch and supporting me in my goals!</p>
+
+            <h3 className="text-xl font-bold">Check out your Mitch's here:</h3>
+            <ul>{tokenLinks}</ul>
+
             <p>
               You also received {itemsArray.length} $MITCH token{itemsArray.length > 1 ? 's' : ''}. Remember:{' '}
               <i>...with great $MITCH comes great responsibility...</i>
@@ -339,7 +354,7 @@ export const MintModal = ({
                 rel="noopener noreferrer"
                 href={contractProps.explorerLink + 'tx/0x' + mintTxHash}
               >
-                Click here to see your minting transaction.
+                View your minting transaction.
               </a>
             </p>
           </div>

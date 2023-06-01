@@ -10,6 +10,7 @@ export interface MintingContractProps {
     chainId?: number;
     explorerLink?: string;
     dexLink?: string;
+    nftExplorerLink?: string;
     name?: string;
 }
 
@@ -21,6 +22,7 @@ export const selectContractAddress = (network: string) => {
         chainId: 5,
         explorerLink: constants.GOERLI_ETHERSCAN_URL ,
         dexLink: 'https://app.uniswap.org/#/swap?outputCurrency=',
+        nftExplorerLink: 'https://testnets.opensea.io/assets/goerli/',
         name: 'Goerli'
       }
       console.log("connected to", props.name)
@@ -33,6 +35,7 @@ export const selectContractAddress = (network: string) => {
         chainId: 80001,
         explorerLink: constants.NEXT_PUBLIC_MUMBAI_URL ,
         dexLink: 'https://app.uniswap.org/#/swap?outputCurrency=',
+        nftExplorerLink: 'https://testnets.opensea.io/assets/mumbai/',
         name: 'Polygon Mumbai'
 
       }
@@ -46,6 +49,7 @@ export const selectContractAddress = (network: string) => {
         chainId: 100,
         explorerLink: constants.NEXT_PUBLIC_GNOSISSCAN_URL ,
         dexLink: 'https://swap.cow.fi/#/100/swap/XDAI/',
+        nftExplorerLink: 'https://gnosis.nftscan.com/',
         name: 'Gnosis Chain'
 
       }
@@ -59,6 +63,7 @@ export const selectContractAddress = (network: string) => {
         chainId: 100,
         explorerLink: constants.NEXT_PUBLIC_GNOSISSCAN_URL ,
         dexLink: 'https://swap.cow.fi/#/100/swap/XDAI/',
+        nftExplorerLink: 'https://gnosis.nftscan.com/',
         name: 'Gnosis Chain'
       }
         console.log("connected to", props.name)
@@ -69,6 +74,7 @@ export const selectContractAddress = (network: string) => {
         chainId: 10,
         explorerLink: constants.NEXT_PUBLIC_OPTIMISM_URL ,
         dexLink: 'https://app.uniswap.org/#/swap?outputCurrency=',
+        nftExplorerLink: 'https://optimism.nftscan.com/',
         name: 'Optimism'
       }
       console.log("connected to", props.name)
@@ -80,6 +86,7 @@ export const selectContractAddress = (network: string) => {
         chainId: 137,
         explorerLink: constants.NEXT_PUBLIC_POLYGON_URL ,
         dexLink: 'https://app.uniswap.org/#/swap?outputCurrency=',
+        nftExplorerLink: 'https://polygon.nftscan.com/',
         name: 'Polygon'
       }
       console.log("connected to", props.name)

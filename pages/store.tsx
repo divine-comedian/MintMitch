@@ -8,11 +8,12 @@ import { WrongNetwork } from '../components/wrongNetwork'
 import { MintModal } from '../components/mint'
 import Head from 'next/head'
 import { checkNetwork } from '../utils/checkNetwork'
-import { MintingContractProps } from '../utils/ContractHelper'
-import { useNetwork, useContractRead } from 'wagmi'
+import { MintingContractProps, getNativeBalance, getPaymentTokenBalance } from '../utils/ContractHelper'
+import { useNetwork, useContractRead, useAccount } from 'wagmi'
 import MintingContractJSON from '../artifacts/contracts/MitchMinter.sol/MitchMinter.json'
 import { fetchToken } from '@wagmi/core'
 import { constants } from '../utils/constants'
+import { BigNumber } from 'ethers'
 
 interface Item {
   tokenID: number
@@ -29,14 +30,18 @@ const Store = () => {
   const [uniqueTokens, setUniqueTokens] = useState(0)
   const [correctNetwork, setCorrectNetwork] = useState<string[] | null>(null)
   const [nftCards, setNftCards] = useState([]) as [any, any]
-  const [network, setNetwork] = useState<string>(process.env.NEXT_PUBLIC_DEFAULT_NETWORK as string)
-  const [contractProps, setContractProps] = useState<MintingContractProps>({
+  const [userBalance, setUserBalance] = useState<BigNumber>(BigNumber.from(0))
+  const [network, setNetwork] = useState<string>()
+  const [contractProps, setContractProps] = useState<MintingContractProps>(
+    {
     address: constants.GOERLI_CONTRACT_ADDRESS,
     chainId: 5,
-  })
+  }
+  )
   const [paymentTokenAddress, setPaymentTokenAddress] = useState<string>('')
   const [paymentTokenSymbol, setPaymentTokenSymbol] = useState<string>('')
   const currentNetwork = useNetwork().chain?.network as string
+  const account = useAccount().address
 
   const {
     data: isNativeMinting,
@@ -89,6 +94,20 @@ const Store = () => {
   }, [])
 
   // welcome to the use effect jungle
+  useEffect(() => {
+    const getUserBalance = async (accountAddress: string) => {
+      if (isNativeMint && account) {
+        getNativeBalance(accountAddress.substring(2)).then((balance) => setUserBalance(balance))
+      } else if (account) {
+        getPaymentTokenBalance(accountAddress.substring(2), contractProps).then((balance) =>
+          setUserBalance(balance as BigNumber),
+        )
+      }
+    }
+    if (account) {
+      getUserBalance(account)
+    }
+  }, [isNativeMint, account])
 
   useEffect(() => {
     if (isNativeMinting !== undefined) {
@@ -147,12 +166,6 @@ const Store = () => {
     setContractProps(selectContractAddress(currentNetwork))
   }, [currentNetwork])
 
-  const cartItems = Array.from(mintingCart).map((item) => (
-    <li key={item.tokenID}>
-      {' '}
-      {item.tokenName} {item.tokenPrice}
-    </li>
-  ))
   const cartTotal = mintingCart.reduce((acc, item) => acc + parseFloat(item.tokenPrice), 0)
   return (
     <>
@@ -179,6 +192,7 @@ const Store = () => {
                 contractProps={contractProps}
                 updateBalance={updateBalance}
                 setUpdateBalance={setUpdateBalance}
+                userBalance={userBalance}
               />
             </div>
           </div>
@@ -187,29 +201,25 @@ const Store = () => {
         <div className="bg-gradient-to-br from-[#9D4EDD] to-[#FF9E00] dark:from-[#240046] dark:to-[#ff4800]">
           <div className="p-4">
             <div className="font-medium bg-white/30 dark:bg-black/30 lg:max-w-[50%] xl:max-w-[66%] p-5 rounded-2xl mb-5 space-y-2">
-              <h1 className="text-3xl font-bold my-3">Here's the goods! Take your picks.</h1>
-              <p>You can Mint any Mitchs you like on Gnosis Chain, Optimism and Polygon!</p>
+              <h1 className="text-3xl font-bold my-3">Here you will find all the Mitchs of your dreams.</h1>
+              <p>Mint any Mitchs you like on Gnosis Chain, Optimism and Polygon!</p>
               <p>
-                You are currently connected to <b>{contractProps.name}</b>,{' '}
+                You are currently connected to <b>{contractProps.name}</b>, so you'll need to use{' '}
                 {isNativeMinting && isNativeMintingSuccess ? (
-                  <span>
-                    so you'll need a bit of <b>ETH</b> to mint some Mitchs.
-                  </span>
+                  <b>ETH</b>
                 ) : (
-                  <span>
-                    so you'll need a bit of{' '}
-                    <a
-                      className="text-purple-600"
-                      href={contractProps.dexLink + '0x' + paymentTokenAddress.substring(2)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <b>{paymentTokenSymbol}</b>
-                    </a>{' '}
-                    to mint a Mitch.
-                  </span>
-                )}
+                  <a
+                    className="text-purple-600"
+                    href={contractProps.dexLink + '0x' + paymentTokenAddress.substring(2)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <b>{paymentTokenSymbol}</b>
+                  </a>
+                )}{' '}
+                to purchase some Mitchs.
               </p>
+              <p></p>
               <h3 className="text-lg font-semibold">
                 Don't see a Mitch you like, or have a special request for a Mitch Pin NFT?
               </h3>{' '}
@@ -228,12 +238,17 @@ const Store = () => {
                 used to direct the flow of validator rewards once we reach the goal.
               </p>
             </div>
+            <div className="font-medium bg-white/30 dark:bg-black/30 lg:max-w-[50%] xl:max-w-[66%] p-5 rounded-2xl mb-5 space-y-2">
+              <h3 className="text-lg font-semibold">Keep scrolling to see all the Mitchs available to mint.</h3>
+              <p>The price of each is listed on the card. Click the toggle next to '👉' to add a Mitch to your cart.</p>
+            </div>
             <div className="lg:fixed lg:float-right z-20 lg:top-40 right-10 mr-5 xl:max-w-[26%]">
               <CartModal
                 itemsArray={mintingCart}
                 itemSum={cartTotal}
                 isMintModal={isMintModal}
                 paymentTokenSymbol={paymentTokenSymbol}
+                userBalance={userBalance}
               />
             </div>
             {nftCards ? (
