@@ -1,3 +1,5 @@
+import { BigNumber } from 'ethers'
+import { formatEther } from 'ethers/lib/utils.js'
 import React from 'react'
 
 interface cartItems {
@@ -5,9 +7,10 @@ interface cartItems {
   itemSum: number
   isMintModal: Function
   paymentTokenSymbol: string
+  userBalance: BigNumber
 }
 
-export const CartModal = ({ itemsArray, itemSum, isMintModal, paymentTokenSymbol }: cartItems) => {
+export const CartModal = ({ userBalance, itemsArray, itemSum, isMintModal, paymentTokenSymbol }: cartItems) => {
   const cartItems = Array.from(itemsArray).map((item) => (
     <li key={item.tokenID}>
       {' '}
@@ -25,12 +28,19 @@ export const CartModal = ({ itemsArray, itemSum, isMintModal, paymentTokenSymbol
           <p>
             Final Price: {itemSum} {paymentTokenSymbol}
           </p>
+          { userBalance !== undefined ? 
+          <p className='text-sm'>
+            Your Wallet Balance: {parseFloat(formatEther(userBalance)).toFixed(4)} {paymentTokenSymbol}{' '}
+          </p> : null
+          
+        }
           <button
             className={
               itemsArray.length === 0
                 ? 'p-3 bg-gray-200 text-gray-400 cursor-default rounded-lg mt-2'
                 : ' mt-2 p-3 bg-orange-400 dark:bg-orange-600 hover:bg-orange-600 hover:dark:bg-orange-700 rounded-lg active:scale-90 transition-transform duration-100'
             }
+            disabled={itemsArray.length === 0}
             onClick={() => isMintModal(true)}
           >
             Mint Mitch!
