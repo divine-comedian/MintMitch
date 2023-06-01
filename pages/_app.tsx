@@ -12,18 +12,14 @@ import { jsonRpcProvider } from '@wagmi/core/providers/jsonRpc'
 import config from '../config/env-vars'
 import { constants } from '../utils/constants'
 
-const { NEXT_PUBLIC_ALCHEMY_ID, NEXT_PUBLIC_INFURA_ID, NEXT_PUBLIC_ETHERSCAN_API_KEY } = config
+const { NEXT_PUBLIC_ALCHEMY_ID } = config
 const alchemyId = NEXT_PUBLIC_ALCHEMY_ID as string
-const etherscanApiKey = NEXT_PUBLIC_ETHERSCAN_API_KEY
 
 let appChains: any[] = []
-let defaultChain: any
 if (process.env.NODE_ENV === 'development') {
   appChains = constants.DEVELOPMENT_CHAINS
-  defaultChain = constants.DEVELOPMENT_CHAINS[0]
 } else if (process.env.NODE_ENV === 'production') {
   appChains = constants.PRODUCTION_CHAINS
-  defaultChain = constants.PRODUCTION_CHAINS[0]
 }
 
 const { chains, provider } = configureChains(appChains, [
