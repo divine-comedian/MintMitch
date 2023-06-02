@@ -2,7 +2,7 @@ import React, { useCallback } from 'react'
 import { NFTCard } from '../components/NFTCard'
 import Navbar from '../components/navbar'
 import { selectContractAddress } from '../utils/ContractHelper'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useReducer } from 'react'
 import { CartModal } from '../components/cartModal'
 import { WrongNetwork } from '../components/wrongNetwork'
 import { MintModal } from '../components/mint'
@@ -14,6 +14,7 @@ import MintingContractJSON from '../artifacts/contracts/MitchMinter.sol/MitchMin
 import { fetchToken } from '@wagmi/core'
 import { constants } from '../utils/constants'
 import { BigNumber } from 'ethers'
+
 
 interface Item {
   tokenID: number
@@ -28,9 +29,8 @@ const Store = () => {
   const [mintingCart, setMintingCart] = useState<Item[]>([])
   const [uniqueTokens, setUniqueTokens] = useState(0)
   const [correctNetwork, setCorrectNetwork] = useState<string[] | null>(null)
-  const [nftCards, setNftCards] = useState([]) as [any, any]
+  const [nftCards, dispatch] = useReducer(nftCardsReducer, []);
   const [userBalance, setUserBalance] = useState<BigNumber>(BigNumber.from(0))
-  // const [network, setNetwork] = useState<string>()
   const [contractProps, setContractProps] = useState<MintingContractProps>(
     {
     address: constants.GOERLI_CONTRACT_ADDRESS,
@@ -41,6 +41,25 @@ const Store = () => {
   const [paymentTokenSymbol, setPaymentTokenSymbol] = useState<string>('ETH')
   const currentNetwork = useNetwork().chain?.network as string
   const account = useAccount().address
+
+  function nftCardsReducer(state: any, action: any) {
+    switch (action.type) {
+      case 'SET_CARDS':
+        return Array.from({ length: action.uniqueTokens }).map((_, i) => (
+          <NFTCard
+            contractProps={action.contractProps}
+            addToCart={action.addToCart}
+            removeFromCart={action.removeFromCart}
+            key={i}
+            tokenId={i + 1}
+            paymentTokenSymbol={action.paymentTokenSymbol}
+          />
+        ));
+      default:
+        throw new Error(`Unsupported action type: ${action.type}`);
+    }
+  }
+  
 
   const {
     data: isNativeMinting,
@@ -93,9 +112,7 @@ const Store = () => {
   }, [])
 
   // welcome to the use effect jungle
-  // useEffect(() => {
-  //   setNetwork(currentNetwork)
-  // }, [currentNetwork])
+ 
 
   useEffect(() => {
     const [isRightNetworkBoolean, connectedNetworkArray] = checkNetwork(currentNetwork) as Array<any>
@@ -148,20 +165,17 @@ const Store = () => {
 
   useEffect(() => {
     if (currentNetwork !== undefined) {
-      setNftCards(
-        Array.from({ length: uniqueTokens }).map((_, i) => (
-          <NFTCard
-            contractProps={contractProps}
-            addToCart={addToCart}
-            removeFromCart={removeFromCart}
-            key={i}
-            tokenId={i + 1}
-            paymentTokenSymbol={paymentTokenSymbol}
-          />
-        )),
-      )
+      dispatch({
+        type: 'SET_CARDS',
+        uniqueTokens: uniqueTokens,
+        contractProps: contractProps,
+        addToCart: addToCart,
+        removeFromCart: removeFromCart,
+        paymentTokenSymbol: paymentTokenSymbol,
+      });
     }
-  }, [uniqueTokens, currentNetwork])
+  }, [uniqueTokens, currentNetwork, contractProps, paymentTokenSymbol]);
+  
 
   const cartTotal = mintingCart.reduce((acc, item) => acc + parseFloat(item.tokenPrice), 0)
   return (
@@ -237,7 +251,9 @@ const Store = () => {
             </div>
             <div className="font-medium bg-white/30 dark:bg-black/30 lg:max-w-[50%] xl:max-w-[66%] p-5 rounded-2xl mb-5 space-y-2">
               <h3 className="text-lg font-semibold">Keep scrolling to see all the Mitchs available to mint.</h3>
-              <p>The price of each is listed on the card. Click the toggle next to '👉' to add a Mitch to your cart.</p>
+              <p>The price of each is listed on the card. For each NFT listed, click the toggle next to '👉' to add a Mitch to your cart. When you've picked all your Mitchs, click the <b>'Mint Mitch!'</b>
+               {' '}button and a transaction will appear to mint all your Mitchs at once.
+              </p>
             </div>
             <div className="lg:fixed lg:float-right z-20 lg:top-40 right-10 mr-5 xl:max-w-[26%]">
               <CartModal
