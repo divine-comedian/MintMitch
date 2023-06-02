@@ -25,13 +25,12 @@ const Store = () => {
   const [updateBalance, setUpdateBalance] = useState<any>()
   const [isRightNetwork, setisRightNetwork] = useState<boolean | undefined>(undefined)
   const [showMintModal, setShowMintModal] = React.useState(false)
-  const [isNativeMint, setIsNativeMint] = useState<boolean>(false)
   const [mintingCart, setMintingCart] = useState<Item[]>([])
   const [uniqueTokens, setUniqueTokens] = useState(0)
   const [correctNetwork, setCorrectNetwork] = useState<string[] | null>(null)
   const [nftCards, setNftCards] = useState([]) as [any, any]
   const [userBalance, setUserBalance] = useState<BigNumber>(BigNumber.from(0))
-  const [network, setNetwork] = useState<string>()
+  // const [network, setNetwork] = useState<string>()
   const [contractProps, setContractProps] = useState<MintingContractProps>(
     {
     address: constants.GOERLI_CONTRACT_ADDRESS,
@@ -39,7 +38,7 @@ const Store = () => {
   }
   )
   const [paymentTokenAddress, setPaymentTokenAddress] = useState<string>('')
-  const [paymentTokenSymbol, setPaymentTokenSymbol] = useState<string>('')
+  const [paymentTokenSymbol, setPaymentTokenSymbol] = useState<string>('ETH')
   const currentNetwork = useNetwork().chain?.network as string
   const account = useAccount().address
 
@@ -94,11 +93,41 @@ const Store = () => {
   }, [])
 
   // welcome to the use effect jungle
+  // useEffect(() => {
+  //   setNetwork(currentNetwork)
+  // }, [currentNetwork])
+
+  useEffect(() => {
+    const [isRightNetworkBoolean, connectedNetworkArray] = checkNetwork(currentNetwork) as Array<any>
+    setisRightNetwork(isRightNetworkBoolean)
+    setCorrectNetwork(connectedNetworkArray)
+    setContractProps(selectContractAddress(currentNetwork))
+  }, [currentNetwork])
+
+  useEffect(() => {
+    console.log(paymentTokenAddressData)
+    console.log(isNativeMinting)
+    if (isPaymentTokenAddressSuccess && isNativeMinting === false) {
+      fetchToken({
+        address: `0x${(paymentTokenAddressData as string).substring(2)}`,
+        chainId: contractProps.chainId,
+      }).then((response) => {
+        setPaymentTokenSymbol(response.symbol)
+        setPaymentTokenAddress(paymentTokenAddressData as string)
+      })
+    } else if (isNativeMinting === true) {
+      setPaymentTokenSymbol('ETH')
+    } 
+    else if (isPaymentTokenAddressError) {
+      console.log(paymentTokenAddressError)
+    }
+  }, [paymentTokenAddressData, isNativeMinting, isPaymentTokenAddressSuccess, isPaymentTokenAddressError])
+
   useEffect(() => {
     const getUserBalance = async (accountAddress: string) => {
-      if (isNativeMint && account) {
+      if (isNativeMinting === true && account) {
         getNativeBalance(accountAddress.substring(2)).then((balance) => setUserBalance(balance))
-      } else if (account) {
+      } else if (isNativeMinting === false && account) {
         getPaymentTokenBalance(accountAddress.substring(2), contractProps).then((balance) =>
           setUserBalance(balance as BigNumber),
         )
@@ -107,29 +136,7 @@ const Store = () => {
     if (account) {
       getUserBalance(account)
     }
-  }, [isNativeMint, account])
-
-  useEffect(() => {
-    if (isNativeMinting !== undefined) {
-      setIsNativeMint(isNativeMinting as boolean)
-    } else if (isNativeMintingError) {
-      console.log(isNativeMintingErrorInfo)
-    }
-  }, [isNativeMinting, isNativeMintingError])
-
-  useEffect(() => {
-    if (isPaymentTokenAddressSuccess) {
-      fetchToken({
-        address: `0x${(paymentTokenAddressData as string).substring(2)}`,
-        chainId: contractProps.chainId,
-      }).then((response) => {
-        setPaymentTokenSymbol(response.symbol)
-      })
-      setPaymentTokenAddress(paymentTokenAddressData as string)
-    } else if (isPaymentTokenAddressError) {
-      console.log(paymentTokenAddressError)
-    }
-  }, [paymentTokenAddressData])
+  }, [isNativeMinting, account, contractProps])
 
   useEffect(() => {
     if (newUniqueTokens !== undefined) {
@@ -149,22 +156,12 @@ const Store = () => {
             removeFromCart={removeFromCart}
             key={i}
             tokenId={i + 1}
+            paymentTokenSymbol={paymentTokenSymbol}
           />
         )),
       )
     }
-  }, [uniqueTokens, contractProps])
-
-  useEffect(() => {
-    setNetwork(currentNetwork)
-  }, [currentNetwork])
-
-  useEffect(() => {
-    const [isRightNetworkBoolean, connectedNetworkArray] = checkNetwork(currentNetwork) as Array<any>
-    setisRightNetwork(isRightNetworkBoolean)
-    setCorrectNetwork(connectedNetworkArray)
-    setContractProps(selectContractAddress(currentNetwork))
-  }, [currentNetwork])
+  }, [uniqueTokens, currentNetwork])
 
   const cartTotal = mintingCart.reduce((acc, item) => acc + parseFloat(item.tokenPrice), 0)
   return (
@@ -188,7 +185,7 @@ const Store = () => {
                 itemSum={cartTotal}
                 itemsArray={mintingCart}
                 isMintModal={isMintModal}
-                isNativeMintEnabled={isNativeMint}
+                isNativeMintEnabled={isNativeMinting as boolean}
                 contractProps={contractProps}
                 updateBalance={updateBalance}
                 setUpdateBalance={setUpdateBalance}
@@ -260,7 +257,7 @@ const Store = () => {
             )}
           </div>
         </div>
-        {!network || isRightNetwork ? null : (
+        {!currentNetwork || isRightNetwork ? null : (
           <div className="fixed z-30 inset-0 flex items-center justify-center bg-black bg-opacity-40">
             <div className="rise-up">
               <WrongNetwork isRightNetwork={correctNetwork} />

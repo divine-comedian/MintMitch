@@ -1,6 +1,7 @@
 import { BigNumber } from 'ethers'
 import { formatEther } from 'ethers/lib/utils.js'
 import React from 'react'
+import { useEffect, useState } from 'react'
 
 interface cartItems {
   itemsArray: any[]
@@ -11,12 +12,18 @@ interface cartItems {
 }
 
 export const CartModal = ({ userBalance, itemsArray, itemSum, isMintModal, paymentTokenSymbol }: cartItems) => {
+  const [tokenSymbol, setTokenSymbol] = useState('ETH')
   const cartItems = Array.from(itemsArray).map((item) => (
     <li key={item.tokenID}>
       {' '}
-      {item.tokenName}: {item.tokenPrice} {paymentTokenSymbol}
+      {item.tokenName}: {item.tokenPrice} {tokenSymbol}
     </li>
   ))
+  
+  useEffect(() => {
+    setTokenSymbol(paymentTokenSymbol)
+  }, [paymentTokenSymbol])
+  
   return (
     <>
       <div className="box-content border-solid border-2 lg:w-96  bg-orange-300 dark:bg-orange-800 rounded-lg border-grey-600 ">
@@ -26,11 +33,11 @@ export const CartModal = ({ userBalance, itemsArray, itemSum, isMintModal, payme
 
           <ul>{itemsArray.length === 0 ? "No items added yet! :'(" : cartItems}</ul>
           <p>
-            Final Price: {itemSum} {paymentTokenSymbol}
+            Final Price: {itemSum} {tokenSymbol}
           </p>
           { userBalance !== undefined ? 
           <p className='text-sm'>
-            Your Wallet Balance: {parseFloat(formatEther(userBalance)).toFixed(4)} {paymentTokenSymbol}{' '}
+            Your Wallet Balance: {parseFloat(formatEther(userBalance)).toFixed(4)} {tokenSymbol}{' '}
           </p> : null
           
         }

@@ -3,7 +3,6 @@ import { MintingContractProps } from '../utils/ContractHelper'
 import { useParseIpfsData, useParseIpfsImage } from '../utils/AxiosHelper'
 import { useState, useEffect } from 'react'
 import { useContractRead } from 'wagmi'
-import { useDebounce } from 'usehooks-ts'
 import MintingContractJSON from '../artifacts/contracts/MitchMinter.sol/MitchMinter.json'
 import { formatEther } from 'ethers/lib/utils.js'
 
@@ -12,9 +11,10 @@ interface NFTCardProps {
   addToCart: Function
   removeFromCart: Function
   contractProps: MintingContractProps
+  paymentTokenSymbol: string
 }
 
-export const NFTCard: React.FC<NFTCardProps> = ({ tokenId, addToCart, removeFromCart, contractProps }) => {
+export const NFTCard: React.FC<NFTCardProps> = ({ tokenId, addToCart, removeFromCart, contractProps, paymentTokenSymbol }) => {
   const [ipfsData, setIpfsData] = useState({}) as any
   const [ipfsImage, setIpfsImage] = useState() as any
   const [tokenPrice, setTokenPrice] = useState(0)
@@ -23,52 +23,25 @@ export const NFTCard: React.FC<NFTCardProps> = ({ tokenId, addToCart, removeFrom
   const [showFadeText, setShowFadeText] = useState(false)
   const [randomMsg, setRandomMsg] = useState('')
   const [toggleText, setToggleText] = useState(false)
-  const debouncedContractProps = useDebounce(contractProps, 500)
+  const [tokenSymbol, setTokenSymbol] = useState('ETH')
 
   const handleToggle = () => {
     setToggleText(!toggleText)
   }
-
+  
   const newIpfsImage = useParseIpfsImage(tokenId, contractProps)
   const newIpfsData = useParseIpfsData(tokenId, contractProps)
 
   const tokenName = ipfsData.name
   const tokenDescription = ipfsData.description
   const tokenID = tokenId
+  
   const showFadeInOutText = () => {
     setShowFadeText(true)
     setTimeout(() => {
       setShowFadeText(false)
     }, 500) // Adjust the duration as needed (in milliseconds)
   }
-
-  const {
-    data: tokenInfo,
-    isError: isTokenInfoError,
-    error: tokenInfoError,
-  } = useContractRead({
-    address: `0x${debouncedContractProps.address}`,
-    abi: MintingContractJSON.abi,
-    functionName: 'getTokenInfo',
-    args: [tokenId],
-    chainId: debouncedContractProps.chainId,
-  })
-
-  useEffect(() => {
-    if (tokenInfo) {
-      const [newTokenPriceHex, newTokenURI] = tokenInfo as [string, string]
-      const newTokenPrice = parseFloat(formatEther(newTokenPriceHex))
-      setTokenPrice(newTokenPrice)
-      setTokenURI(newTokenURI)
-    } else if (isTokenInfoError) {
-      console.log(tokenInfoError)
-    }
-  }, [tokenInfo, debouncedContractProps, isTokenInfoError])
-
-  useEffect(() => {
-    setIpfsData(newIpfsData)
-    setIpfsImage(newIpfsImage)
-  }, [newIpfsData, newIpfsImage])
 
   const handleCart = () => {
     setIsInCart((prevIsInCart) => !prevIsInCart)
@@ -99,6 +72,42 @@ export const NFTCard: React.FC<NFTCardProps> = ({ tokenId, addToCart, removeFrom
     return messages[randomIndex]
   }
 
+
+  const {
+    data: tokenInfo,
+    isError: isTokenInfoError,
+    error: tokenInfoError,
+  } = useContractRead({
+    address: `0x${contractProps.address}`,
+    abi: MintingContractJSON.abi,
+    functionName: 'getTokenInfo',
+    args: [tokenId],
+    chainId: contractProps.chainId,
+  })
+
+  
+
+  useEffect(() => {
+    if (tokenInfo) {
+      const [newTokenPriceHex, newTokenURI] = tokenInfo as [string, string]
+      const newTokenPrice = parseFloat(formatEther(newTokenPriceHex))
+      setTokenPrice(newTokenPrice)
+      setTokenURI(newTokenURI)
+    } else if (isTokenInfoError) {
+      console.log(tokenInfoError)
+    }
+  }, [tokenInfo, isTokenInfoError])
+  
+  useEffect(() => {
+    setIpfsData(newIpfsData)
+    setIpfsImage(newIpfsImage)
+  }, [newIpfsData, newIpfsImage])
+  
+  useEffect(() => {
+    setTokenSymbol(paymentTokenSymbol)
+  }, [paymentTokenSymbol])
+ 
+
   return (
     <div
       className={`shadow-2xl container bg-gray-400/30 dark:bg-gray-700/30 rounded-lg border-grey-600 transition-max-height duration-200 ease-in-out ${
@@ -118,7 +127,7 @@ export const NFTCard: React.FC<NFTCardProps> = ({ tokenId, addToCart, removeFrom
           </label>
         </div>
         {toggleText ? <p className="font-300 bg-gray-200/30 p-2 rounded-lg">{tokenDescription}</p> : null}
-        <p>{`${tokenPrice} ETH`}</p>
+        <p>{tokenPrice}{' '}{tokenSymbol}</p>
         <div className="pb-3">
           <div className="rounded-lg p-2 bg-orange-300/50 dark:bg-orange-400/50 inline mr-2 text-lg">
             <span>Pick Me! 👉</span>
