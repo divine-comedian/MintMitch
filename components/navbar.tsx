@@ -61,8 +61,9 @@ IProps) => {
         getNativeBalance(contractProps.address).then((response) => {
           setBalance(parseFloat(formatEther(response)))
         })
-      } else {
+      } else if (isNativeMinting === false) {
         getPaymentTokenBalance(contractProps.address, contractProps).then((response) => {
+          console.log('response', response)
           const formattedBalance = parseFloat(formatEther(response as BigNumber))
           setBalance(formattedBalance)
         })

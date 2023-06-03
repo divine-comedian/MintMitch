@@ -14,6 +14,7 @@ import MintingContractJSON from '../artifacts/contracts/MitchMinter.sol/MitchMin
 import { fetchToken } from '@wagmi/core'
 import { constants } from '../utils/constants'
 import { BigNumber } from 'ethers'
+import { ConnectButton } from '@rainbow-me/rainbowkit'
 
 
 interface Item {
@@ -209,7 +210,7 @@ const Store = () => {
           </div>
         ) : null}
 
-        <div className="bg-gradient-to-br from-[#9D4EDD] to-[#FF9E00] dark:from-[#240046] dark:to-[#ff4800]">
+        <div className="bg-gradient-to-br from-[#9D4EDD] to-[#FF9E00] min-h-screen dark:from-[#240046] dark:to-[#ff4800]">
           <div className="p-4">
             <div className="font-medium bg-white/30 dark:bg-black/30 lg:max-w-[50%] xl:max-w-[66%] p-5 rounded-2xl mb-5 space-y-2">
               <h1 className="text-3xl font-bold my-3">Here you will find all the Mitchs of your dreams.</h1>
@@ -249,6 +250,15 @@ const Store = () => {
                 used to direct the flow of validator rewards once we reach the goal.
               </p>
             </div>
+              { currentNetwork === undefined ? 
+             <div className="font-medium bg-white/30 dark:bg-black/30 lg:max-w-[50%] xl:max-w-[66%] p-5 rounded-2xl mb-5 space-y-2">
+             <h3 className="text-md font-semibold">Connect with your web3 wallet to mint some Mitch!</h3>
+             <div className='pt-2 pl-4'>
+            <ConnectButton />
+             </div>
+           </div>
+              : 
+              <>
             <div className="font-medium bg-white/30 dark:bg-black/30 lg:max-w-[50%] xl:max-w-[66%] p-5 rounded-2xl mb-5 space-y-2">
               <h3 className="text-lg font-semibold">Keep scrolling to see all the Mitchs available to mint.</h3>
               <p>The price of each is listed on the card. For each NFT listed, click the toggle next to '👉' to add a Mitch to your cart. When you've picked all your Mitchs, click the <b>'Mint Mitch!'</b>
@@ -264,13 +274,15 @@ const Store = () => {
                 userBalance={userBalance}
               />
             </div>
-            {nftCards ? (
-              <div className="flex-initial grid xl:grid-cols-2 grid-cols-1 gap-2 gap-x-6 sm:max-w-[50%] xl:max-w-[66%] ">
-                {nftCards}
-              </div>
-            ) : (
-              <p>Loading...</p>
-            )}
+              </>
+        }
+        {nftCards ? (
+          <div className="flex-initial grid xl:grid-cols-2 grid-cols-1 gap-2 gap-x-6 sm:max-w-[50%] xl:max-w-[66%] ">
+            {nftCards}
+          </div>
+        ) : (
+          <p>Loading...</p>
+        )}
           </div>
         </div>
         {!currentNetwork || isRightNetwork ? null : (
