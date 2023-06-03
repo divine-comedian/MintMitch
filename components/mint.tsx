@@ -54,6 +54,7 @@ export const MintModal = ({
   userBalance,
 }: MintItems) => {
   const tokenId = itemsArray[0].tokenID
+  const twitterLink =  contractProps.nftExplorerLink + '0x' + contractProps.address + '/' + tokenId 
   const tokenBatchIds = itemsArray.map((item) => item.tokenID)
   const tokenLinks = itemsArray.map((item) => (
     <li className="text-purple-600 py-1 text-lg hover:text-purple-700 font-bold" key={item.tokenID}>
@@ -207,21 +208,6 @@ export const MintModal = ({
     }
   }, [isNativeMintEnabled])
 
-  // useEffect(() => {
-  //   const connectedAddress = getAccount().address?.toString().substring(2)
-  //   setConnectedAccount(connectedAddress)
-  //   const getUserBalance = async (accountAddress: string) => {
-  //     if (isNativeMintEnabled && connectedAddress) {
-  //       getNativeBalance(connectedAddress).then((balance) => setUserBalance(balance))
-  //     } else if (connectedAddress) {
-  //       getPaymentTokenBalance(connectedAddress, contractProps).then((balance) => setUserBalance(balance as BigNumber))
-  //     }
-  //   }
-  //   if (connectedAddress) {
-  //     getUserBalance(connectedAddress)
-  //   }
-  // }, [isNativeMintEnabled, connectedAccount])
-
   useEffect(() => {
     if (approveTxHash) {
       console.log('approve tx hash', approveTxHash)
@@ -346,6 +332,25 @@ export const MintModal = ({
             <p>
               You also received {itemsArray.length} $MITCH token{itemsArray.length > 1 ? 's' : ''}. Remember:{' '}
               <i>...with great $MITCH comes great responsibility...</i>
+              <div className="py-2">
+                <a
+                  href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(
+                    `I just minted a Mitch Pin NFT, check it out on the blockchain. 😎 \n ${twitterLink} \n\n Support Mitch and get a chance at earning ETH rewards for your project! 🙌 \n https://mintmitch.xyz \n`,
+                  )}&hashtags=MintMitch`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="twitter-share-button active:scale-90 transition-transform duration-100 bg-indigo-500 hover:bg-indigo-400 dark:bg-indigo-500 dark:hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-2xl"
+                  data-size="large"
+                  data-url="https://mintmitch.xyz"
+                  data-show-count="false"
+                >
+                  <button
+                  >
+                    Share on Twitter 💖
+                  </button>
+                </a>
+                <script async src="https://platform.twitter.com/widgets.js" charSet="utf-8"></script>
+              </div>
             </p>
             <p>
               <a

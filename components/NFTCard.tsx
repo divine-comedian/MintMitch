@@ -14,7 +14,13 @@ interface NFTCardProps {
   paymentTokenSymbol: string
 }
 
-export const NFTCard: React.FC<NFTCardProps> = ({ tokenId, addToCart, removeFromCart, contractProps, paymentTokenSymbol }) => {
+export const NFTCard: React.FC<NFTCardProps> = ({
+  tokenId,
+  addToCart,
+  removeFromCart,
+  contractProps,
+  paymentTokenSymbol,
+}) => {
   const [ipfsData, setIpfsData] = useState({}) as any
   const [ipfsImage, setIpfsImage] = useState() as any
   const [tokenPrice, setTokenPrice] = useState(0)
@@ -28,14 +34,14 @@ export const NFTCard: React.FC<NFTCardProps> = ({ tokenId, addToCart, removeFrom
   const handleToggle = () => {
     setToggleText(!toggleText)
   }
-  
+
   const newIpfsImage = useParseIpfsImage(tokenId, contractProps)
   const newIpfsData = useParseIpfsData(tokenId, contractProps)
 
   const tokenName = ipfsData.name
   const tokenDescription = ipfsData.description
   const tokenID = tokenId
-  
+
   const showFadeInOutText = () => {
     setShowFadeText(true)
     setTimeout(() => {
@@ -72,7 +78,6 @@ export const NFTCard: React.FC<NFTCardProps> = ({ tokenId, addToCart, removeFrom
     return messages[randomIndex]
   }
 
-
   const {
     data: tokenInfo,
     isError: isTokenInfoError,
@@ -85,8 +90,6 @@ export const NFTCard: React.FC<NFTCardProps> = ({ tokenId, addToCart, removeFrom
     chainId: contractProps.chainId,
   })
 
-  
-
   useEffect(() => {
     if (tokenInfo) {
       const [newTokenPriceHex, newTokenURI] = tokenInfo as [string, string]
@@ -97,16 +100,15 @@ export const NFTCard: React.FC<NFTCardProps> = ({ tokenId, addToCart, removeFrom
       console.log(tokenInfoError)
     }
   }, [tokenInfo, isTokenInfoError])
-  
+
   useEffect(() => {
     setIpfsData(newIpfsData)
     setIpfsImage(newIpfsImage)
   }, [newIpfsData, newIpfsImage])
-  
+
   useEffect(() => {
     setTokenSymbol(paymentTokenSymbol)
   }, [paymentTokenSymbol])
- 
 
   return (
     <div
@@ -127,7 +129,9 @@ export const NFTCard: React.FC<NFTCardProps> = ({ tokenId, addToCart, removeFrom
           </label>
         </div>
         {toggleText ? <p className="font-300 bg-gray-200/30 p-2 rounded-lg">{tokenDescription}</p> : null}
-        <p>{tokenPrice}{' '}{tokenSymbol}</p>
+        <p>
+          {tokenPrice} {tokenSymbol}
+        </p>
         <div className="pb-3">
           <div className="rounded-lg p-2 bg-orange-300/50 dark:bg-orange-400/50 inline mr-2 text-lg">
             <span>Pick Me! 👉</span>

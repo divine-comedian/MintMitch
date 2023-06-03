@@ -16,7 +16,6 @@ import { constants } from '../utils/constants'
 import { BigNumber } from 'ethers'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 
-
 interface Item {
   tokenID: number
   tokenName: any
@@ -30,14 +29,12 @@ const Store = () => {
   const [mintingCart, setMintingCart] = useState<Item[]>([])
   const [uniqueTokens, setUniqueTokens] = useState(0)
   const [correctNetwork, setCorrectNetwork] = useState<string[] | null>(null)
-  const [nftCards, dispatch] = useReducer(nftCardsReducer, []);
+  const [nftCards, dispatch] = useReducer(nftCardsReducer, [])
   const [userBalance, setUserBalance] = useState<BigNumber>(BigNumber.from(0))
-  const [contractProps, setContractProps] = useState<MintingContractProps>(
-    {
+  const [contractProps, setContractProps] = useState<MintingContractProps>({
     address: constants.GOERLI_CONTRACT_ADDRESS,
     chainId: 5,
-  }
-  )
+  })
   const [paymentTokenAddress, setPaymentTokenAddress] = useState<string>('')
   const [paymentTokenSymbol, setPaymentTokenSymbol] = useState<string>('ETH')
   const currentNetwork = useNetwork().chain?.network as string
@@ -55,12 +52,11 @@ const Store = () => {
             tokenId={i + 1}
             paymentTokenSymbol={action.paymentTokenSymbol}
           />
-        ));
+        ))
       default:
-        throw new Error(`Unsupported action type: ${action.type}`);
+        throw new Error(`Unsupported action type: ${action.type}`)
     }
   }
-  
 
   const {
     data: isNativeMinting,
@@ -113,7 +109,6 @@ const Store = () => {
   }, [])
 
   // welcome to the use effect jungle
- 
 
   useEffect(() => {
     const [isRightNetworkBoolean, connectedNetworkArray] = checkNetwork(currentNetwork) as Array<any>
@@ -135,8 +130,7 @@ const Store = () => {
       })
     } else if (isNativeMinting === true) {
       setPaymentTokenSymbol('ETH')
-    } 
-    else if (isPaymentTokenAddressError) {
+    } else if (isPaymentTokenAddressError) {
       console.log(paymentTokenAddressError)
     }
   }, [paymentTokenAddressData, isNativeMinting, isPaymentTokenAddressSuccess, isPaymentTokenAddressError])
@@ -173,10 +167,9 @@ const Store = () => {
         addToCart: addToCart,
         removeFromCart: removeFromCart,
         paymentTokenSymbol: paymentTokenSymbol,
-      });
+      })
     }
-  }, [uniqueTokens, currentNetwork, contractProps, paymentTokenSymbol]);
-  
+  }, [uniqueTokens, currentNetwork, contractProps, paymentTokenSymbol])
 
   const cartTotal = mintingCart.reduce((acc, item) => acc + parseFloat(item.tokenPrice), 0)
   return (
@@ -250,39 +243,41 @@ const Store = () => {
                 used to direct the flow of validator rewards once we reach the goal.
               </p>
             </div>
-              { currentNetwork === undefined ? 
-             <div className="font-medium bg-white/30 dark:bg-black/30 lg:max-w-[50%] xl:max-w-[66%] p-5 rounded-2xl mb-5 space-y-2">
-             <h3 className="text-md font-semibold">Connect with your web3 wallet to mint some Mitch!</h3>
-             <div className='pt-2 pl-4'>
-            <ConnectButton />
-             </div>
-           </div>
-              : 
+            {currentNetwork === undefined ? (
+              <div className="font-medium bg-white/30 dark:bg-black/30 lg:max-w-[50%] xl:max-w-[66%] p-5 rounded-2xl mb-5 space-y-2">
+                <h3 className="text-md font-semibold">Connect with your web3 wallet to mint some Mitch!</h3>
+                <div className="pt-2 pl-4">
+                  <ConnectButton />
+                </div>
+              </div>
+            ) : (
               <>
-            <div className="font-medium bg-white/30 dark:bg-black/30 lg:max-w-[50%] xl:max-w-[66%] p-5 rounded-2xl mb-5 space-y-2">
-              <h3 className="text-lg font-semibold">Keep scrolling to see all the Mitchs available to mint.</h3>
-              <p>The price of each is listed on the card. For each NFT listed, click the toggle next to '👉' to add a Mitch to your cart. When you've picked all your Mitchs, click the <b>'Mint Mitch!'</b>
-               {' '}button and a transaction will appear to mint all your Mitchs at once.
-              </p>
-            </div>
-            <div className="lg:fixed lg:float-right z-20 lg:top-40 right-10 mr-5 xl:max-w-[26%]">
-              <CartModal
-                itemsArray={mintingCart}
-                itemSum={cartTotal}
-                isMintModal={isMintModal}
-                paymentTokenSymbol={paymentTokenSymbol}
-                userBalance={userBalance}
-              />
-            </div>
+                <div className="font-medium bg-white/30 dark:bg-black/30 lg:max-w-[50%] xl:max-w-[66%] p-5 rounded-2xl mb-5 space-y-2">
+                  <h3 className="text-lg font-semibold">Keep scrolling to see all the Mitchs available to mint.</h3>
+                  <p>
+                    The price of each is listed on the card. For each NFT listed, click the toggle next to '👉' to add a
+                    Mitch to your cart. When you've picked all your Mitchs, click the <b>'Mint Mitch!'</b> button and a
+                    transaction will appear to mint all your Mitchs at once.
+                  </p>
+                </div>
+                <div className="lg:fixed lg:float-right z-20 lg:top-40 right-10 mr-5 xl:max-w-[26%]">
+                  <CartModal
+                    itemsArray={mintingCart}
+                    itemSum={cartTotal}
+                    isMintModal={isMintModal}
+                    paymentTokenSymbol={paymentTokenSymbol}
+                    userBalance={userBalance}
+                  />
+                </div>
               </>
-        }
-        {nftCards ? (
-          <div className="flex-initial grid xl:grid-cols-2 grid-cols-1 gap-2 gap-x-6 sm:max-w-[50%] xl:max-w-[66%] ">
-            {nftCards}
-          </div>
-        ) : (
-          <p>Loading...</p>
-        )}
+            )}
+            {nftCards ? (
+              <div className="flex-initial grid xl:grid-cols-2 grid-cols-1 gap-2 gap-x-6 sm:max-w-[50%] xl:max-w-[66%] ">
+                {nftCards}
+              </div>
+            ) : (
+              <p>Loading...</p>
+            )}
           </div>
         </div>
         {!currentNetwork || isRightNetwork ? null : (

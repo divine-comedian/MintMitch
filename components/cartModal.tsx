@@ -19,11 +19,11 @@ export const CartModal = ({ userBalance, itemsArray, itemSum, isMintModal, payme
       {item.tokenName}: {item.tokenPrice} {tokenSymbol}
     </li>
   ))
-  
+
   useEffect(() => {
     setTokenSymbol(paymentTokenSymbol)
   }, [paymentTokenSymbol])
-  
+
   return (
     <>
       <div className="box-content border-solid border-2 lg:w-96  bg-orange-300 dark:bg-orange-800 rounded-lg border-grey-600 ">
@@ -35,12 +35,11 @@ export const CartModal = ({ userBalance, itemsArray, itemSum, isMintModal, payme
           <p>
             Final Price: {itemSum} {tokenSymbol}
           </p>
-          { userBalance !== undefined ? 
-          <p className='text-sm'>
-            Your Wallet Balance: {parseFloat(formatEther(userBalance)).toFixed(4)} {tokenSymbol}{' '}
-          </p> : null
-          
-        }
+          {userBalance !== undefined ? (
+            <p className="text-sm">
+              Your Wallet Balance: {parseFloat(formatEther(userBalance)).toFixed(4)} {tokenSymbol}{' '}
+            </p>
+          ) : null}
           <button
             className={
               itemsArray.length === 0
