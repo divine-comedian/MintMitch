@@ -1,7 +1,7 @@
 import { erc20ABI } from 'wagmi';
 import {prepareWriteContract, writeContract, fetchBalance, readContract,} from '@wagmi/core'
-import MintingContractJSON from '../artifacts/contracts/MitchMinter.sol/MitchMinter.json'
- import { formatEther, parseEther } from 'ethers/lib/utils.js';
+import MintingContractJSON from '../artifacts/contracts/MitchMinterSupply.sol/MitchMinter.json'
+import { formatEther, parseEther } from 'ethers/lib/utils.js';
 import { BigNumber } from 'ethers';
 import { constants } from './constants';
 
@@ -12,6 +12,7 @@ export interface MintingContractProps {
     dexLink?: string;
     nftExplorerLink?: string;
     name?: string;
+    mitchTokenAddress?: string;
 }
 
 export const selectContractAddress = (network: string) => {
@@ -23,7 +24,8 @@ export const selectContractAddress = (network: string) => {
         explorerLink: constants.GOERLI_ETHERSCAN_URL ,
         dexLink: 'https://app.uniswap.org/#/swap?outputCurrency=',
         nftExplorerLink: 'https://testnets.opensea.io/assets/goerli/',
-        name: 'Goerli'
+        name: 'Goerli',
+        mitchTokenAddress: constants.GOERLI_MITCHTOKEN_ADDRESS
       }
       console.log("connected to", props.name)
 
@@ -36,7 +38,8 @@ export const selectContractAddress = (network: string) => {
         explorerLink: constants.NEXT_PUBLIC_MUMBAI_URL ,
         dexLink: 'https://app.uniswap.org/#/swap?outputCurrency=',
         nftExplorerLink: 'https://testnets.opensea.io/assets/mumbai/',
-        name: 'Polygon Mumbai'
+        name: 'Polygon Mumbai',
+        mitchTokenAddress: constants.MUMBAI_MITCHTOKEN_ADDRESS
 
       }
       console.log("connected to", props.name)
@@ -50,7 +53,8 @@ export const selectContractAddress = (network: string) => {
         explorerLink: constants.NEXT_PUBLIC_GNOSISSCAN_URL ,
         dexLink: 'https://swap.cow.fi/#/100/swap/XDAI/',
         nftExplorerLink: 'https://gnosis.nftscan.com/',
-        name: 'Gnosis Chain'
+        name: 'Gnosis Chain',
+        mitchTokenAddress: constants.GNOSIS_TEST_MITCHTOKEN_ADDRESS
 
       }
       console.log("connected to", props.name)
@@ -213,7 +217,8 @@ export const getUniqueTokens = async ( mintingContractInfo: MintingContractProps
 
 export const getPaymentTokenBalance = async (address: string, mintingContractInfo: MintingContractProps) => {
   try {
-      const paymentTokenAddress = await readContract({address: `0x${mintingContractInfo.address}`,
+      const paymentTokenAddress = await readContract({
+    address: `0x${mintingContractInfo.address}`,
     abi: MintingContractJSON.abi,
     functionName: 'paymentToken',
     args: [],
