@@ -1,4 +1,5 @@
 import '../styles/globals.css'
+import '../styles/tooltip.css'
 import 'tailwindcss/tailwind.css'
 import '@rainbow-me/rainbowkit/styles.css'
 

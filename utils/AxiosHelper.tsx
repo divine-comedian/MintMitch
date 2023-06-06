@@ -2,7 +2,7 @@ const axios = require('axios');
 import {  MintingContractProps } from './ContractHelper';
 import { useEffect, useState, useCallback  } from 'react';
 import { useDebounce } from 'usehooks-ts';
-import MintingContractJSON from '../artifacts/contracts/MitchMinter.sol/MitchMinter.json'
+import MintingContractJSON from '../artifacts/contracts/MitchMinterSupplyUpgradeable.sol/MitchMinter.json'
 import { useContractRead } from 'wagmi'; 
 import { constants } from './constants';
 
