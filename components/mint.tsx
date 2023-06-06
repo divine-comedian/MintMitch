@@ -10,8 +10,6 @@ import {
   mintTokens,
   mintTokensNative,
   approveTokens,
-  // getNativeBalance,
-  // getPaymentTokenBalance,
 } from '../utils/ContractHelper'
 import { formatEther, parseEther } from 'ethers/lib/utils.js'
 
@@ -54,7 +52,7 @@ export const MintModal = ({
   userBalance,
 }: MintItems) => {
   const tokenId = itemsArray[0].tokenID
-  const twitterLink =  contractProps.nftExplorerLink + '0x' + contractProps.address + '/' + tokenId 
+  const twitterLink = contractProps.nftExplorerLink + '0x' + contractProps.address + '/' + tokenId
   const tokenBatchIds = itemsArray.map((item) => item.tokenID)
   const tokenLinks = itemsArray.map((item) => (
     <li className="text-purple-600 py-1 text-lg hover:text-purple-700 font-bold" key={item.tokenID}>
@@ -69,18 +67,11 @@ export const MintModal = ({
     </li>
   ))
   const tokenAmounts = itemsArray.map((item) => 1)
-  // const [connectedAccount, setConnectedAccount] = useState<string | undefined>('')
   const [mintTxHash, setMintTxHash] = useState<string | undefined>(undefined)
   const [approveTxHash, setApproveTxHash] = useState<string | undefined>(undefined)
   const [mintState, setMintState] = useState<string>('not approved')
   const connectedAddress = useAccount().address as string
   const [errorMessage, setErrorMessage] = useState<string>('')
-  // const [network, setNetwork] = useState<string>(process.env.NEXT_PUBLIC_DEFAULT_NETWORK as string)
-  // const currentNetwork = useNetwork().chain?.network as string
-
-  // useEffect(() => {
-  //   setNetwork(currentNetwork)
-  // }, [currentNetwork])
 
   const waitForMint = useWaitForTransaction({
     hash: `0x${mintTxHash}`,
@@ -344,10 +335,7 @@ export const MintModal = ({
                   data-url="https://mintmitch.xyz"
                   data-show-count="false"
                 >
-                  <button
-                  >
-                    Share on Twitter 💖
-                  </button>
+                  <button>Share on Twitter 💖</button>
                 </a>
                 <script async src="https://platform.twitter.com/widgets.js" charSet="utf-8"></script>
               </div>

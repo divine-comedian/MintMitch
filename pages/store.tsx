@@ -10,7 +10,7 @@ import Head from 'next/head'
 import { checkNetwork } from '../utils/checkNetwork'
 import { MintingContractProps, getNativeBalance, getPaymentTokenBalance } from '../utils/ContractHelper'
 import { useNetwork, useContractRead, useAccount } from 'wagmi'
-import MintingContractJSON from '../artifacts/contracts/MitchMinter.sol/MitchMinter.json'
+import MintingContractJSON from '../artifacts/contracts/MitchMinterSupplyUpgradeable.sol/MitchMinter.json'
 import { fetchToken } from '@wagmi/core'
 import { constants } from '../utils/constants'
 import { BigNumber } from 'ethers'
@@ -91,7 +91,7 @@ const Store = () => {
   } = useContractRead({
     address: `0x${contractProps.address}`,
     abi: MintingContractJSON.abi,
-    functionName: 'getUniqueTokens',
+    functionName: 'uniqueTokens',
     chainId: contractProps.chainId,
     args: [],
   })
@@ -118,8 +118,6 @@ const Store = () => {
   }, [currentNetwork])
 
   useEffect(() => {
-    console.log(paymentTokenAddressData)
-    console.log(isNativeMinting)
     if (isPaymentTokenAddressSuccess && isNativeMinting === false) {
       fetchToken({
         address: `0x${(paymentTokenAddressData as string).substring(2)}`,
