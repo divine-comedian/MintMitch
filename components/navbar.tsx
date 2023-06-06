@@ -82,7 +82,7 @@ IProps) => {
 
   useEffect(() => {
     const maxEthNeeded = 32
-    const percentComplete = ((2 + balance!) / maxEthNeeded) * 100
+    const percentComplete = ((2.25 + balance!) / maxEthNeeded) * 100
     setProgressBar(Number(percentComplete.toFixed(3)))
   }, [balance])
 
