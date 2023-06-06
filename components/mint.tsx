@@ -326,7 +326,7 @@ export const MintModal = ({
               <div className="py-2">
                 <a
                   href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(
-                    `I just minted a Mitch Pin NFT, check it out on the blockchain. 😎 \n ${twitterLink} \n\n Support Mitch and get a chance at earning ETH rewards for your project! 🙌 \n https://mintmitch.xyz \n`,
+                    `I just minted a Mitch Pin NFT, check it out on the blockchain. 😎 \n ${twitterLink} \n\n Support Mitch (@divine_comedian) and get a chance at earning ETH rewards for your project! 🙌 \n https://mintmitch.xyz \n`,
                   )}&hashtags=MintMitch`}
                   target="_blank"
                   rel="noopener noreferrer"

@@ -89,15 +89,16 @@ IProps) => {
   useEffect(() => {
     if (account) {
       mitchTokenBalance.refetch().then((response) => {
-        const formattedBalance = parseFloat(response.data?.formatted as string)
-        setRewardTokenBalance(formattedBalance)
+  
+          const formattedBalance = parseFloat(response.data?.formatted as string)
+          setRewardTokenBalance(formattedBalance)
       })
     }
     // if (mitchTokenBalance) {
     //   const formattedBalance = parseFloat(formatEther(mitchTokenBalance as BigNumber))
     //   setRewardTokenBalance(formattedBalance)
     // }
-  }, [account, mitchTokenBalance])
+  }, [account, mitchTokenBalance.data, mitchTokenBalance.isError ])
 
   return (
     <nav className="flex flex-col z-30 lg:flex-row items-center bg-gradient-to-r from-cyan-500 to-blue-500 dark:from-blue-500 dark:to-cyan-500 sm:max-w-screen justify-between py-2 px-4 navBarBorder">
@@ -128,12 +129,14 @@ IProps) => {
       </div>
       {/* Connect to web3, dark mode toggle */}
       <div className="flex items-center justify-end space-x-2">
+          { !Number.isNaN(rewardTokenBalance) &&
           <Tooltip content="This is your $MITCH token balance. Hold onto those!" direction="bottom">
         <div className="flex items-center bg-white/30 dark:bg-black/30 p-1 px-2 rounded-2xl">
             <span className="px-1 mt-1 text-md font-bold">{rewardTokenBalance}</span>{' '}
             <Image src={MitchToken} width={27} height={27} alt="mitch token symbol" />
         </div>
           </Tooltip>
+           }
         {isDarkModeToggleVisible && <DarkModeToggle />}
         {displayConnectButton && <ConnectWallet />}
       </div>
