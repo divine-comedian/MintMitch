@@ -3,7 +3,7 @@ import { MintingContractProps } from '../utils/ContractHelper'
 import { useParseIpfsData, useParseIpfsImage } from '../utils/AxiosHelper'
 import { useState, useEffect } from 'react'
 import { useContractReads, useContractRead } from 'wagmi'
-import MintingContractJSON from '../artifacts/contracts/MitchMinterSupply.sol/MitchMinter.json'
+import MintingContractJSON from '../artifacts/contracts/MitchMinterSupplyUpgradeable.sol/MitchMinter.json'
 import { formatEther } from 'ethers/lib/utils.js'
 
 import { BigNumber } from 'ethers'

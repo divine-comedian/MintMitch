@@ -1,6 +1,6 @@
 import { erc20ABI } from 'wagmi';
 import {prepareWriteContract, writeContract, fetchBalance, readContract,} from '@wagmi/core'
-import MintingContractJSON from '../artifacts/contracts/MitchMinterSupply.sol/MitchMinter.json'
+import MintingContractJSON from '../artifacts/contracts/MitchMinterSupplyUpgradeable.sol/MitchMinter.json'
 import { formatEther, parseEther } from 'ethers/lib/utils.js';
 import { BigNumber } from 'ethers';
 import { constants } from './constants';

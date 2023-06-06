@@ -7,7 +7,7 @@ import { formatEther } from 'ethers/lib/utils.js'
 import { BigNumber } from 'ethers'
 import ConnectWallet from './connectWallet'
 import { useContractRead, useBalance, useAccount } from 'wagmi'
-import MintingContractJSON from '../artifacts/contracts/MitchMinterSupply.sol/MitchMinter.json'
+import MintingContractJSON from '../artifacts/contracts/MitchMinterSupplyUpgradeable.sol/MitchMinter.json'
 import MitchToken from '../images/MitchToken.png'
 import Tooltip from '../utils/ToolTip'
 
@@ -31,7 +31,6 @@ const Navbar = ({
 }: // isNetworkSwitcherVisible = true,
 IProps) => {
   const [progressBar, setProgressBar] = useState(0)
-  const [isNativeMintEnabled, setIsNativeMintEnabled] = useState<boolean | undefined>(undefined)
   const [balance, setBalance] = useState(0)
   const [rewardTokenBalance, setRewardTokenBalance] = useState(0)
   const account = useAccount()
@@ -39,9 +38,6 @@ IProps) => {
   // setIsNativeMintEnabled(nativeMinting)
   const {
     data: isNativeMinting,
-    isSuccess: nativeMintEnabledSuccess,
-    isError: nativeMintEnabledError,
-    error: nativeMintEnabledErrorInfo,
   } = useContractRead({
     address: `0x${contractProps.address}`,
     abi: MintingContractJSON.abi,
@@ -57,22 +53,7 @@ IProps) => {
     enabled: false,
   })
 
-  const paymentTokenAddress = useContractRead({
-    address: `0x${contractProps.address}`,
-    abi: MintingContractJSON.abi,
-    functionName: 'paymentToken',
-    args: [],
-    })
     
-
-  useEffect(() => {
-    if (isNativeMinting !== undefined) {
-      setIsNativeMintEnabled(isNativeMinting as boolean)
-    } else if (nativeMintEnabledError) {
-      console.log('error getting native mint enabled', nativeMintEnabledErrorInfo)
-    }
-  }, [isNativeMinting, nativeMintEnabledSuccess, nativeMintEnabledError])
-
   const getBalance = async () => {
     try {
       if (isNativeMinting === true) {
