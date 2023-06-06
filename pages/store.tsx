@@ -118,8 +118,6 @@ const Store = () => {
   }, [currentNetwork])
 
   useEffect(() => {
-    console.log(paymentTokenAddressData)
-    console.log(isNativeMinting)
     if (isPaymentTokenAddressSuccess && isNativeMinting === false) {
       fetchToken({
         address: `0x${(paymentTokenAddressData as string).substring(2)}`,

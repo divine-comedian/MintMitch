@@ -68,19 +68,24 @@ export const NFTCard: React.FC<NFTCardProps> = ({
   useEffect(() => {
     setTimeout(() => {
       getSupplyInfo.refetch()
-    }, tokenId * 5000)
+    }, tokenId * 1000)
+
     if (getSupplyInfo.data !== undefined) {
+      let remainingSupply: string;
       const [maxSupplyHex, currentSupplyHex] = getSupplyInfo.data as [BigNumber, BigNumber]
       const maxSupply = parseFloat(formatEther(maxSupplyHex)) * 10 ** 18
       const currentSupply = parseFloat(formatEther(currentSupplyHex)) * 10 ** 18
-      const remainingSupply = `${currentSupply}/${maxSupply} `
+      if (currentSupply === maxSupply) {
+        remainingSupply = 'SOLD OUT'
+      }
+      else {
+        remainingSupply = `${currentSupply}/${maxSupply} Minted`
+      }
       setRemainingSupply(remainingSupply)
-      console.log(tokenId, remainingSupply)
     } else if (getSupplyInfo.isError) {
       console.log(getSupplyInfo.error)
     }
-    console.log(getSupplyInfo.data)
-  }, [])
+  }, [getSupplyInfo.data, getSupplyInfo.isError])
 
   const showFadeInOutText = () => {
     setShowFadeText(true)
@@ -157,7 +162,7 @@ export const NFTCard: React.FC<NFTCardProps> = ({
       }`}
     >
       <div className="p-3 space-y-2">
-        <h5 className="text-sm font-bold text-indigo-500 text-right pt-1">{remainingSupply} Minted</h5>
+        <h5 className="text-md font-bold dark:text-orange-700 text-orange-800 text-right pt-1">{remainingSupply}</h5>
         <h2 className="text-xl font-bold py-2">{tokenName}</h2>
         <div className="flex justify-center mr-5 py-3">
           {ipfsImage ? <Image alt="some text here" src={ipfsImage} width={320} height={320} /> : <div>Loading...</div>}
@@ -173,6 +178,7 @@ export const NFTCard: React.FC<NFTCardProps> = ({
         <p>
           {tokenPrice} {tokenSymbol}
         </p>
+        {remainingSupply !== 'SOLD OUT' &&
         <div className="pb-3">
           <div className="rounded-lg p-2 bg-orange-300/50 dark:bg-orange-400/50 inline mr-2 text-lg">
             <span>Pick Me! 👉</span>
@@ -193,6 +199,7 @@ export const NFTCard: React.FC<NFTCardProps> = ({
             {isInCart ? randomMsg : 'Aww...'}
           </span>
         </div>
+        }
       </div>
     </div>
   )

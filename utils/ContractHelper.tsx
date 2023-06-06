@@ -68,7 +68,8 @@ export const selectContractAddress = (network: string) => {
         explorerLink: constants.NEXT_PUBLIC_GNOSISSCAN_URL ,
         dexLink: 'https://swap.cow.fi/#/100/swap/XDAI/',
         nftExplorerLink: 'https://gnosis.nftscan.com/',
-        name: 'Gnosis Chain'
+        name: 'Gnosis Chain',
+        mitchTokenAddress: constants.GNOSIS_PROD_MITCHTOKEN
       }
         console.log("connected to", props.name)
         return props
@@ -79,7 +80,8 @@ export const selectContractAddress = (network: string) => {
         explorerLink: constants.NEXT_PUBLIC_OPTIMISM_URL ,
         dexLink: 'https://app.uniswap.org/#/swap?outputCurrency=',
         nftExplorerLink: 'https://optimism.nftscan.com/',
-        name: 'Optimism'
+        name: 'Optimism',
+        mitchTokenAddress: constants.OPTIMISM_MITCHTOKEN
       }
       console.log("connected to", props.name)
 
@@ -91,7 +93,8 @@ export const selectContractAddress = (network: string) => {
         explorerLink: constants.NEXT_PUBLIC_POLYGON_URL ,
         dexLink: 'https://app.uniswap.org/#/swap?outputCurrency=',
         nftExplorerLink: 'https://polygon.nftscan.com/',
-        name: 'Polygon'
+        name: 'Polygon',
+        mitchTokenAddress: constants.POLYGON_MITCHTOKEN
       }
       console.log("connected to", props.name)
 
@@ -223,7 +226,6 @@ export const getPaymentTokenBalance = async (address: string, mintingContractInf
     functionName: 'paymentToken',
     args: [],
     });
-    console.log(paymentTokenAddress)
     const formattedTokenAddress = await paymentTokenAddress as string;
     const paymentTokenBalance = await fetchBalance({
       address: `0x${address}`,

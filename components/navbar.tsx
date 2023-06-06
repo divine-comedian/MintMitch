@@ -81,7 +81,6 @@ IProps) => {
         })
       } else if (isNativeMinting === false) {
         getPaymentTokenBalance(contractProps.address, contractProps).then((response) => {
-          console.log('payment Token response', response)
           const formattedBalance = parseFloat(formatEther(response as BigNumber))
           setBalance(formattedBalance)
         })
@@ -109,7 +108,6 @@ IProps) => {
   useEffect(() => {
     if (account) {
       mitchTokenBalance.refetch().then((response) => {
-        console.log('response', response.data)
         const formattedBalance = parseFloat(response.data?.formatted as string)
         setRewardTokenBalance(formattedBalance)
       })
