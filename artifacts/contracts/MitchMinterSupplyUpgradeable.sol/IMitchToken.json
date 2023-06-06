@@ -1,7 +1,7 @@
 {
   "_format": "hh-sol-artifact-1",
   "contractName": "IMitchToken",
-  "sourceName": "contracts/MitchMinterSupply.sol",
+  "sourceName": "contracts/MitchMinterSupplyUpgradeable.sol",
   "abi": [
     {
       "inputs": [

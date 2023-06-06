@@ -1995,6 +1995,11 @@
     ethers "^4.0.0-beta.1"
     source-map-support "^0.5.19"
 
+"@openzeppelin/contracts-upgradeable@npm:@openzeppelin/contracts-upgradeable":
+  version "4.9.0"
+  resolved "https://registry.yarnpkg.com/@openzeppelin/contracts-upgradeable/-/contracts-upgradeable-4.9.0.tgz#70aaef469c8ac5bb0ff781480f3d321cbf7be3a8"
+  integrity sha512-+6i2j6vr2fdudTqkBvG+UOosankukxYzg3WN1nqU7ijjQ5A4osWaD3ip6CEz6YvDoSdZgcFVZoiGr7zRlUUoZw==
+
 "@openzeppelin/contracts@^4.1.0", "@openzeppelin/contracts@^4.7.2":
   version "4.7.2"
   resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-4.7.2.tgz#7587416fe2d35abf574193515b8971bfe9f64bc7"
