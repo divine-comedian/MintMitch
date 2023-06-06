@@ -1,6 +1,9 @@
 import { polygonMumbai, optimism, goerli, gnosis, polygon, } from 'wagmi/chains'
 
+const HOSTED_GATEWAY = process.env.IPFS_GATEWAY as string;
+
 export const constants = {
+
      GOERLI_CONTRACT_ADDRESS: '28140243ff24d7ba81e711f084b1b8fbc993572e',
      GOERLI_MITCHTOKEN_ADDRESS: '32c3345101e6e51314f2cfcCc50B116001a89b89',
      GNOSIS_TEST_CONTRACT_ADDRESS: '721186954b6a26cCa2420A66D2b3E92b3659529e',
@@ -13,7 +16,7 @@ export const constants = {
      OPTIMISM_MITCHTOKEN: '7e553D2cA84Ef26D13416563DE6F7f38597aEDD7',
      GNOSIS_PROD_CONTRACT: '3Db165eAc39DBE1608ca638997509C69B0f1c644',
      GNOSIS_PROD_MITCHTOKEN: '77dB6f261437E3D2bf84BcC77350764eA2df90B7',
-     IPFS_GATEWAYS: 'https://ipfs.io/ipfs,https://cloudflare-ipfs.com/ipfs,https://dweb.link/ipfs',
+     IPFS_GATEWAYS:  HOSTED_GATEWAY + ',https://ipfs.io/ipfs,https://cloudflare-ipfs.com/ipfs,https://dweb.link/ipfs',
      GOERLI_ETHERSCAN_URL: 'https://goerli.etherscan.io/',
      NEXT_PUBLIC_GNOSISSCAN_URL: 'https://gnosisscan.io/',
      NEXT_PUBLIC_MUMBAI_URL: 'https://mumbai.polygonscan.com/',

@@ -2,6 +2,7 @@
 module.exports = {
   env: {
     GNOSIS_RPC_URL: process.env.GNOSIS_RPC_URL,
+    IPFS_GATEWAY: process.env.IPFS_GATEWAY,
   },
   reactStrictMode: true,
   async headers() {

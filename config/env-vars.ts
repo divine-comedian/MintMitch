@@ -3,7 +3,8 @@ const envVars = {
   NEXT_PUBLIC_CONTRACT_ADDRESS: String(process.env.NEXT_PUBLIC_CONTRACT_ADDRESS),
   NEXT_PUBLIC_ALCHEMY_ID: String(process.env.NEXT_PUBLIC_ALCHEMY_ID),
   NEXT_PUBLIC_INFURA_ID: String(process.env.NEXT_PUBLIC_INFURA_ID),
-  NEXT_PUBLIC_ETHERSCAN_API_KEY: String(process.env.ETHERSCAN_API_KEY)
+  NEXT_PUBLIC_ETHERSCAN_API_KEY: String(process.env.ETHERSCAN_API_KEY),
+  IPFS_GATEWAY: String(process.env.IPFS_GATEWAY),
 }
 
 export default envVars
