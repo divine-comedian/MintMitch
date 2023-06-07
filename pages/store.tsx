@@ -15,7 +15,6 @@ import { fetchToken } from '@wagmi/core'
 import { constants } from '../utils/constants'
 import { BigNumber } from 'ethers'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
-import { use } from 'chai'
 
 interface Item {
   tokenID: number
