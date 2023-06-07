@@ -15,6 +15,7 @@ import { fetchToken } from '@wagmi/core'
 import { constants } from '../utils/constants'
 import { BigNumber } from 'ethers'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
+import { use } from 'chai'
 
 interface Item {
   tokenID: number
@@ -35,6 +36,7 @@ const Store = () => {
     address: constants.GOERLI_CONTRACT_ADDRESS,
     chainId: 5,
   })
+  const [network, setNetwork] = useState<string | undefined>(undefined)
   const [paymentTokenAddress, setPaymentTokenAddress] = useState<string>('')
   const [paymentTokenSymbol, setPaymentTokenSymbol] = useState<string>('ETH')
   const currentNetwork = useNetwork().chain?.network as string
@@ -109,6 +111,11 @@ const Store = () => {
   }, [])
 
   // welcome to the use effect jungle
+  useEffect(() => {
+    if (currentNetwork !== undefined) {
+      setNetwork(currentNetwork)
+    }
+  }, [currentNetwork])
 
   useEffect(() => {
     const [isRightNetworkBoolean, connectedNetworkArray] = checkNetwork(currentNetwork) as Array<any>
@@ -169,7 +176,7 @@ const Store = () => {
     }
   }, [uniqueTokens, currentNetwork, contractProps, paymentTokenSymbol])
 
-  const cartTotal = mintingCart.reduce((acc, item) => acc + parseFloat(item.tokenPrice), 0)
+  const cartTotal = mintingCart.reduce((acc, item) => acc.add(BigNumber.from(item.tokenPrice)), BigNumber.from(0))
   return (
     <>
       <Head>
@@ -210,15 +217,15 @@ const Store = () => {
                 You are currently connected to <b>{contractProps.name}</b>, so you'll need to use{' '}
                 {isNativeMinting && isNativeMintingSuccess ? (
                   <b>ETH</b>
-                ) : (
+                ) : ( <b>
                   <a
                     className="text-purple-600"
                     href={contractProps.dexLink + '0x' + paymentTokenAddress.substring(2)}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <b>{paymentTokenSymbol}</b>
                   </a>
+                    {paymentTokenSymbol}</b>
                 )}{' '}
                 to purchase some Mitchs.
               </p>
@@ -241,9 +248,9 @@ const Store = () => {
                 used to direct the flow of validator rewards once we reach the goal.
               </p>
             </div>
-            {currentNetwork === undefined ? (
+            {network === undefined ? (
               <div className="font-medium bg-white/30 dark:bg-black/30 lg:max-w-[50%] xl:max-w-[66%] p-5 rounded-2xl mb-5 space-y-2">
-                <h3 className="text-md font-semibold">Connect with your web3 wallet to mint some Mitch!</h3>
+                <h3 className="text-lg font-semibold">Connect with your web3 wallet to mint some Mitch!</h3>
                 <div className="pt-2 pl-4">
                   <ConnectButton />
                 </div>

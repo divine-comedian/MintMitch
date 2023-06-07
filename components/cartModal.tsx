@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react'
 
 interface cartItems {
   itemsArray: any[]
-  itemSum: number
+  itemSum: BigNumber
   isMintModal: Function
   paymentTokenSymbol: string
   userBalance: BigNumber
@@ -16,7 +16,7 @@ export const CartModal = ({ userBalance, itemsArray, itemSum, isMintModal, payme
   const cartItems = Array.from(itemsArray).map((item) => (
     <li key={item.tokenID}>
       {' '}
-      {item.tokenName}: {item.tokenPrice} {tokenSymbol}
+      {item.tokenName}: {formatEther(item.tokenPrice)} {tokenSymbol}
     </li>
   ))
 
@@ -33,7 +33,7 @@ export const CartModal = ({ userBalance, itemsArray, itemSum, isMintModal, payme
 
           <ul>{itemsArray.length === 0 ? "No items added yet! :'(" : cartItems}</ul>
           <p>
-            Final Price: {itemSum} {tokenSymbol}
+            Final Price: {parseFloat(formatEther(itemSum))} {tokenSymbol}
           </p>
           {userBalance !== undefined ? (
             <p className="text-sm">

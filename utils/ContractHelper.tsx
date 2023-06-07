@@ -1,7 +1,7 @@
 import { erc20ABI } from 'wagmi';
 import {prepareWriteContract, writeContract, fetchBalance, readContract,} from '@wagmi/core'
 import MintingContractJSON from '../artifacts/contracts/MitchMinterSupplyUpgradeable.sol/MitchMinter.json'
-import { formatEther, parseEther } from 'ethers/lib/utils.js';
+import { formatEther } from 'ethers/lib/utils.js';
 import { BigNumber } from 'ethers';
 import { constants } from './constants';
 
@@ -156,7 +156,7 @@ export const mintBatchTokens = async (recipientAddress: string, tokenId: number[
     return data
 }
 
-export const mintTokensNative = async (recipientAddress: string, tokenId: number, mintAmount: number, value: number, mintingContractInfo: MintingContractProps) => {
+export const mintTokensNative = async (recipientAddress: string, tokenId: number, mintAmount: number, value: BigNumber, mintingContractInfo: MintingContractProps) => {
   const config = await prepareWriteContract({
     address: `0x${mintingContractInfo.address}`,
         abi: MintingContractJSON.abi,
@@ -164,7 +164,7 @@ export const mintTokensNative = async (recipientAddress: string, tokenId: number
         args: [recipientAddress, tokenId, mintAmount],
         chainId: mintingContractInfo.chainId,
         overrides: {
-          value: parseEther(value.toString())
+          value: value
       }
   })
     const data = await writeContract(config)
@@ -172,7 +172,7 @@ export const mintTokensNative = async (recipientAddress: string, tokenId: number
 }
 
 
-export const mintBatchTokensNative = async (recipientAddress: string, tokenId: number[], mintAmount: number[], value: number, mintingContractInfo: MintingContractProps) => {
+export const mintBatchTokensNative = async (recipientAddress: string, tokenId: number[], mintAmount: number[], value: BigNumber, mintingContractInfo: MintingContractProps) => {
   const config = await prepareWriteContract({
       address: `0x${mintingContractInfo.address}`,
       abi: MintingContractJSON.abi,
@@ -180,7 +180,7 @@ export const mintBatchTokensNative = async (recipientAddress: string, tokenId: n
       args: [recipientAddress, tokenId, mintAmount],
       chainId: mintingContractInfo.chainId,
       overrides: {
-          value: parseEther(value.toString())
+          value: value
       }})
       const data = await writeContract(config)
       return data

@@ -25,7 +25,7 @@ export const NFTCard: React.FC<NFTCardProps> = ({
 }) => {
   const [ipfsData, setIpfsData] = useState({}) as any
   const [ipfsImage, setIpfsImage] = useState() as any
-  const [tokenPrice, setTokenPrice] = useState(0)
+  const [tokenPrice, setTokenPrice] = useState('0')
   const [tokenURI, setTokenURI] = useState('')
   const [isInCart, setIsInCart] = useState<boolean>(false)
   const [showFadeText, setShowFadeText] = useState(false)
@@ -137,9 +137,8 @@ export const NFTCard: React.FC<NFTCardProps> = ({
 
   useEffect(() => {
     if (tokenInfo) {
-      const [newTokenPriceHex, newTokenURI] = tokenInfo as [string, string]
-      const newTokenPrice = parseFloat(formatEther(newTokenPriceHex))
-      setTokenPrice(newTokenPrice)
+      const [newTokenPriceHex, newTokenURI] = tokenInfo as [BigNumber, string]
+      setTokenPrice(newTokenPriceHex.toHexString())
       setTokenURI(newTokenURI)
     } else if (isTokenInfoError) {
       console.log(tokenInfoError)
@@ -176,7 +175,7 @@ export const NFTCard: React.FC<NFTCardProps> = ({
         </div>
         {toggleText ? <p className="font-300 bg-gray-200/30 p-2 rounded-lg">{tokenDescription}</p> : null}
         <p>
-          {tokenPrice} {tokenSymbol}
+          {parseFloat(formatEther(tokenPrice))} {tokenSymbol}
         </p>
         {remainingSupply !== 'SOLD OUT' &&
         <div className="pb-3">
