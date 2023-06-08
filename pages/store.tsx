@@ -280,7 +280,7 @@ const Store = () => {
             )}
           </div>
         </div>
-        {!isRightNetwork && (
+        {!isRightNetwork && currentNetwork !== undefined && (
           <div className="fixed z-30 inset-0 flex items-center justify-center bg-black bg-opacity-40">
             <div className="rise-up">
               <WrongNetwork isRightNetwork={correctNetwork} />
