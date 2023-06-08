@@ -12,6 +12,7 @@ import { publicProvider } from 'wagmi/providers/public'
 import { jsonRpcProvider } from '@wagmi/core/providers/jsonRpc'
 import config from '../config/env-vars'
 import { constants } from '../utils/constants'
+import { Analytics } from '@vercel/analytics/react';
 
 const { NEXT_PUBLIC_ALCHEMY_ID } = config
 const alchemyId = NEXT_PUBLIC_ALCHEMY_ID as string
@@ -52,6 +53,7 @@ const App = ({ Component, pageProps }: AppProps) => {
         <WagmiConfig client={wagmiClient}>
           <RainbowKitProvider chains={chains}>
             <Component {...pageProps} />
+            <Analytics />
           </RainbowKitProvider>
         </WagmiConfig>
       </div>
