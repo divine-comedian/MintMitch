@@ -34,11 +34,7 @@ IProps) => {
   const [balance, setBalance] = useState(0)
   const [rewardTokenBalance, setRewardTokenBalance] = useState(0)
   const account = useAccount()
-  // const nativeMinting = await getIsNativeMinting()
-  // setIsNativeMintEnabled(nativeMinting)
-  const {
-    data: isNativeMinting,
-  } = useContractRead({
+  const { data: isNativeMinting } = useContractRead({
     address: `0x${contractProps.address}`,
     abi: MintingContractJSON.abi,
     functionName: 'nativeMintEnabled',
@@ -53,17 +49,20 @@ IProps) => {
     enabled: false,
   })
 
-    
   const getBalance = async () => {
     try {
       if (isNativeMinting === true) {
         getNativeBalance(contractProps.address).then((response) => {
-          setBalance(parseFloat(formatEther(response)))
+          if (response !== undefined) {
+            setBalance(parseFloat(formatEther(response)))
+          }
         })
       } else if (isNativeMinting === false) {
         getPaymentTokenBalance(contractProps.address, contractProps).then((response) => {
-          const formattedBalance = parseFloat(formatEther(response as BigNumber))
-          setBalance(formattedBalance)
+          if (response !== undefined) {
+            const formattedBalance = parseFloat(formatEther(response as BigNumber))
+            setBalance(formattedBalance)
+          }
         })
       }
     } catch (e) {
@@ -76,10 +75,6 @@ IProps) => {
     }
   }, [contractProps, isNativeMinting, updateBalance])
 
-  // useEffect(() => {
-  //   getBalance()
-  // }, [updateBalance])
-
   useEffect(() => {
     const maxEthNeeded = 32
     const percentComplete = ((2.25 + balance!) / maxEthNeeded) * 100
@@ -89,16 +84,13 @@ IProps) => {
   useEffect(() => {
     if (account) {
       mitchTokenBalance.refetch().then((response) => {
-  
+        if (response !== undefined) {
           const formattedBalance = parseFloat(response.data?.formatted as string)
           setRewardTokenBalance(formattedBalance)
+        }
       })
     }
-    // if (mitchTokenBalance) {
-    //   const formattedBalance = parseFloat(formatEther(mitchTokenBalance as BigNumber))
-    //   setRewardTokenBalance(formattedBalance)
-    // }
-  }, [account, mitchTokenBalance.data, mitchTokenBalance.isError ])
+  }, [account, mitchTokenBalance.data, mitchTokenBalance.isError])
 
   return (
     <nav className="flex flex-col z-30 lg:flex-row items-center bg-gradient-to-r from-cyan-500 to-blue-500 dark:from-blue-500 dark:to-cyan-500 sm:max-w-screen justify-between py-2 px-4 navBarBorder">
@@ -129,14 +121,14 @@ IProps) => {
       </div>
       {/* Connect to web3, dark mode toggle */}
       <div className="flex items-center justify-end space-x-2">
-          { !Number.isNaN(rewardTokenBalance) &&
+        {!Number.isNaN(rewardTokenBalance) && (
           <Tooltip content="This is your $MITCH token balance. Hold onto those!" direction="bottom">
-        <div className="flex items-center bg-white/30 dark:bg-black/30 p-1 px-2 rounded-2xl">
-            <span className="px-1 mt-1 text-md font-bold">{rewardTokenBalance}</span>{' '}
-            <Image src={MitchToken} width={27} height={27} alt="mitch token symbol" />
-        </div>
+            <div className="flex items-center bg-white/30 dark:bg-black/30 p-1 px-2 rounded-2xl">
+              <span className="px-1 mt-1 text-md font-bold">{rewardTokenBalance}</span>{' '}
+              <Image src={MitchToken} width={27} height={27} alt="mitch token symbol" />
+            </div>
           </Tooltip>
-           }
+        )}
         {isDarkModeToggleVisible && <DarkModeToggle />}
         {displayConnectButton && <ConnectWallet />}
       </div>

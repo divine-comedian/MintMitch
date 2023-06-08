@@ -39,7 +39,7 @@ const Store = () => {
   const [paymentTokenAddress, setPaymentTokenAddress] = useState<string>('')
   const [paymentTokenSymbol, setPaymentTokenSymbol] = useState<string>('ETH')
   const currentNetwork = useNetwork().chain?.network as string
-  const account = useAccount().address
+  const { address: account, isConnected: isAccountConnected } = useAccount()
 
   function nftCardsReducer(state: any, action: any) {
     switch (action.type) {
@@ -59,12 +59,7 @@ const Store = () => {
     }
   }
 
-  const {
-    data: isNativeMinting,
-    isSuccess: isNativeMintingSuccess,
-    isError: isNativeMintingError,
-    error: isNativeMintingErrorInfo,
-  } = useContractRead({
+  const { data: isNativeMinting, isSuccess: isNativeMintingSuccess } = useContractRead({
     address: `0x${contractProps.address}`,
     abi: MintingContractJSON.abi,
     functionName: 'nativeMintEnabled',
@@ -141,15 +136,15 @@ const Store = () => {
 
   useEffect(() => {
     const getUserBalance = async (accountAddress: string) => {
-      if (isNativeMinting === true && account) {
+      if (isNativeMinting === true && isAccountConnected) {
         getNativeBalance(accountAddress.substring(2)).then((balance) => setUserBalance(balance))
-      } else if (isNativeMinting === false && account) {
+      } else if (isNativeMinting === false && isAccountConnected) {
         getPaymentTokenBalance(accountAddress.substring(2), contractProps).then((balance) =>
           setUserBalance(balance as BigNumber),
         )
       }
     }
-    if (account) {
+    if (account !== undefined && isAccountConnected && isNativeMinting !== undefined) {
       getUserBalance(account)
     }
   }, [isNativeMinting, account, contractProps])
@@ -216,15 +211,16 @@ const Store = () => {
                 You are currently connected to <b>{contractProps.name}</b>, so you'll need to use{' '}
                 {isNativeMinting && isNativeMintingSuccess ? (
                   <b>ETH</b>
-                ) : ( <b>
-                  <a
-                    className="text-purple-600"
-                    href={contractProps.dexLink + '0x' + paymentTokenAddress.substring(2)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                  </a>
-                    {paymentTokenSymbol}</b>
+                ) : (
+                  <b>
+                    <a
+                      className="text-purple-600"
+                      href={contractProps.dexLink + '0x' + paymentTokenAddress.substring(2)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    ></a>
+                    {paymentTokenSymbol}
+                  </b>
                 )}{' '}
                 to purchase some Mitchs.
               </p>
@@ -280,11 +276,11 @@ const Store = () => {
                 {nftCards}
               </div>
             ) : (
-              <p>Loading...</p>
+              <div>Loading...</div>
             )}
           </div>
         </div>
-        {!currentNetwork || isRightNetwork ? null : (
+        {!isRightNetwork && (
           <div className="fixed z-30 inset-0 flex items-center justify-center bg-black bg-opacity-40">
             <div className="rise-up">
               <WrongNetwork isRightNetwork={correctNetwork} />

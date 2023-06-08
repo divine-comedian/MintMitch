@@ -71,14 +71,13 @@ export const NFTCard: React.FC<NFTCardProps> = ({
     }, tokenId * 1000)
 
     if (getSupplyInfo.data !== undefined) {
-      let remainingSupply: string;
+      let remainingSupply: string
       const [maxSupplyHex, currentSupplyHex] = getSupplyInfo.data as [BigNumber, BigNumber]
       const maxSupply = parseFloat(formatEther(maxSupplyHex)) * 10 ** 18
       const currentSupply = parseFloat(formatEther(currentSupplyHex)) * 10 ** 18
       if (currentSupply === maxSupply) {
         remainingSupply = 'SOLD OUT'
-      }
-      else {
+      } else {
         remainingSupply = `${currentSupply}/${maxSupply} Minted`
       }
       setRemainingSupply(remainingSupply)
@@ -177,28 +176,28 @@ export const NFTCard: React.FC<NFTCardProps> = ({
         <p>
           {parseFloat(formatEther(tokenPrice))} {tokenSymbol}
         </p>
-        {remainingSupply !== 'SOLD OUT' &&
-        <div className="pb-3">
-          <div className="rounded-lg p-2 bg-orange-300/50 dark:bg-orange-400/50 inline mr-2 text-lg">
-            <span>Pick Me! 👉</span>
-            <input
-              className="mx-2 mb-1 accent-orange-300"
-              onChange={handleCart}
-              type="checkbox"
-              id="mint"
-              name="mint"
-              value="mint"
-            />
+        {remainingSupply !== 'SOLD OUT' && (
+          <div className="pb-3">
+            <div className="rounded-lg p-2 bg-orange-300/50 dark:bg-orange-400/50 inline mr-2 text-lg">
+              <span>Pick Me! 👉</span>
+              <input
+                className="mx-2 mb-1 accent-orange-300"
+                onChange={handleCart}
+                type="checkbox"
+                id="mint"
+                name="mint"
+                value="mint"
+              />
+            </div>
+            <span
+              className={`transition-opacity duration-300 ease-in-out font-bold italic text-2xl text-border ${
+                showFadeText ? 'opacity-400' : 'opacity-0'
+              }`}
+            >
+              {isInCart ? randomMsg : 'Aww...'}
+            </span>
           </div>
-          <span
-            className={`transition-opacity duration-300 ease-in-out font-bold italic text-2xl text-border ${
-              showFadeText ? 'opacity-400' : 'opacity-0'
-            }`}
-          >
-            {isInCart ? randomMsg : 'Aww...'}
-          </span>
-        </div>
-        }
+        )}
       </div>
     </div>
   )

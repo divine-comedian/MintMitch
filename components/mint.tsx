@@ -219,7 +219,11 @@ export const MintModal = ({
         return (
           <div className="space-y-2 font-medium dark:text-white text-black">
             <p>Hold tight, just a few more clicks.</p>
-            <p> Approve spending {parseFloat(formatEther(itemSum))} WETH, once you've approved to spend the tokens you'll need to Mint.</p>
+            <p>
+              {' '}
+              Approve spending {parseFloat(formatEther(itemSum))} WETH, once you've approved to spend the tokens you'll
+              need to Mint.
+            </p>
             <button
               className="active:scale-90 transition-transform duration-100 bg-indigo-500 hover:bg-indigo-400 dark:bg-indigo-500 dark:hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded"
               onClick={() => {
@@ -234,7 +238,10 @@ export const MintModal = ({
         return (
           <div className="space-y-2 font-medium dark:text-white">
             <p>Hold tight, just a few more clicks.</p>{' '}
-            <p>Approve spending {parseFloat(formatEther(itemSum))} WETH, once you've approved to spend the tokens you'll need to Mint.</p>
+            <p>
+              Approve spending {parseFloat(formatEther(itemSum))} WETH, once you've approved to spend the tokens you'll
+              need to Mint.
+            </p>
             <button className="bg-gray-500 cursor-default text-gray-700 font-bold py-2 px-4 rounded" disabled>
               <LoadingSpinner />
               Approving...
@@ -374,7 +381,9 @@ export const MintModal = ({
       <h2 className="text-2xl font-bold mb-4">Minting Time. 😎 </h2>
       <div className="text-gray-600">
         {userBalance.lt(itemSum) ? (
-          <p className="text-red-600 text-lg">You don't have the required funds! Your current balance is {parseFloat(formatEther(itemSum))} </p>
+          <p className="text-red-600 text-lg">
+            You don't have the required funds! Your current balance is {parseFloat(formatEther(itemSum))}{' '}
+          </p>
         ) : (
           mintStateRender()
         )}
