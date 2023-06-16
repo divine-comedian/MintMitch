@@ -12,7 +12,7 @@ import { publicProvider } from 'wagmi/providers/public'
 import { jsonRpcProvider } from '@wagmi/core/providers/jsonRpc'
 import config from '../config/env-vars'
 import { constants } from '../utils/constants'
-import { Analytics } from '@vercel/analytics/react';
+import { Analytics } from '@vercel/analytics/react'
 
 const { NEXT_PUBLIC_ALCHEMY_ID } = config
 const alchemyId = NEXT_PUBLIC_ALCHEMY_ID as string
@@ -25,11 +25,11 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 const { chains, provider } = configureChains(appChains, [
-  alchemyProvider({ apiKey: alchemyId as string }),
+   alchemyProvider({ apiKey: alchemyId as string }),
   jsonRpcProvider({
     rpc: () => ({
       priority: 0,
-      http: process.env.GNOSIS_RPC_URL as string,
+      http: process.env.NEXT_PUBLIC_GNOSIS_RPC_URL as string,
     }),
   }),
   publicProvider(),
