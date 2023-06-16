@@ -1,6 +1,6 @@
 import { polygonMumbai, goerli } from 'wagmi/chains'
-// import { polygon, optimism, gnosis } from './Chains'
-import { optimism, gnosis, polygon } from 'wagmi/chains'
+import { polygon, optimism, gnosis } from './Chains'
+// import { optimism, gnosis, polygon } from 'wagmi/chains'
 
 
 export const constants = {
@@ -23,6 +23,6 @@ export const constants = {
      NEXT_PUBLIC_MUMBAI_URL: 'https://mumbai.polygonscan.com/',
      NEXT_PUBLIC_POLYGON_URL: 'https://polygonscan.com/',
      NEXT_PUBLIC_OPTIMISM_URL: 'https://optimistic.etherscan.io/',
-     PRODUCTION_CHAINS: [optimism, polygon, {...gnosis, iconUrl: 'https://honeyswap.1hive.eth.limo/static/media/gnosis-chain-logo.png', rpcUrls: 'https://gno.getblock.io/77e89e7c-3a6d-46f7-86f3-99b9eafd3f2b/mainnet/'}],
+     PRODUCTION_CHAINS: [optimism, polygon, {...gnosis, iconUrl: 'https://honeyswap.1hive.eth.limo/static/media/gnosis-chain-logo.png'}],
      DEVELOPMENT_CHAINS: [goerli, polygonMumbai, {...gnosis, iconUrl: 'https://honeyswap.1hive.eth.limo/static/media/gnosis-chain-logo.png'}],
 } 

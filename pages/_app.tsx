@@ -25,14 +25,10 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 const { chains, provider } = configureChains(appChains, [
-   alchemyProvider({ apiKey: alchemyId as string }),
-  jsonRpcProvider({
-    rpc: () => ({
-      priority: 0,
-      http: process.env.NEXT_PUBLIC_GNOSIS_RPC_URL as string,
-    }),
+  publicProvider({
+    priority: 0,
   }),
-  publicProvider(),
+  alchemyProvider({ apiKey: alchemyId as string, priority: 1 }),
 ])
 
 const { connectors } = getDefaultWallets({

@@ -1,6 +1,6 @@
 import { Chain } from "@wagmi/core";
 
-export const gnosis = {
+export const gnosis: Chain = {
         id: 100,
          name: "Gnosis",
          network: "gnosis",
@@ -11,10 +11,10 @@ export const gnosis = {
         },
          rpcUrls: {
              default: {
-                 http:  ["https://gno.getblock.io/77e89e7c-3a6d-46f7-86f3-99b9eafd3f2b/mainnet/"],
+                 http:  [process.env.NEXT_PUBLIC_GNOSIS_RPC_URL as string],
             },
              public: {
-                 http:  ["https://gno.getblock.io/77e89e7c-3a6d-46f7-86f3-99b9eafd3f2b/mainnet/"],
+                 http:  [process.env.NEXT_PUBLIC_GNOSIS_RPC_URL as string],
             },
         },
          blockExplorers: {
@@ -27,9 +27,9 @@ export const gnosis = {
                  url: "https://blockscout.com/xdai/mainnet/",
             },
         },
-    } as const satisfies Chain;
+    }
 
-export const polygon = {
+export const polygon: Chain = {
      id: 137,
      name: "Polygon",
      network: "matic",
@@ -48,10 +48,10 @@ export const polygon = {
              webSocket:  ["wss://polygon-mainnet.infura.io/ws/v3"],
         },
          default: {
-             http:  ["https://rpc.eu-north-1.gateway.fm/v4/polygon/non-archival/mainnet"],
+             http:  [process.env.NEXT_PUBLIC_GATEWAY_POLYGON_RPC as string],
         },
          public: {
-             http:  ["https://rpc.eu-north-1.gateway.fm/v4/polygon/non-archival/mainnet"],
+             http:  [process.env.NEXT_PUBLIC_GATEWAY_POLYGON_RPC as string],
         },
     },
      blockExplorers: {
@@ -64,9 +64,9 @@ export const polygon = {
              url: "https://polygonscan.com",
         },
     }
-} as const satisfies Chain;
+}
 
-export const optimism = {
+export const optimism: Chain = {
      id: 10,
      name: "Optimism",
      network: "optimism",
@@ -85,10 +85,10 @@ export const optimism = {
              webSocket:  ["wss://optimism-mainnet.infura.io/ws/v3"],
         },
          default: {
-             http:  ["https://rpc.eu-north-1.gateway.fm/v4/optimism/non-archival/mainnet"],
+             http:  [process.env.NEXT_PUBLIC_GATEWAY_OPTIMISM_RPC as string],
         },
          public: {
-             http:  ["https://rpc.eu-north-1.gateway.fm/v4/optimism/non-archival/mainnet"],
+             http:  [process.env.NEXT_PUBLIC_GATEWAY_OPTIMISM_RPC as string],
         },
     },
      blockExplorers: {
@@ -107,4 +107,4 @@ export const optimism = {
              blockCreated: 4286263,
         },
     },
-} as const satisfies Chain;
+}
