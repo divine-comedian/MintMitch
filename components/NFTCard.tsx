@@ -68,7 +68,7 @@ export const NFTCard: React.FC<NFTCardProps> = ({
   useEffect(() => {
     setTimeout(() => {
       getSupplyInfo.refetch()
-    }, tokenId * 1000)
+    }, tokenId * 500)
 
     if (getSupplyInfo.data !== undefined) {
       let remainingSupply: string
