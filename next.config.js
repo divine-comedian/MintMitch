@@ -1,8 +1,10 @@
 /** @type {import('next').NextConfig} */
 module.exports = {
   env: {
-    GNOSIS_RPC_URL: process.env.GNOSIS_RPC_URL,
+    NEXT_PUBLIC_GNOSIS_RPC_URL: process.env.NEXT_PUBLIC_GNOSIS_RPC_URL,
     IPFS_GATEWAY: process.env.IPFS_GATEWAY,
+    NEXT_PUBLIC_GATEWAY_OPTIMISM_RPC: process.env.NEXT_PUBLIC_GATEWAY_OPTIMISM_RPC,
+    NEXT_PUBLIC_GATEWAY_POLYGON_RPC: process.env.NEXT_PUBLIC_GATEWAY_POLYGON_RPC,
   },
   reactStrictMode: true,
   async headers() {
