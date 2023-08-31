@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react'
 import { NFTCard } from '../components/NFTCard'
 import Navbar from '../components/navbar'
-import { selectContractAddress } from '../utils/ContractHelper'
+import { selectContractAddress, getTokenInfo } from '../utils/ContractHelper'
 import { useState, useEffect, useReducer } from 'react'
 import { CartModal } from '../components/cartModal'
 import { WrongNetwork } from '../components/wrongNetwork'
@@ -14,6 +14,7 @@ import MintingContractJSON from '../artifacts/contracts/MitchMinterSupplyUpgrade
 import { fetchToken } from '@wagmi/core'
 import { constants } from '../utils/constants'
 import { BigNumber } from 'ethers'
+import { formatUnits } from 'ethers/lib/utils.js'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 
 interface Item {
@@ -26,6 +27,7 @@ const Store = () => {
   const [updateBalance, setUpdateBalance] = useState<any>()
   const [isRightNetwork, setisRightNetwork] = useState<boolean | undefined>(undefined)
   const [showMintModal, setShowMintModal] = React.useState(false)
+  const [mysteryMintModal, setMysteryMintModal] = React.useState(false)
   const [mintingCart, setMintingCart] = useState<Item[]>([])
   const [uniqueTokens, setUniqueTokens] = useState(0)
   const [correctNetwork, setCorrectNetwork] = useState<string[] | null>(null)
@@ -40,24 +42,6 @@ const Store = () => {
   const [paymentTokenSymbol, setPaymentTokenSymbol] = useState<string>('ETH')
   const currentNetwork = useNetwork().chain?.network as string
   const { address: account, isConnected: isAccountConnected } = useAccount()
-
-  function nftCardsReducer(state: any, action: any) {
-    switch (action.type) {
-      case 'SET_CARDS':
-        return Array.from({ length: action.uniqueTokens }).map((_, i) => (
-          <NFTCard
-            contractProps={action.contractProps}
-            addToCart={action.addToCart}
-            removeFromCart={action.removeFromCart}
-            key={i}
-            tokenId={i + 1}
-            paymentTokenSymbol={action.paymentTokenSymbol}
-          />
-        ))
-      default:
-        throw new Error(`Unsupported action type: ${action.type}`)
-    }
-  }
 
   const { data: isNativeMinting, isSuccess: isNativeMintingSuccess } = useContractRead({
     address: `0x${contractProps.address}`,
@@ -92,6 +76,81 @@ const Store = () => {
     args: [],
   })
 
+  const {
+    data: tokensOwned,
+    isError: istokensOwnedError,
+    error: tokensOwnedError,
+  } = useContractRead({
+    address: `0x${contractProps.address}`,
+    abi: MintingContractJSON.abi,
+    functionName: 'tokensOwned',
+    chainId: contractProps.chainId,
+    args: [account],
+  })
+
+  const tokensOwnedParsed = tokensOwned?.map((token: any) => {
+    return parseFloat(formatUnits(token, 0))
+  })
+
+  console.log('tokens owned', tokensOwnedParsed)
+
+  function getTokensNotOwned(tokensOwned: any) {
+    const tokensNotOwned = []
+    for (let i = 1; i <= uniqueTokens; i++) {
+      if (!tokensOwned.includes(i)) {
+        tokensNotOwned.push(i)
+      }
+    }
+    return tokensNotOwned
+  }
+
+  async function autoMint(amount: number) {
+    const tokensNotOwned = getTokensNotOwned(tokensOwnedParsed)
+    const tokensToMint = tokensNotOwned.slice(0, amount)
+    console.log('tokens to mint', tokensToMint)
+    async function addBatchToCart () {
+      emptyCart()
+      tokensToMint.forEach((token: number) => {
+        getTokenInfo(token, contractProps).then((tokenInfo) => {
+          const [tokenPrice, ] = tokenInfo as [string, ]
+          console.log('token price', tokenPrice)
+          console.log('token id', token)
+          addToCart({
+            tokenID: token,
+            tokenName: '????',
+            tokenPrice: tokenPrice,
+          })
+        })
+      })
+
+    }
+    // await
+     addBatchToCart()
+    //  .then(() => {
+     console.log('minting cart', mintingCart)
+    // setShowMintModal(true)
+    // })
+  }
+
+  function nftCardsReducer(state: any, action: any) {
+    switch (action.type) {
+      case 'SET_CARDS':
+        return Array.from({ length: action.uniqueTokens }).map((_, i) => (
+          <NFTCard
+            contractProps={action.contractProps}
+            addToCart={action.addToCart}
+            removeFromCart={action.removeFromCart}
+            key={i}
+            tokenId={i + 1}
+            paymentTokenSymbol={action.paymentTokenSymbol}
+            owned={action.tokensOwned?.includes(i + 1)}
+          />
+        ))
+      default:
+        throw new Error(`Unsupported action type: ${action.type}`)
+    }
+  }
+
   const isMintModal = (state: boolean) => {
     setShowMintModal(state)
   }
@@ -103,6 +162,11 @@ const Store = () => {
   const removeFromCart = useCallback((item: Item) => {
     setMintingCart((prevMintingCart) => prevMintingCart.filter((i) => i.tokenID !== item.tokenID))
   }, [])
+
+  const emptyCart = useCallback(() => {
+    setMintingCart([])
+  }
+  , [])
 
   // welcome to the use effect jungle
   useEffect(() => {
@@ -166,9 +230,10 @@ const Store = () => {
         addToCart: addToCart,
         removeFromCart: removeFromCart,
         paymentTokenSymbol: paymentTokenSymbol,
+        tokensOwned: tokensOwnedParsed,
       })
     }
-  }, [uniqueTokens, currentNetwork, contractProps, paymentTokenSymbol])
+  }, [uniqueTokens, currentNetwork, contractProps, paymentTokenSymbol, tokensOwned])
 
   const cartTotal = mintingCart.reduce((acc, item) => acc.add(BigNumber.from(item.tokenPrice)), BigNumber.from(0))
   return (
@@ -260,14 +325,35 @@ const Store = () => {
                     transaction will appear to mint all your Mitchs at once.
                   </p>
                 </div>
-                <div className="lg:fixed lg:float-right z-20 lg:top-40 right-10 mr-5 xl:max-w-[26%]">
+                {/* <div className="flex lg:max-w-[50%] xl:max-w-[66%] justify-between my-3 space-x-1">
+                </div> */}
+                <div className="lg:fixed lg:float-right z-20 mt-2 lg:top-20 right-10 mr-5 xl:max-w-[26%]">
                   <CartModal
                     itemsArray={mintingCart}
                     itemSum={cartTotal}
                     isMintModal={isMintModal}
                     paymentTokenSymbol={paymentTokenSymbol}
                     userBalance={userBalance}
+                    emptyCart={emptyCart}
                   />
+                  <div className="space-y-4 mt-3 space-x-1">
+                    <button
+                      onClick={() => autoMint(5)}
+                      className="font-bold text-xl text-slate-300 border-4 px-6 border-solid bg-gradient-to-br border-violet-700 from-violet-500 to-purple-600 rounded-2xl p-3"
+                    >
+                      Mystery 5 pack 🤔
+                    </button>
+                    <button 
+                      onClick={() => autoMint(10)}
+                      className="font-bold text-xl text-slate-300 border-4 px-6 border-solid bg-gradient-to-br border-violet-700 from-violet-500 to-purple-600 rounded-2xl p-3">
+                      Mystery 10 pack ✨
+                    </button>
+                    <button 
+                      onClick={() => autoMint(uniqueTokens)}
+                    className="font-bold text-xl text-slate-300 border-4 px-6 border-solid bg-gradient-to-br border-violet-700 from-violet-500 to-purple-600 rounded-2xl p-3">
+                      GIMME 'EM ALL 🤩
+                    </button>
+                  </div>
                 </div>
               </>
             )}

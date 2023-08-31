@@ -14,6 +14,7 @@ interface NFTCardProps {
   removeFromCart: Function
   contractProps: MintingContractProps
   paymentTokenSymbol: string
+  owned: boolean
 }
 
 export const NFTCard: React.FC<NFTCardProps> = ({
@@ -22,6 +23,7 @@ export const NFTCard: React.FC<NFTCardProps> = ({
   removeFromCart,
   contractProps,
   paymentTokenSymbol,
+  owned,
 }) => {
   const [ipfsData, setIpfsData] = useState({}) as any
   const [ipfsImage, setIpfsImage] = useState() as any
@@ -152,7 +154,7 @@ export const NFTCard: React.FC<NFTCardProps> = ({
   useEffect(() => {
     setTokenSymbol(paymentTokenSymbol)
   }, [paymentTokenSymbol])
-
+  console.log(owned)
   return (
     <div
       className={`shadow-2xl container bg-gray-400/30 dark:bg-gray-700/30 rounded-lg border-grey-600 transition-max-height duration-200 ease-in-out ${
@@ -160,7 +162,16 @@ export const NFTCard: React.FC<NFTCardProps> = ({
       }`}
     >
       <div className="p-3 space-y-2">
-        <h5 className="text-md font-bold dark:text-orange-700 text-orange-800 text-right pt-1">{remainingSupply}</h5>
+        <div>
+          {owned ? (
+            <p className="inline text-md font-bold text-green-700 bg-green-200 text-left p-1 rounded-lg border-solid border-4 border-green-600">
+              OWNED ✅
+            </p>
+          ) : null}
+          <p className="float-right text-md font-bold dark:text-orange-700 text-orange-800 mt-1 text-right">
+            {remainingSupply}
+          </p>
+        </div>
         <h2 className="text-xl font-bold py-2">{tokenName}</h2>
         <div className="flex justify-center mr-5 py-3">
           {ipfsImage ? <Image alt="some text here" src={ipfsImage} width={320} height={320} /> : <div>Loading...</div>}

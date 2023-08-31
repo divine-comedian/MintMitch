@@ -195,8 +195,7 @@ export const getTokenInfo = async (tokenId:number, mintingContractInfo: MintingC
       args: [tokenId]
   });
     const [tokenPriceHex, tokenURI] = tokenInfo as [BigNumber, string]
-    const tokenPrice = parseFloat(formatEther(tokenPriceHex))
-    return [tokenPrice, tokenURI]
+    return [tokenPriceHex, tokenURI]
   } 
   catch (error) {
     console.log(error)

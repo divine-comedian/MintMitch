@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import "@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155BurnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155SupplyUpgradeable.sol";
@@ -251,6 +250,27 @@ contract MitchMinter is ERC1155BurnableUpgradeable, ERC1155URIStorageUpgradeable
     ) internal override(ERC1155Upgradeable, ERC1155SupplyUpgradeable) {
         super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
     }
+
+    function tokensOwned(address account) external view returns (uint256[] memory) {
+    uint256[] memory tokens = new uint256[](uniqueTokens);
+    uint256 tokensOwnedAmount = 0;
+    
+    for (uint256 i = 0; i < uniqueTokens; i++) {
+        uint256 balance = balanceOf(account, i);
+        if (balance > 0) {
+            tokens[tokensOwnedAmount] = i;
+            tokensOwnedAmount++;
+        }
+    }
+    
+    // Resize the tokens array to only include the owned tokens
+    assembly {
+        mstore(tokens, tokensOwnedAmount)
+    }
+    
+    return tokens;
+}
+
 
     function supportsInterface(bytes4 interfaceId) public view virtual override(AccessControlUpgradeable, ERC1155Upgradeable) returns (bool) {
     return super.supportsInterface(interfaceId);

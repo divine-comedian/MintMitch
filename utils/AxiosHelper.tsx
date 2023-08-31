@@ -38,7 +38,7 @@ export const useParseIpfsData = (tokenId: number, contractProps: MintingContract
 });
 const retrieveIpfsData = useCallback(async () => {
   if (isTokenInfoSuccess && tokenInfo) {
-    const [tokenPriceHex, tokenURI] = tokenInfo as [string, string]
+    const [, tokenURI] = tokenInfo as [string, string]
       const tokenCID = tokenURI.replace("ipfs://", "");
       try {
         const response = await getDataFromGateways(tokenCID);
@@ -93,7 +93,7 @@ export const useParseIpfsImage = (tokenId: number, contractProps: MintingContrac
 
   const retrieveIpfsData = useCallback(async () => {
     if (isTokenInfoSuccess && tokenInfo) {
-      const [tokenPriceHex, tokenURI] = tokenInfo as [string, string]
+      const [, tokenURI] = tokenInfo as [string, string]
       const tokenCID = tokenURI.replace("ipfs://", "");
       try {
         const response = await getDataFromGateways(tokenCID);
