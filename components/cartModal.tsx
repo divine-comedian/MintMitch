@@ -1,14 +1,13 @@
-import { BigNumber } from 'ethers'
-import { formatEther } from 'ethers/lib/utils.js'
 import React from 'react'
 import { useEffect, useState } from 'react'
+import { formatEther } from 'viem'
 
 interface cartItems {
   itemsArray: any[]
-  itemSum: BigNumber
+  itemSum: bigint
   isMintModal: Function
   paymentTokenSymbol: string
-  userBalance: BigNumber
+  userBalance: bigint
   emptyCart: Function
 }
 

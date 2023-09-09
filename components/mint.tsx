@@ -2,7 +2,6 @@ import React from 'react'
 import { useWaitForTransaction, useAccount } from 'wagmi'
 import { getAccount } from '@wagmi/core'
 import { useState, useEffect } from 'react'
-import { BigNumber } from 'ethers'
 import {
   mintBatchTokens,
   MintingContractProps,
@@ -11,17 +10,17 @@ import {
   mintTokensNative,
   approveTokens,
 } from '../utils/ContractHelper'
-import { formatEther, parseEther } from 'ethers/lib/utils.js'
+import { formatEther, parseEther } from 'viem'
 
 interface MintItems {
   itemsArray: any[]
-  itemSum: BigNumber
+  itemSum: bigint
   isMintModal: Function
   isNativeMintEnabled: boolean
   contractProps: MintingContractProps
   updateBalance: boolean
   setUpdateBalance: Function
-  userBalance: BigNumber
+  userBalance: bigint
 }
 
 const LoadingSpinner = () => {
@@ -380,7 +379,7 @@ export const MintModal = ({
       </div>
       <h2 className="text-2xl font-bold mb-4">Minting Time. 😎 </h2>
       <div className="text-gray-600">
-        {userBalance.lt(itemSum) ? (
+        {userBalance < itemSum ? (
           <p className="text-red-600 text-lg">
             You don't have the required funds! Your current balance is {parseFloat(formatEther(itemSum))}{' '}
           </p>

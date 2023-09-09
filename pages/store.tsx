@@ -13,8 +13,7 @@ import { useNetwork, useContractRead, useAccount } from 'wagmi'
 import MintingContractJSON from '../artifacts/contracts/MitchMinterSupplyUpgradeable.sol/MitchMinter.json'
 import { fetchToken } from '@wagmi/core'
 import { constants } from '../utils/constants'
-import { BigNumber } from 'ethers'
-import { formatUnits } from 'ethers/lib/utils.js'
+import { formatUnits } from 'viem'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 
 interface Item {
@@ -27,12 +26,11 @@ const Store = () => {
   const [updateBalance, setUpdateBalance] = useState<any>()
   const [isRightNetwork, setisRightNetwork] = useState<boolean | undefined>(undefined)
   const [showMintModal, setShowMintModal] = React.useState(false)
-  const [mysteryMintModal, setMysteryMintModal] = React.useState(false)
   const [mintingCart, setMintingCart] = useState<Item[]>([])
   const [uniqueTokens, setUniqueTokens] = useState(0)
   const [correctNetwork, setCorrectNetwork] = useState<string[] | null>(null)
   const [nftCards, dispatch] = useReducer(nftCardsReducer, [])
-  const [userBalance, setUserBalance] = useState<BigNumber>(BigNumber.from(0))
+  const [userBalance, setUserBalance] = useState<bigint>(0n)
   const [contractProps, setContractProps] = useState<MintingContractProps>({
     address: constants.GOERLI_CONTRACT_ADDRESS,
     chainId: 5,
@@ -78,8 +76,6 @@ const Store = () => {
 
   const {
     data: tokensOwned,
-    isError: istokensOwnedError,
-    error: tokensOwnedError,
   } = useContractRead({
     address: `0x${contractProps.address}`,
     abi: MintingContractJSON.abi,
@@ -88,7 +84,7 @@ const Store = () => {
     args: [account],
   })
 
-  const tokensOwnedParsed = tokensOwned?.map((token: any) => {
+  const tokensOwnedParsed = (tokensOwned as BigInt[])?.map((token: any) => {
     return parseFloat(formatUnits(token, 0))
   })
 
@@ -204,7 +200,7 @@ const Store = () => {
         getNativeBalance(accountAddress.substring(2)).then((balance) => setUserBalance(balance))
       } else if (isNativeMinting === false && isAccountConnected) {
         getPaymentTokenBalance(accountAddress.substring(2), contractProps).then((balance) =>
-          setUserBalance(balance as BigNumber),
+          setUserBalance(balance as bigint),
         )
       }
     }
@@ -215,7 +211,7 @@ const Store = () => {
 
   useEffect(() => {
     if (newUniqueTokens !== undefined) {
-      setUniqueTokens(newUniqueTokens as number)
+      setUniqueTokens(Number(newUniqueTokens))
     } else if (isUniqueTokensError) {
       console.log(uniqueTokensError)
     }
@@ -235,7 +231,7 @@ const Store = () => {
     }
   }, [uniqueTokens, currentNetwork, contractProps, paymentTokenSymbol, tokensOwned])
 
-  const cartTotal = mintingCart.reduce((acc, item) => acc.add(BigNumber.from(item.tokenPrice)), BigNumber.from(0))
+  const cartTotal = mintingCart.reduce((acc, item) => acc +(BigInt(item.tokenPrice)), BigInt(0))
   return (
     <>
       <Head>

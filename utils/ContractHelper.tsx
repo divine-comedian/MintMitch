@@ -1,8 +1,6 @@
 import { erc20ABI } from 'wagmi';
 import {prepareWriteContract, writeContract, fetchBalance, readContract,} from '@wagmi/core'
 import MintingContractJSON from '../artifacts/contracts/MitchMinterSupplyUpgradeable.sol/MitchMinter.json'
-import { formatEther } from 'ethers/lib/utils.js';
-import { BigNumber } from 'ethers';
 import { constants } from './constants';
 
 export interface MintingContractProps {
@@ -111,7 +109,7 @@ export const selectContractAddress = (network: string) => {
     }
 }
 
-export const approveTokens = async ( approveAmount: BigNumber, mintingContractInfo: MintingContractProps) => {
+export const approveTokens = async ( approveAmount: bigint, mintingContractInfo: MintingContractProps) => {
   const response = await readContract({
   address: `0x${mintingContractInfo.address}`,
   abi: MintingContractJSON.abi,
@@ -156,32 +154,30 @@ export const mintBatchTokens = async (recipientAddress: string, tokenId: number[
     return data
 }
 
-export const mintTokensNative = async (recipientAddress: string, tokenId: number, mintAmount: number, value: BigNumber, mintingContractInfo: MintingContractProps) => {
+export const mintTokensNative = async (recipientAddress: string, tokenId: number, mintAmount: number, value: bigint, mintingContractInfo: MintingContractProps) => {
   const config = await prepareWriteContract({
     address: `0x${mintingContractInfo.address}`,
         abi: MintingContractJSON.abi,
         functionName: 'mintWithNativeToken',
         args: [recipientAddress, tokenId, mintAmount],
         chainId: mintingContractInfo.chainId,
-        overrides: {
           value: value
-      }
   })
     const data = await writeContract(config)
     return data
 }
 
 
-export const mintBatchTokensNative = async (recipientAddress: string, tokenId: number[], mintAmount: number[], value: BigNumber, mintingContractInfo: MintingContractProps) => {
+export const mintBatchTokensNative = async (recipientAddress: string, tokenId: number[], mintAmount: number[], value: bigint, mintingContractInfo: MintingContractProps) => {
   const config = await prepareWriteContract({
       address: `0x${mintingContractInfo.address}`,
       abi: MintingContractJSON.abi,
       functionName: 'mintBatchWithNativeToken',
       args: [recipientAddress, tokenId, mintAmount],
       chainId: mintingContractInfo.chainId,
-      overrides: {
-          value: value
-      }})
+     
+         value: value
+      })
       const data = await writeContract(config)
       return data
     }
@@ -194,7 +190,7 @@ export const getTokenInfo = async (tokenId:number, mintingContractInfo: MintingC
       functionName: 'getTokenInfo',
       args: [tokenId]
   });
-    const [tokenPriceHex, tokenURI] = tokenInfo as [BigNumber, string]
+    const [tokenPriceHex, tokenURI] = tokenInfo as [BigInt, string]
     return [tokenPriceHex, tokenURI]
   } 
   catch (error) {
@@ -235,7 +231,7 @@ export const getPaymentTokenBalance = async (address: string, mintingContractInf
   
   
   catch (error) {
-    console.log(error)
+    console.log('getpaymenttokenbalance',error)
   }
 }
 
