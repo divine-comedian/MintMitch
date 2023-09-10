@@ -255,7 +255,7 @@ contract MitchMinter is ERC1155BurnableUpgradeable, ERC1155URIStorageUpgradeable
     uint256[] memory tokens = new uint256[](uniqueTokens);
     uint256 tokensOwnedAmount = 0;
     
-    for (uint256 i = 0; i < uniqueTokens; i++) {
+    for (uint256 i = 0; i <= uniqueTokens; i++) {
         uint256 balance = balanceOf(account, i);
         if (balance > 0) {
             tokens[tokensOwnedAmount] = i;

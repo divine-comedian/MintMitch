@@ -1,10 +1,10 @@
 import DarkModeToggle from './darkModeToggle'
 import Link from 'next/link'
 import Image from 'next/image'
-import { MintingContractProps } from '../utils/ContractHelper'
+import { MintingContractProps, selectContractAddress } from '../utils/ContractHelper'
 import { useEffect, useState } from 'react'
 import ConnectWallet from './connectWallet'
-import { useContractRead, useAccount } from 'wagmi'
+import { useAccount, useNetwork } from 'wagmi'
 import { fetchBalance, readContract } from '@wagmi/core'
 import MintingContractJSON from '../artifacts/contracts/MitchMinterSupplyUpgradeable.sol/MitchMinter.json'
 import MitchToken from '../images/MitchToken.png'
@@ -15,7 +15,6 @@ interface IProps {
   displayConnectButton?: boolean
   isDarkModeToggleVisible?: boolean
   isRightNetwork?: boolean | undefined
-  contractProps: MintingContractProps
   updateBalance?: boolean
 }
 
@@ -26,98 +25,108 @@ const Navbar = ({
   isDarkModeToggleVisible = true,
   displayConnectButton = true,
   isRightNetwork,
-  contractProps,
   updateBalance,
 }: // isNetworkSwitcherVisible = true,
 IProps) => {
   const [progressBar, setProgressBar] = useState(0)
+  const [contractProps, setContractProps] = useState<MintingContractProps | undefined>()
+  const [isNativeMinting, setIsNativeMinting] = useState(true)
   const [balance, setBalance] = useState(0)
   const [rewardTokenBalance, setRewardTokenBalance] = useState(0)
-  // const [contractAddress, selectContractAddress] = useState(contractProps.address)
+  const network = useNetwork().chain?.network as string
   const account = useAccount()
-  const { data: isNativeMinting } = useContractRead({
-    address: `0x${contractProps.address}`,
-    abi: MintingContractJSON.abi,
-    functionName: 'nativeMintEnabled',
-    args: [],
-    chainId: contractProps.chainId,
-  })
 
-
-  // const mitchTokenBalance = useBalance({
-  //   address: `0x${account.address?.substring(2)}`,
-  //   token: `0x${contractProps.mitchTokenAddress}`,
-  //   chainId: contractProps.chainId,
-  //   enabled: false,
-  // })
-  // console.log('account', account.address)
-  // console.log('mitchTokenBalance', mitchTokenBalance)
-  // console.log('contractProps',contractProps)
-
-  const getBalance = async () => {
-      console.log('contract props', contractProps.address)
-      isNativeMinting ? 
-        fetchBalance({
-          address: `0x${contractProps.address}`,
-        })
-       .then((response) => {
-            setBalance(parseFloat(formatEther(response.value)))
-        })
-       : 
-       readContract({
-        address: `0x${contractProps.address}`,
-        abi: MintingContractJSON.abi,
-        functionName: 'paymentToken',
-        args: [],
-        chainId: contractProps.chainId,
-       }).then((response) => {
-        fetchBalance({
-          address: `0x${contractProps.address}`,
-          token: `0x${(response as string).substring(2) }`,
-          chainId: contractProps.chainId,
-        }).then((response) => {
-          if (response !== undefined) {
-            console.log('response', response)
-            const formattedBalance = parseFloat(formatEther(response.value))
-            setBalance(formattedBalance)
-          }
-        })
-        })
-
-  }
-  useEffect(() => {
-    if (isRightNetwork && isNativeMinting !== undefined && contractProps.address !== undefined) {
-      getBalance()
+  const getNativeMintEnabled = async (address: string, chainId: number) => {
+    readContract({
+      address: `0x${address}`,
+      abi: MintingContractJSON.abi,
+      functionName: 'nativeMintEnabled',
+      args: [],
+      chainId: chainId
+    }).then((response) => {
+      setIsNativeMinting(response as boolean)
+    }).catch((error) => {
+      console.log('error', error, 'chainID', chainId)
     }
-  }, [contractProps, isNativeMinting, updateBalance])
-
-  useEffect(() => {
-    const maxEthNeeded = 32
-    const percentComplete = ((2.25 + balance!) / maxEthNeeded) * 100
-    setProgressBar(Number(percentComplete.toFixed(3)))
-    console.log('balance', balance)
-  }, [balance])
-
-  useEffect(() => {
+    )
+  }
+    
+  const getMitchTokenBalance = async (mitchTokenAddress: string) => {
     if (account.address !== undefined ) {
       fetchBalance({
         address: `0x${account.address?.substring(2)}`,
-        token: `0x${contractProps.mitchTokenAddress}`,
-        chainId: contractProps.chainId,
+        token: `0x${mitchTokenAddress}`,
+        chainId: contractProps?.chainId,
       }).then((response) => {
         if (response !== undefined) {
           const formattedBalance = parseFloat(formatEther(response.value))
           setRewardTokenBalance(formattedBalance)
         }
-      })
-      // mitchTokenBalance.refetch().then((response) => {
-      //   if (response !== undefined) {
-      //     const formattedBalance = parseFloat(response.data?.formatted as string)
-      //     setRewardTokenBalance(formattedBalance)
-      //   }
-      // })
+      }).catch((error) => {
+        console.log('error', error)
+      }
+      )
     }
-  }, [account,contractProps])
+  }
+
+  const getContractBalance = async (address: string, chainId: number) => {
+    isNativeMinting ? 
+        fetchBalance({
+          address: `0x${address}`,
+        })
+        .then((response) => {
+            setBalance(parseFloat(formatEther(response.value)))
+        })
+        : 
+        readContract({
+        address: `0x${address}`,
+        abi: MintingContractJSON.abi,
+        functionName: 'paymentToken',
+        args: [],
+        chainId: chainId,
+      }).then((response) => {
+        fetchBalance({
+          address: `0x${address}`,
+          token: `0x${(response as string).substring(2) }`,
+          chainId: chainId,
+        }).then((response) => {
+          if (response !== undefined) {
+            const formattedBalance = parseFloat(formatEther(response.value))
+            setBalance(formattedBalance)
+          }
+        })
+      }).catch((error) => {
+        console.log('error', error)
+        }
+        )
+  }
+  useEffect(() => {
+    if (isRightNetwork && contractProps?.address && contractProps?.chainId && contractProps?.mitchTokenAddress) {
+      getContractBalance(contractProps.address, contractProps.chainId)
+      getMitchTokenBalance(contractProps.mitchTokenAddress)
+    }
+  }, [contractProps, isNativeMinting, updateBalance, isRightNetwork])
+ 
+  useEffect(() => {
+    console.log('network', network)
+    if (network !== undefined) {
+      setContractProps(selectContractAddress(network))
+    }
+  }, [network])
+  
+  useEffect(() => {
+    if (contractProps?.address && contractProps?.chainId) {
+      getNativeMintEnabled(contractProps?.address, contractProps?.chainId)
+    }
+  }
+  , [contractProps])
+
+  useEffect(() => {
+    const maxEthNeeded = 32
+    const percentComplete = ((2.25 + balance!) / maxEthNeeded) * 100
+    setProgressBar(Number(percentComplete.toFixed(3)))
+  }, [balance])
+
 
   return (
     <nav className="flex flex-col z-30 lg:flex-row items-center bg-gradient-to-r from-cyan-500 to-blue-500 dark:from-blue-500 dark:to-cyan-500 sm:max-w-screen justify-between py-2 px-4 navBarBorder">

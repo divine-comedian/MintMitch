@@ -65,7 +65,7 @@ export const MintModal = ({
       </a>
     </li>
   ))
-  const tokenAmounts = itemsArray.map((item) => 1)
+  const tokenAmounts = itemsArray.map(() => 1)
   const [mintTxHash, setMintTxHash] = useState<string | undefined>(undefined)
   const [approveTxHash, setApproveTxHash] = useState<string | undefined>(undefined)
   const [mintState, setMintState] = useState<string>('not approved')
@@ -167,7 +167,7 @@ export const MintModal = ({
     const connectedAddress = await getAccount().address?.toString().substring(2)
     if (connectedAddress) {
       setMintState('approve pending')
-      approveTokens(parseEther(itemSum.toString()), contractProps)
+      approveTokens(itemSum, contractProps)
         .then((response) => {
           {
             setApproveTxHash(response.hash.substring(2))
@@ -368,7 +368,7 @@ export const MintModal = ({
   }
 
   return (
-    <div className=" bg-gradient-to-r from-cyan-400 to-blue-400 dark:from-blue-600 dark:to-cyan-600 max-w-[500px] md:min-w-[400px] xs:w-[200px] p-4 m-4 rounded-lg">
+    <div className=" bg-gradient-to-r overflow-y-auto from-cyan-400 to-blue-400 dark:from-blue-600 dark:to-cyan-600 max-h-[400px] max-w-[500px] md:min-w-[400px] xs:w-[200px] p-4 m-4 rounded-lg">
       <div className="float-right">
         <button
           className="font-bold text-lg py-0.5 px-2 hover:rounded-full hover:bg-gray-300/80"
