@@ -10,7 +10,7 @@ import {
   mintTokensNative,
   approveTokens,
 } from '../utils/ContractHelper'
-import { formatEther, parseEther } from 'viem'
+import { formatEther } from 'viem'
 
 interface MintItems {
   itemsArray: any[]
@@ -351,7 +351,7 @@ export const MintModal = ({
                 >
                   <button>Share on Twitter 💖</button>
                 </a>
-                <script async src="https://platform.twitter.com/widgets.js" charSet="utf-8"></script>
+                <script async src="https://platform.twitter.com/widgets.js"></script>
               </div>
             </p>
             <p>

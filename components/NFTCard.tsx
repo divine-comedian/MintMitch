@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import { MintingContractProps } from '../utils/ContractHelper'
-import { useParseIpfsData, useParseIpfsImage } from '../utils/AxiosHelper'
+import { useParseIpfsImage } from '../utils/AxiosHelper'
 import { useState, useEffect } from 'react'
 import { useContractRead } from 'wagmi'
 import MintingContractJSON from '../artifacts/contracts/MitchMinterSupplyUpgradeable.sol/MitchMinter.json'
