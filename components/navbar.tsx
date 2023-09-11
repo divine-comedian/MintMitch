@@ -108,7 +108,6 @@ IProps) => {
   }, [contractProps, isNativeMinting, updateBalance, isRightNetwork])
  
   useEffect(() => {
-    console.log('network', network)
     if (network !== undefined) {
       setContractProps(selectContractAddress(network))
     }

@@ -21,6 +21,7 @@ interface MintItems {
   updateBalance: boolean
   setUpdateBalance: Function
   userBalance: bigint
+  nftData: any
 }
 
 const LoadingSpinner = () => {
@@ -49,11 +50,15 @@ export const MintModal = ({
   contractProps,
   setUpdateBalance,
   userBalance,
+  nftData
 }: MintItems) => {
+  console.log('nftData', nftData)
   const tokenId = itemsArray[0].tokenID
   const twitterLink = contractProps.nftExplorerLink + '0x' + contractProps.address + '/' + tokenId
   const tokenBatchIds = itemsArray.map((item) => item.tokenID)
   const tokenLinks = itemsArray.map((item) => (
+    console.log('item', nftData[item.tokenID - 1]?.name),
+    console.log('item', item.tokenID),
     <li className="text-purple-600 py-1 text-lg hover:text-purple-700 font-bold" key={item.tokenID}>
       {' '}
       <a
@@ -61,7 +66,7 @@ export const MintModal = ({
         rel="noreferrer noopener"
         href={`${contractProps.nftExplorerLink}0x` + contractProps.address + '/' + item.tokenID}
       >
-        {item.tokenName}
+        {nftData[item.tokenID - 1]?.name ?? 'Loading...'}
       </a>
     </li>
   ))
@@ -322,9 +327,12 @@ export const MintModal = ({
         return (
           <div className="space-y-2 font-medium dark:text-white">
             <p>Amazing! Thank you so much for minting some mitch and supporting me in my goals!</p>
-
+            {nftData && 
+            <>
             <h3 className="text-xl font-bold">Check out your Mitch's here:</h3>
             <ul>{tokenLinks}</ul>
+            </>
+            }
 
             <p>
               You also received {itemsArray.length} $MITCH token{itemsArray.length > 1 ? 's' : ''}. Remember:{' '}

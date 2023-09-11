@@ -2,7 +2,7 @@ import Image from 'next/image'
 import { MintingContractProps } from '../utils/ContractHelper'
 import { useParseIpfsData, useParseIpfsImage } from '../utils/AxiosHelper'
 import { useState, useEffect } from 'react'
-import { useContractReads, useContractRead } from 'wagmi'
+import { useContractRead } from 'wagmi'
 import MintingContractJSON from '../artifacts/contracts/MitchMinterSupplyUpgradeable.sol/MitchMinter.json'
 import { formatEther } from 'viem'
 
@@ -14,6 +14,9 @@ interface NFTCardProps {
   contractProps: MintingContractProps
   paymentTokenSymbol: string
   owned: boolean
+  name: string,
+  description: string,
+  image: string,
 }
 
 export const NFTCard: React.FC<NFTCardProps> = ({
@@ -23,8 +26,11 @@ export const NFTCard: React.FC<NFTCardProps> = ({
   contractProps,
   paymentTokenSymbol,
   owned,
+  name,
+  description,
+  image,
 }) => {
-  const [ipfsData, setIpfsData] = useState({}) as any
+  // const [ipfsData, setIpfsData] = useState({}) as any
   const [ipfsImage, setIpfsImage] = useState() as any
   const [tokenPrice, setTokenPrice] = useState('0')
   const [tokenURI, setTokenURI] = useState('')
@@ -40,10 +46,10 @@ export const NFTCard: React.FC<NFTCardProps> = ({
   }
 
   const newIpfsImage = useParseIpfsImage(tokenId, contractProps)
-  const newIpfsData = useParseIpfsData(tokenId, contractProps)
+  // const newIpfsData = useParseIpfsData(tokenId, contractProps)
 
-  const tokenName = ipfsData.name
-  const tokenDescription = ipfsData.description
+  // const tokenName = ipfsData.name
+  // const tokenDescription = ipfsData.description
   const tokenID = tokenId
 
   const maxTokenSupply = useContractRead({
@@ -119,10 +125,10 @@ export const NFTCard: React.FC<NFTCardProps> = ({
     setRandomMsg(randomMessage())
 
     if (!isInCart) {
-      addToCart({ tokenID, tokenName, tokenPrice })
+      addToCart({ tokenID, name, tokenPrice })
       showFadeInOutText()
     } else {
-      removeFromCart({ tokenID, tokenName, tokenPrice })
+      removeFromCart({ tokenID, name, tokenPrice })
     }
   }
 
@@ -166,14 +172,12 @@ export const NFTCard: React.FC<NFTCardProps> = ({
   }, [tokenInfo, isTokenInfoError])
 
   useEffect(() => {
-    setIpfsData(newIpfsData)
     setIpfsImage(newIpfsImage)
-  }, [newIpfsData, newIpfsImage])
+  }, [newIpfsImage])
 
   useEffect(() => {
     setTokenSymbol(paymentTokenSymbol)
   }, [paymentTokenSymbol])
-  console.log(owned)
   return (
     <div
       className={`shadow-2xl container bg-gray-400/30 dark:bg-gray-700/30 rounded-lg border-grey-600 transition-max-height duration-200 ease-in-out ${
@@ -191,7 +195,7 @@ export const NFTCard: React.FC<NFTCardProps> = ({
             {remainingSupply}
           </p>
         </div>
-        <h2 className="text-xl font-bold py-2">{tokenName}</h2>
+        <h2 className="text-xl font-bold py-2">{name}</h2>
         <div className="flex justify-center mr-5 py-3">
           {ipfsImage ? <Image alt="some text here" src={ipfsImage} width={320} height={320} /> : <div>Loading...</div>}
         </div>
@@ -202,7 +206,7 @@ export const NFTCard: React.FC<NFTCardProps> = ({
             <span className="slider round"></span>
           </label>
         </div>
-        {toggleText ? <p className="font-300 bg-gray-200/30 p-2 rounded-lg">{tokenDescription}</p> : null}
+        {toggleText ? <p className="font-300 bg-gray-200/30 p-2 rounded-lg">{description}</p> : null}
         <p>
           {parseFloat(formatEther(BigInt(tokenPrice)))} {tokenSymbol}
         </p>
