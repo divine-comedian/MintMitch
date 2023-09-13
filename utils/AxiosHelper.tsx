@@ -5,6 +5,7 @@ import { useDebounce } from 'usehooks-ts';
 import MintingContractJSON from '../artifacts/contracts/MitchMinterSupplyUpgradeable.sol/MitchMinter.json'
 import { useContractRead } from 'wagmi'; 
 import { constants } from './constants';
+import { readContract } from '@wagmi/core';
 
 const ipfsGateways = constants.IPFS_GATEWAYS!.split(',');
 
@@ -22,6 +23,36 @@ async function getDataFromGateways(path: any) {
   throw new Error('All gateways failed');
 }
 
+export const getIpfsData = async (tokenId: number, contractProps: MintingContractProps) => {
+  try {
+    const tokenInfo = await readContract({
+      address: `0x${contractProps.address}`,
+      abi: MintingContractJSON.abi,
+      functionName: 'getTokenInfo',
+      args: [tokenId],
+      chainId: contractProps.chainId
+    });
+
+    const [, tokenURI] = tokenInfo as [string, string];
+    const tokenCID = tokenURI.replace("ipfs://", "");
+
+    const response = await getDataFromGateways(tokenCID);
+
+    const metaData = {
+      name: response.data.name,
+      description: response.data.description,
+      image: response.data.image,
+      tokenId: tokenId,
+    }
+    ;
+
+    return metaData
+  } catch (error) {
+    console.error(error);
+    throw error; // You can choose to rethrow the error or handle it here
+  }
+};
+
 
 export const useParseIpfsData = (tokenId: number, contractProps: MintingContractProps) => {
   const debouncedContractProps = useDebounce(contractProps, 500);
@@ -38,7 +69,7 @@ export const useParseIpfsData = (tokenId: number, contractProps: MintingContract
 });
 const retrieveIpfsData = useCallback(async () => {
   if (isTokenInfoSuccess && tokenInfo) {
-    const [tokenPriceHex, tokenURI] = tokenInfo as [string, string]
+    const [, tokenURI] = tokenInfo as [string, string]
       const tokenCID = tokenURI.replace("ipfs://", "");
       try {
         const response = await getDataFromGateways(tokenCID);
@@ -93,7 +124,7 @@ export const useParseIpfsImage = (tokenId: number, contractProps: MintingContrac
 
   const retrieveIpfsData = useCallback(async () => {
     if (isTokenInfoSuccess && tokenInfo) {
-      const [tokenPriceHex, tokenURI] = tokenInfo as [string, string]
+      const [, tokenURI] = tokenInfo as [string, string]
       const tokenCID = tokenURI.replace("ipfs://", "");
       try {
         const response = await getDataFromGateways(tokenCID);

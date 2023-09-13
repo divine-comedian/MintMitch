@@ -1,12 +1,11 @@
 import Image from 'next/image'
 import { MintingContractProps } from '../utils/ContractHelper'
-import { useParseIpfsData, useParseIpfsImage } from '../utils/AxiosHelper'
+import { useParseIpfsImage } from '../utils/AxiosHelper'
 import { useState, useEffect } from 'react'
-import { useContractReads, useContractRead } from 'wagmi'
+import { useContractRead } from 'wagmi'
 import MintingContractJSON from '../artifacts/contracts/MitchMinterSupplyUpgradeable.sol/MitchMinter.json'
-import { formatEther } from 'ethers/lib/utils.js'
+import { formatEther } from 'viem'
 
-import { BigNumber } from 'ethers'
 
 interface NFTCardProps {
   tokenId: number
@@ -14,6 +13,10 @@ interface NFTCardProps {
   removeFromCart: Function
   contractProps: MintingContractProps
   paymentTokenSymbol: string
+  owned: boolean
+  name: string,
+  description: string,
+  image: string,
 }
 
 export const NFTCard: React.FC<NFTCardProps> = ({
@@ -22,8 +25,12 @@ export const NFTCard: React.FC<NFTCardProps> = ({
   removeFromCart,
   contractProps,
   paymentTokenSymbol,
+  owned,
+  name,
+  description,
+  image,
 }) => {
-  const [ipfsData, setIpfsData] = useState({}) as any
+  // const [ipfsData, setIpfsData] = useState({}) as any
   const [ipfsImage, setIpfsImage] = useState() as any
   const [tokenPrice, setTokenPrice] = useState('0')
   const [tokenURI, setTokenURI] = useState('')
@@ -39,40 +46,60 @@ export const NFTCard: React.FC<NFTCardProps> = ({
   }
 
   const newIpfsImage = useParseIpfsImage(tokenId, contractProps)
-  const newIpfsData = useParseIpfsData(tokenId, contractProps)
+  // const newIpfsData = useParseIpfsData(tokenId, contractProps)
 
-  const tokenName = ipfsData.name
-  const tokenDescription = ipfsData.description
+  // const tokenName = ipfsData.name
+  // const tokenDescription = ipfsData.description
   const tokenID = tokenId
 
-  const getSupplyInfo = useContractReads({
-    contracts: [
-      {
-        address: `0x${contractProps.address}`,
-        abi: MintingContractJSON.abi,
-        functionName: 'maxTokenSupply',
-        args: [tokenId],
-        chainId: contractProps.chainId,
-      },
-      {
-        address: `0x${contractProps.address}`,
-        abi: MintingContractJSON.abi,
-        functionName: 'totalSupply',
-        args: [tokenId],
-        chainId: contractProps.chainId,
-      },
-    ],
+  const maxTokenSupply = useContractRead({
+    address: `0x${contractProps.address}`,
+    abi: MintingContractJSON.abi,
+    functionName: 'maxTokenSupply',
+    args: [tokenId],
+    chainId: contractProps.chainId,
     enabled: false,
   })
 
+  const totalSupply = useContractRead({
+    address: `0x${contractProps.address}`,
+    abi: MintingContractJSON.abi,
+    functionName: 'totalSupply',
+    args: [tokenId],
+    chainId: contractProps.chainId,
+    enabled: false,
+  })
+
+
+  // const getSupplyInfo = useContractReads({
+  //   contracts: [
+  //     {
+  //       address: `0x${contractProps.address}`,
+  //       abi: MintingContractJSON.abi,
+  //       functionName: 'maxTokenSupply',
+  //       args: [tokenId],
+  //       chainId: contractProps.chainId,
+  //     },
+  //     {
+  //       address: `0x${contractProps.address}`,
+  //       abi: MintingContractJSON.abi,
+  //       functionName: 'totalSupply',
+  //       args: [tokenId],
+  //       chainId: contractProps.chainId,
+  //     },
+  //   ],
+  //   enabled: false,
+  // })
+
   useEffect(() => {
     setTimeout(() => {
-      getSupplyInfo.refetch()
+      maxTokenSupply.refetch()
+      totalSupply.refetch()
     }, tokenId * 500)
 
-    if (getSupplyInfo.data !== undefined) {
+    if (maxTokenSupply.data !== undefined && totalSupply.data !== undefined) {
       let remainingSupply: string
-      const [maxSupplyHex, currentSupplyHex] = getSupplyInfo.data as [BigNumber, BigNumber]
+      const [maxSupplyHex, currentSupplyHex] = [maxTokenSupply.data, totalSupply.data] as [bigint, bigint]
       const maxSupply = parseFloat(formatEther(maxSupplyHex)) * 10 ** 18
       const currentSupply = parseFloat(formatEther(currentSupplyHex)) * 10 ** 18
       if (currentSupply === maxSupply) {
@@ -81,10 +108,10 @@ export const NFTCard: React.FC<NFTCardProps> = ({
         remainingSupply = `${currentSupply}/${maxSupply} Minted`
       }
       setRemainingSupply(remainingSupply)
-    } else if (getSupplyInfo.isError) {
-      console.log(getSupplyInfo.error)
+    } else if (maxTokenSupply.isError || totalSupply.isError) {
+      console.log(maxTokenSupply?.error ?? totalSupply?.error)
     }
-  }, [getSupplyInfo.data, getSupplyInfo.isError])
+  }, [maxTokenSupply.data, totalSupply.data, totalSupply.isError, maxTokenSupply.isError])
 
   const showFadeInOutText = () => {
     setShowFadeText(true)
@@ -98,10 +125,10 @@ export const NFTCard: React.FC<NFTCardProps> = ({
     setRandomMsg(randomMessage())
 
     if (!isInCart) {
-      addToCart({ tokenID, tokenName, tokenPrice })
+      addToCart({ tokenID, name, tokenPrice })
       showFadeInOutText()
     } else {
-      removeFromCart({ tokenID, tokenName, tokenPrice })
+      removeFromCart({ tokenID, name, tokenPrice })
     }
   }
 
@@ -136,8 +163,8 @@ export const NFTCard: React.FC<NFTCardProps> = ({
 
   useEffect(() => {
     if (tokenInfo) {
-      const [newTokenPriceHex, newTokenURI] = tokenInfo as [BigNumber, string]
-      setTokenPrice(newTokenPriceHex.toHexString())
+      const [newTokenPriceHex, newTokenURI] = tokenInfo as [bigint, string]
+      setTokenPrice(newTokenPriceHex.toString())
       setTokenURI(newTokenURI)
     } else if (isTokenInfoError) {
       console.log(tokenInfoError)
@@ -145,14 +172,12 @@ export const NFTCard: React.FC<NFTCardProps> = ({
   }, [tokenInfo, isTokenInfoError])
 
   useEffect(() => {
-    setIpfsData(newIpfsData)
     setIpfsImage(newIpfsImage)
-  }, [newIpfsData, newIpfsImage])
+  }, [newIpfsImage])
 
   useEffect(() => {
     setTokenSymbol(paymentTokenSymbol)
   }, [paymentTokenSymbol])
-
   return (
     <div
       className={`shadow-2xl container bg-gray-400/30 dark:bg-gray-700/30 rounded-lg border-grey-600 transition-max-height duration-200 ease-in-out ${
@@ -160,8 +185,17 @@ export const NFTCard: React.FC<NFTCardProps> = ({
       }`}
     >
       <div className="p-3 space-y-2">
-        <h5 className="text-md font-bold dark:text-orange-700 text-orange-800 text-right pt-1">{remainingSupply}</h5>
-        <h2 className="text-xl font-bold py-2">{tokenName}</h2>
+        <div>
+          {owned ? (
+            <p className="inline text-md font-bold text-green-700 bg-green-200 text-left p-1 rounded-lg border-solid border-4 border-green-600">
+              OWNED ✅
+            </p>
+          ) : null}
+          <p className="float-right text-md font-bold dark:text-orange-700 text-orange-800 mt-1 text-right">
+            {remainingSupply}
+          </p>
+        </div>
+        <h2 className="text-xl font-bold py-2">{name}</h2>
         <div className="flex justify-center mr-5 py-3">
           {ipfsImage ? <Image alt="some text here" src={ipfsImage} width={320} height={320} /> : <div>Loading...</div>}
         </div>
@@ -172,9 +206,9 @@ export const NFTCard: React.FC<NFTCardProps> = ({
             <span className="slider round"></span>
           </label>
         </div>
-        {toggleText ? <p className="font-300 bg-gray-200/30 p-2 rounded-lg">{tokenDescription}</p> : null}
+        {toggleText ? <p className="font-300 bg-gray-200/30 p-2 rounded-lg">{description}</p> : null}
         <p>
-          {parseFloat(formatEther(tokenPrice))} {tokenSymbol}
+          {parseFloat(formatEther(BigInt(tokenPrice)))} {tokenSymbol}
         </p>
         {remainingSupply !== 'SOLD OUT' && (
           <div className="pb-3">

@@ -2,7 +2,6 @@ import React from 'react'
 import { useWaitForTransaction, useAccount } from 'wagmi'
 import { getAccount } from '@wagmi/core'
 import { useState, useEffect } from 'react'
-import { BigNumber } from 'ethers'
 import {
   mintBatchTokens,
   MintingContractProps,
@@ -11,17 +10,18 @@ import {
   mintTokensNative,
   approveTokens,
 } from '../utils/ContractHelper'
-import { formatEther, parseEther } from 'ethers/lib/utils.js'
+import { formatEther } from 'viem'
 
 interface MintItems {
   itemsArray: any[]
-  itemSum: BigNumber
+  itemSum: bigint
   isMintModal: Function
   isNativeMintEnabled: boolean
   contractProps: MintingContractProps
   updateBalance: boolean
   setUpdateBalance: Function
-  userBalance: BigNumber
+  userBalance: bigint
+  nftData: any
 }
 
 const LoadingSpinner = () => {
@@ -50,11 +50,15 @@ export const MintModal = ({
   contractProps,
   setUpdateBalance,
   userBalance,
+  nftData
 }: MintItems) => {
+  console.log('nftData', nftData)
   const tokenId = itemsArray[0].tokenID
   const twitterLink = contractProps.nftExplorerLink + '0x' + contractProps.address + '/' + tokenId
   const tokenBatchIds = itemsArray.map((item) => item.tokenID)
   const tokenLinks = itemsArray.map((item) => (
+    console.log('item', nftData[item.tokenID - 1]?.name),
+    console.log('item', item.tokenID),
     <li className="text-purple-600 py-1 text-lg hover:text-purple-700 font-bold" key={item.tokenID}>
       {' '}
       <a
@@ -62,11 +66,11 @@ export const MintModal = ({
         rel="noreferrer noopener"
         href={`${contractProps.nftExplorerLink}0x` + contractProps.address + '/' + item.tokenID}
       >
-        {item.tokenName}
+        {nftData[item.tokenID - 1]?.name ?? 'Loading...'}
       </a>
     </li>
   ))
-  const tokenAmounts = itemsArray.map((item) => 1)
+  const tokenAmounts = itemsArray.map(() => 1)
   const [mintTxHash, setMintTxHash] = useState<string | undefined>(undefined)
   const [approveTxHash, setApproveTxHash] = useState<string | undefined>(undefined)
   const [mintState, setMintState] = useState<string>('not approved')
@@ -168,7 +172,7 @@ export const MintModal = ({
     const connectedAddress = await getAccount().address?.toString().substring(2)
     if (connectedAddress) {
       setMintState('approve pending')
-      approveTokens(parseEther(itemSum.toString()), contractProps)
+      approveTokens(itemSum, contractProps)
         .then((response) => {
           {
             setApproveTxHash(response.hash.substring(2))
@@ -323,9 +327,12 @@ export const MintModal = ({
         return (
           <div className="space-y-2 font-medium dark:text-white">
             <p>Amazing! Thank you so much for minting some mitch and supporting me in my goals!</p>
-
+            {nftData && 
+            <>
             <h3 className="text-xl font-bold">Check out your Mitch's here:</h3>
             <ul>{tokenLinks}</ul>
+            </>
+            }
 
             <p>
               You also received {itemsArray.length} $MITCH token{itemsArray.length > 1 ? 's' : ''}. Remember:{' '}
@@ -344,7 +351,7 @@ export const MintModal = ({
                 >
                   <button>Share on Twitter 💖</button>
                 </a>
-                <script async src="https://platform.twitter.com/widgets.js" charSet="utf-8"></script>
+                <script async src="https://platform.twitter.com/widgets.js"></script>
               </div>
             </p>
             <p>
@@ -369,7 +376,7 @@ export const MintModal = ({
   }
 
   return (
-    <div className=" bg-gradient-to-r from-cyan-400 to-blue-400 dark:from-blue-600 dark:to-cyan-600 max-w-[500px] md:min-w-[400px] xs:w-[200px] p-4 m-4 rounded-lg">
+    <div className=" bg-gradient-to-r overflow-y-auto from-cyan-400 to-blue-400 dark:from-blue-600 dark:to-cyan-600 max-h-[400px] max-w-[500px] md:min-w-[400px] xs:w-[200px] p-4 m-4 rounded-lg">
       <div className="float-right">
         <button
           className="font-bold text-lg py-0.5 px-2 hover:rounded-full hover:bg-gray-300/80"
@@ -380,7 +387,7 @@ export const MintModal = ({
       </div>
       <h2 className="text-2xl font-bold mb-4">Minting Time. 😎 </h2>
       <div className="text-gray-600">
-        {userBalance.lt(itemSum) ? (
+        {userBalance < itemSum ? (
           <p className="text-red-600 text-lg">
             You don't have the required funds! Your current balance is {parseFloat(formatEther(itemSum))}{' '}
           </p>

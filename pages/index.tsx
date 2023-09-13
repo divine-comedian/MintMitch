@@ -4,30 +4,29 @@ import { Toaster } from 'react-hot-toast'
 import HomePage from './home'
 import Navbar from '../components/navbar'
 import React, { useEffect, useState } from 'react'
-import { selectContractAddress, MintingContractProps } from '../utils/ContractHelper'
 import { WrongNetwork } from '../components/wrongNetwork'
 import { checkNetwork } from '../utils/checkNetwork'
 import { useNetwork } from 'wagmi'
-import { constants } from '../utils/constants'
 
 const Home: NextPage = () => {
   const [correctNetwork, setCorrectNetwork] = useState<string[] | null>(null)
   const [isRightNetwork, setIsRightNetwork] = useState<boolean | undefined>(undefined)
   const [network, setNetwork] = useState<string>('goerli')
-  const [contractProps, setContractProps] = useState<MintingContractProps>({
-    address: constants.GOERLI_CONTRACT_ADDRESS,
-    chainId: 5,
-  })
+  // const [contractProps, setContractProps] = useState<MintingContractProps>({
+  //   address: constants.GOERLI_CONTRACT_ADDRESS,
+  //   chainId: 5,
+  // })
 
   const currentNetwork = useNetwork().chain?.network as string
 
-  useEffect(() => {
-    setNetwork(currentNetwork)
-  }, [currentNetwork])
+  // useEffect(() => {
+  //   setNetwork(currentNetwork)
+  // }, [currentNetwork])
 
   useEffect(() => {
-    setContractProps(selectContractAddress(network))
-  }, [network])
+    setNetwork(currentNetwork)
+    // setContractProps(selectContractAddress(currentNetwork))
+  }, [currentNetwork])
 
   useEffect(() => {
     const [isRightNetwork, correctNetworkArray] = checkNetwork(network) as Array<any>
@@ -42,7 +41,7 @@ const Home: NextPage = () => {
         <link rel="icon" href="/Favicon.ico" />
       </Head>
       <Toaster />
-      <Navbar isRightNetwork={isRightNetwork} contractProps={contractProps} />
+      <Navbar isRightNetwork={isRightNetwork} />
       <HomePage />
       {!network || isRightNetwork ? null : (
         <div className="fixed z-20 inset-0 flex items-center justify-center bg-black bg-opacity-40">

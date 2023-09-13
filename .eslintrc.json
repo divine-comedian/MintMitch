@@ -5,6 +5,14 @@
   "rules": {
     "react/no-unescaped-entities": "off",
     "unused-imports/no-unused-imports-ts": "warn",
-    "no-unused-vars": "warn"
+    "no-unused-vars": "warn",
+    "react/no-unknown-property": [
+      2,
+      {
+        "ignore": [
+          "jsx"
+        ]
+      }
+    ]
   }
 }

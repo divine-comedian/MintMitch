@@ -1,25 +1,32 @@
 import React, { useCallback } from 'react'
 import { NFTCard } from '../components/NFTCard'
 import Navbar from '../components/navbar'
-import { selectContractAddress } from '../utils/ContractHelper'
-import { useState, useEffect, useReducer } from 'react'
+import { selectContractAddress, getTokenInfo,MintingContractProps, getNativeBalance, getPaymentTokenBalance } from '../utils/ContractHelper'
+import { useState, useEffect } from 'react'
 import { CartModal } from '../components/cartModal'
 import { WrongNetwork } from '../components/wrongNetwork'
 import { MintModal } from '../components/mint'
 import Head from 'next/head'
 import { checkNetwork } from '../utils/checkNetwork'
-import { MintingContractProps, getNativeBalance, getPaymentTokenBalance } from '../utils/ContractHelper'
 import { useNetwork, useContractRead, useAccount } from 'wagmi'
 import MintingContractJSON from '../artifacts/contracts/MitchMinterSupplyUpgradeable.sol/MitchMinter.json'
 import { fetchToken } from '@wagmi/core'
 import { constants } from '../utils/constants'
-import { BigNumber } from 'ethers'
+import { formatUnits } from 'viem'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
+import { getIpfsData } from '../utils/AxiosHelper'
 
 interface Item {
   tokenID: number
   tokenName: any
   tokenPrice: string
+}
+
+interface nftData {
+  name: string
+  description: string
+  image: string
+  tokenId: number
 }
 
 const Store = () => {
@@ -28,9 +35,10 @@ const Store = () => {
   const [showMintModal, setShowMintModal] = React.useState(false)
   const [mintingCart, setMintingCart] = useState<Item[]>([])
   const [uniqueTokens, setUniqueTokens] = useState(0)
+  const [nftData, setNftData] = useState<nftData[]>()
   const [correctNetwork, setCorrectNetwork] = useState<string[] | null>(null)
-  const [nftCards, dispatch] = useReducer(nftCardsReducer, [])
-  const [userBalance, setUserBalance] = useState<BigNumber>(BigNumber.from(0))
+  // const [nftCards, dispatch] = useReducer(nftCardsReducer, [])
+  const [userBalance, setUserBalance] = useState<bigint>(0n)
   const [contractProps, setContractProps] = useState<MintingContractProps>({
     address: constants.GOERLI_CONTRACT_ADDRESS,
     chainId: 5,
@@ -40,24 +48,6 @@ const Store = () => {
   const [paymentTokenSymbol, setPaymentTokenSymbol] = useState<string>('ETH')
   const currentNetwork = useNetwork().chain?.network as string
   const { address: account, isConnected: isAccountConnected } = useAccount()
-
-  function nftCardsReducer(state: any, action: any) {
-    switch (action.type) {
-      case 'SET_CARDS':
-        return Array.from({ length: action.uniqueTokens }).map((_, i) => (
-          <NFTCard
-            contractProps={action.contractProps}
-            addToCart={action.addToCart}
-            removeFromCart={action.removeFromCart}
-            key={i}
-            tokenId={i + 1}
-            paymentTokenSymbol={action.paymentTokenSymbol}
-          />
-        ))
-      default:
-        throw new Error(`Unsupported action type: ${action.type}`)
-    }
-  }
 
   const { data: isNativeMinting, isSuccess: isNativeMintingSuccess } = useContractRead({
     address: `0x${contractProps.address}`,
@@ -92,6 +82,77 @@ const Store = () => {
     args: [],
   })
 
+  const {
+    data: tokensOwned,
+  } = useContractRead({
+    address: `0x${contractProps.address}`,
+    abi: MintingContractJSON.abi,
+    functionName: 'tokensOwned',
+    chainId: contractProps.chainId,
+    args: [account],
+  })
+
+
+  const tokensOwnedParsed = (tokensOwned as BigInt[])?.map((token: any) => {
+    return parseFloat(formatUnits(token, 0))
+  })
+
+
+  function getTokensNotOwned(tokensOwned: any) {
+    const tokensNotOwned = []
+    for (let i = 1; i <= uniqueTokens; i++) {
+      if (!tokensOwned.includes(i)) {
+        tokensNotOwned.push(i)
+      }
+    }
+    return tokensNotOwned
+  }
+
+ async function autoMint(amount: number) {
+    const tokensNotOwned = getTokensNotOwned(tokensOwnedParsed) 
+    if (tokensNotOwned.length !== 0) {
+      let currentIndex = tokensNotOwned.length,  randomIndex;
+      while (0 !== currentIndex) {
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex--;
+        [tokensNotOwned[currentIndex], tokensNotOwned[randomIndex]] = [
+          tokensNotOwned[randomIndex], tokensNotOwned[currentIndex]];
+      }
+      const tokensToMint = tokensNotOwned.slice(0, amount)
+      async function addBatchToCart () {
+        emptyCart()
+        tokensToMint.forEach((token: number) => {
+          getTokenInfo(token, contractProps).then((tokenInfo) => {
+            const [tokenPrice, ] = tokenInfo as [string, ]
+            addToCart({
+              tokenID: token,
+              tokenName: '????',
+              tokenPrice: tokenPrice,
+            })
+          })
+        })
+        
+      }
+      addBatchToCart()
+    } else {
+      alert('You already own all the mitches you maniac!')
+    }
+  }
+
+  async function fetchNFTCardData(totalTokens: number) {
+    try {
+      const allNftData: nftData[] = [];
+        for(let i = 1; i <= totalTokens; i++) {
+          const response = await getIpfsData(i, contractProps);
+          allNftData.push(response);
+        }  
+      return allNftData;
+    } catch (error) {
+      console.log(error);
+      return [];
+    }
+  }
+  
   const isMintModal = (state: boolean) => {
     setShowMintModal(state)
   }
@@ -103,6 +164,11 @@ const Store = () => {
   const removeFromCart = useCallback((item: Item) => {
     setMintingCart((prevMintingCart) => prevMintingCart.filter((i) => i.tokenID !== item.tokenID))
   }, [])
+
+  const emptyCart = useCallback(() => {
+    setMintingCart([])
+  }
+  , [])
 
   // welcome to the use effect jungle
   useEffect(() => {
@@ -140,7 +206,7 @@ const Store = () => {
         getNativeBalance(accountAddress.substring(2)).then((balance) => setUserBalance(balance))
       } else if (isNativeMinting === false && isAccountConnected) {
         getPaymentTokenBalance(accountAddress.substring(2), contractProps).then((balance) =>
-          setUserBalance(balance as BigNumber),
+          setUserBalance(balance as bigint),
         )
       }
     }
@@ -151,26 +217,23 @@ const Store = () => {
 
   useEffect(() => {
     if (newUniqueTokens !== undefined) {
-      setUniqueTokens(newUniqueTokens as number)
+      setUniqueTokens(Number(newUniqueTokens))
     } else if (isUniqueTokensError) {
       console.log(uniqueTokensError)
     }
   }, [newUniqueTokens, contractProps])
 
-  useEffect(() => {
-    if (currentNetwork !== undefined) {
-      dispatch({
-        type: 'SET_CARDS',
-        uniqueTokens: uniqueTokens,
-        contractProps: contractProps,
-        addToCart: addToCart,
-        removeFromCart: removeFromCart,
-        paymentTokenSymbol: paymentTokenSymbol,
-      })
+  useEffect(() => { 
+    if (uniqueTokens !== 0 || undefined) {
+      fetchNFTCardData(uniqueTokens).then((response) => {
+        setNftData(response)
+      }
+      ).catch((error) => console.log(error))
     }
-  }, [uniqueTokens, currentNetwork, contractProps, paymentTokenSymbol])
+  }
+  , [uniqueTokens, contractProps])
 
-  const cartTotal = mintingCart.reduce((acc, item) => acc.add(BigNumber.from(item.tokenPrice)), BigNumber.from(0))
+  const cartTotal = mintingCart.reduce((acc, item) => acc +(BigInt(item.tokenPrice)), BigInt(0))
   return (
     <>
       <Head>
@@ -184,10 +247,11 @@ const Store = () => {
         {/* Add other metadata as needed */}
       </Head>
       <div>
-        <Navbar isRightNetwork={isRightNetwork} contractProps={contractProps} updateBalance={updateBalance} />
+        <Navbar isRightNetwork={isRightNetwork} updateBalance={updateBalance} />
         {showMintModal ? (
           <div className="fixed z-30 inset-0 flex items-center justify-center bg-black bg-opacity-40">
-            <div className="rise-up">
+            <div className="rise-up mb-40">
+              {nftData &&
               <MintModal
                 itemSum={cartTotal}
                 itemsArray={mintingCart}
@@ -197,7 +261,9 @@ const Store = () => {
                 updateBalance={updateBalance}
                 setUpdateBalance={setUpdateBalance}
                 userBalance={userBalance}
+                nftData={nftData}
               />
+              }
             </div>
           </div>
         ) : null}
@@ -243,7 +309,7 @@ const Store = () => {
                 used to direct the flow of validator rewards once we reach the goal.
               </p>
             </div>
-            {network === undefined ? (
+            {!network ? (
               <div className="font-medium bg-white/30 dark:bg-black/30 lg:max-w-[50%] xl:max-w-[66%] p-5 rounded-2xl mb-5 space-y-2">
                 <h3 className="text-lg font-semibold">Connect with your web3 wallet to mint some Mitch!</h3>
                 <div className="pt-2 pl-4">
@@ -260,20 +326,54 @@ const Store = () => {
                     transaction will appear to mint all your Mitchs at once.
                   </p>
                 </div>
-                <div className="lg:fixed lg:float-right z-20 lg:top-40 right-10 mr-5 xl:max-w-[26%]">
+                {/* <div className="flex lg:max-w-[50%] xl:max-w-[66%] justify-between my-3 space-x-1">
+                </div> */}
+                <div className="lg:fixed lg:float-right z-20 mt-2 lg:top-20 right-10 mr-5 xl:max-w-[26%]">
                   <CartModal
                     itemsArray={mintingCart}
                     itemSum={cartTotal}
                     isMintModal={isMintModal}
                     paymentTokenSymbol={paymentTokenSymbol}
                     userBalance={userBalance}
+                    emptyCart={emptyCart}
                   />
+                  <div className="space-y-4 mt-3 space-x-1">
+                    <button
+                      onClick={() => autoMint(5)}
+                      className="font-bold text-xl text-slate-300 border-4 px-6 border-solid bg-gradient-to-br border-violet-700 from-violet-500 to-purple-600 rounded-2xl p-3"
+                    >
+                      Mystery 5 pack 🤔
+                    </button>
+                    <button 
+                      onClick={() => autoMint(10)}
+                      className="font-bold text-xl text-slate-300 border-4 px-6 border-solid bg-gradient-to-br border-violet-700 from-violet-500 to-purple-600 rounded-2xl p-3">
+                      Mystery 10 pack ✨
+                    </button>
+                    <button 
+                      onClick={() => autoMint(uniqueTokens)}
+                    className="font-bold text-xl text-slate-300 border-4 px-6 border-solid bg-gradient-to-br border-violet-700 from-violet-500 to-purple-600 rounded-2xl p-3">
+                      GIMME 'EM ALL 🤩
+                    </button>
+                  </div>
                 </div>
               </>
             )}
-            {nftCards ? (
+            {nftData ? (
               <div className="flex-initial grid xl:grid-cols-2 grid-cols-1 gap-2 gap-x-6 sm:max-w-[50%] xl:max-w-[66%] ">
-                {nftCards}
+               {Array.from({ length: uniqueTokens }).map((_, i) => (
+                  <NFTCard
+                    contractProps={contractProps}
+                    addToCart={addToCart}
+                    removeFromCart={removeFromCart}
+                    key={i}
+                    tokenId={i + 1}
+                    paymentTokenSymbol={paymentTokenSymbol}
+                    owned={tokensOwnedParsed?.includes(i + 1)}
+                    name={nftData[i]?.name}
+                    description={nftData[i]?.description}
+                    image={nftData[i]?.image}
+                  />
+                ))}
               </div>
             ) : (
               <div>Loading...</div>

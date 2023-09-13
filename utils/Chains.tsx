@@ -27,7 +27,7 @@ export const gnosis: Chain = {
                  url: "https://blockscout.com/xdai/mainnet/",
             },
         },
-    }
+    } as const
 
 export const polygon: Chain = {
      id: 137,
