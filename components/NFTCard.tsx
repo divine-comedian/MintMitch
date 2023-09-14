@@ -1,10 +1,10 @@
 import Image from 'next/image'
 import { MintingContractProps } from '../utils/ContractHelper'
-import { useParseIpfsImage } from '../utils/AxiosHelper'
 import { useState, useEffect } from 'react'
 import { useContractRead } from 'wagmi'
 import MintingContractJSON from '../artifacts/contracts/MitchMinterSupplyUpgradeable.sol/MitchMinter.json'
 import { formatEther } from 'viem'
+import { getIpfsImage } from '../utils/AxiosHelper'
 
 
 interface NFTCardProps {
@@ -45,11 +45,6 @@ export const NFTCard: React.FC<NFTCardProps> = ({
     setToggleText(!toggleText)
   }
 
-  const newIpfsImage = useParseIpfsImage(tokenId, contractProps)
-  // const newIpfsData = useParseIpfsData(tokenId, contractProps)
-
-  // const tokenName = ipfsData.name
-  // const tokenDescription = ipfsData.description
   const tokenID = tokenId
 
   const maxTokenSupply = useContractRead({
@@ -90,6 +85,8 @@ export const NFTCard: React.FC<NFTCardProps> = ({
   //   ],
   //   enabled: false,
   // })
+
+
 
   useEffect(() => {
     setTimeout(() => {
@@ -172,8 +169,13 @@ export const NFTCard: React.FC<NFTCardProps> = ({
   }, [tokenInfo, isTokenInfoError])
 
   useEffect(() => {
-    setIpfsImage(newIpfsImage)
-  }, [newIpfsImage])
+    if (image) {
+      getIpfsImage(image).then((res) => {
+        setIpfsImage(res)
+      }
+      )
+    }
+  },[image])
 
   useEffect(() => {
     setTokenSymbol(paymentTokenSymbol)

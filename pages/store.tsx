@@ -22,7 +22,7 @@ interface Item {
   tokenPrice: string
 }
 
-interface nftData {
+export interface nftData {
   name: string
   description: string
   image: string
@@ -143,8 +143,9 @@ const Store = () => {
     try {
       const allNftData: nftData[] = [];
         for(let i = 1; i <= totalTokens; i++) {
-          const response = await getIpfsData(i, contractProps);
+         getIpfsData(i, contractProps).then((response) => {
           allNftData.push(response);
+0        })
         }  
       return allNftData;
     } catch (error) {

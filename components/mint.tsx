@@ -52,13 +52,10 @@ export const MintModal = ({
   userBalance,
   nftData
 }: MintItems) => {
-  console.log('nftData', nftData)
   const tokenId = itemsArray[0].tokenID
   const twitterLink = contractProps.nftExplorerLink + '0x' + contractProps.address + '/' + tokenId
   const tokenBatchIds = itemsArray.map((item) => item.tokenID)
   const tokenLinks = itemsArray.map((item) => (
-    console.log('item', nftData[item.tokenID - 1]?.name),
-    console.log('item', item.tokenID),
     <li className="text-purple-600 py-1 text-lg hover:text-purple-700 font-bold" key={item.tokenID}>
       {' '}
       <a

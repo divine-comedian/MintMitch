@@ -20,7 +20,7 @@
     "@nomiclabs/hardhat-waffle": "^2.0.3",
     "@openzeppelin/contracts": "^4.7.2",
     "@openzeppelin/contracts-upgradeable": "npm:@openzeppelin/contracts-upgradeable",
-    "@rainbow-me/rainbowkit": "1",
+    "@rainbow-me/rainbowkit": "^1.0.11",
     "@tailwindcss/forms": "^0.5.2",
     "@types/react-modal": "^3.13.1",
     "@vercel/analytics": "^1.0.1",
@@ -43,7 +43,7 @@
     "unstated-next": "^1.1.0",
     "usehooks-ts": "^2.9.1",
     "viem": "1.7.0",
-    "wagmi": "1",
+    "wagmi": "1.4.1",
     "yarn": "^1.22.19"
   },
   "devDependencies": {

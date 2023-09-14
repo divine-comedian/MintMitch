@@ -11,6 +11,7 @@ import {infuraProvider} from 'wagmi/providers/infura'
 import { constants } from '../utils/constants'
 import { Analytics } from '@vercel/analytics/react'
 import { jsonRpcProvider } from 'wagmi/providers/jsonRpc'
+import { publicProvider } from 'wagmi/providers/public';
 
 
 const walletConnectId = process.env.WALLET_CONNECT_PROJECT as string
@@ -30,6 +31,7 @@ if (process.env.NODE_ENV === 'development') {
 const { chains, publicClient } = configureChains(appChains, [
   infuraProvider({ apiKey: infuraID}),
   jsonRpcProvider({ rpc: () => ({ http: NEXT_PUBLIC_GNOSIS_RPC_URL }) }),
+  publicProvider(),
 ])
 
 const { connectors } = getDefaultWallets({
