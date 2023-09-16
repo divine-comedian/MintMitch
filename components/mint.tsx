@@ -373,7 +373,7 @@ export const MintModal = ({
   }
 
   return (
-    <div className=" bg-gradient-to-r overflow-y-auto from-cyan-400 to-blue-400 dark:from-blue-600 dark:to-cyan-600 max-h-[400px] max-w-[500px] md:min-w-[400px] xs:w-[200px] p-4 m-4 rounded-lg">
+    <div className=" bg-gradient-to-r overflow-y-auto from-cyan-400 to-blue-400 dark:from-blue-600 dark:to-cyan-600 max-h-[600px] max-w-[500px] md:min-w-[400px] xs:w-[200px] p-4 m-4 rounded-lg">
       <div className="float-right">
         <button
           className="font-bold text-lg py-0.5 px-2 hover:rounded-full hover:bg-gray-300/80"

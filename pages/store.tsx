@@ -35,7 +35,9 @@ const Store = () => {
   const [showMintModal, setShowMintModal] = React.useState(false)
   const [mintingCart, setMintingCart] = useState<Item[]>([])
   const [uniqueTokens, setUniqueTokens] = useState(0)
+  const [nativeMinting, setNativeMinting] = useState<boolean>(false)
   const [nftData, setNftData] = useState<nftData[]>()
+  const [renderWrongNetwork, setRenderWrongNetwork] = useState(false)
   const [correctNetwork, setCorrectNetwork] = useState<string[] | null>(null)
   // const [nftCards, dispatch] = useReducer(nftCardsReducer, [])
   const [userBalance, setUserBalance] = useState<bigint>(0n)
@@ -141,18 +143,22 @@ const Store = () => {
 
   async function fetchNFTCardData(totalTokens: number) {
     try {
-      const allNftData: nftData[] = [];
-        for(let i = 1; i <= totalTokens; i++) {
-         getIpfsData(i, contractProps).then((response) => {
-          allNftData.push(response);
-0        })
-        }  
+      const promises: Promise<nftData>[] = [];
+  
+      for (let i = 1; i <= totalTokens; i++) {
+        const promise = getIpfsData(i, contractProps);
+        promises.push(promise);
+      }
+  
+      const allNftData = await Promise.all(promises);
       return allNftData;
+  
     } catch (error) {
       console.log(error);
       return [];
     }
   }
+  
   
   const isMintModal = (state: boolean) => {
     setShowMintModal(state)
@@ -173,6 +179,12 @@ const Store = () => {
 
   // welcome to the use effect jungle
   useEffect(() => {
+    isNativeMintingSuccess &&
+    setNativeMinting(isNativeMinting as boolean)
+  }, [isNativeMinting])
+
+
+  useEffect(() => {
     if (currentNetwork !== undefined) {
       setNetwork(currentNetwork)
     }
@@ -184,6 +196,15 @@ const Store = () => {
     setCorrectNetwork(connectedNetworkArray)
     setContractProps(selectContractAddress(currentNetwork))
   }, [currentNetwork])
+
+  useEffect(() => {
+    if (isRightNetwork === false && currentNetwork !== undefined && !renderWrongNetwork ) {
+      setRenderWrongNetwork(true) 
+    } else {
+      setRenderWrongNetwork(false)
+    }
+  }, [isRightNetwork, currentNetwork])
+
 
   useEffect(() => {
     if (isPaymentTokenAddressSuccess && isNativeMinting === false) {
@@ -219,20 +240,20 @@ const Store = () => {
   useEffect(() => {
     if (newUniqueTokens !== undefined) {
       setUniqueTokens(Number(newUniqueTokens))
+      fetchNFTCardData(Number(newUniqueTokens)).then((response) => {
+        setNftData(response)
+      }
+      ).catch((error) => console.log(error))
     } else if (isUniqueTokensError) {
       console.log(uniqueTokensError)
     }
   }, [newUniqueTokens, contractProps])
 
-  useEffect(() => { 
-    if (uniqueTokens !== 0 || undefined) {
-      fetchNFTCardData(uniqueTokens).then((response) => {
-        setNftData(response)
-      }
-      ).catch((error) => console.log(error))
-    }
-  }
-  , [uniqueTokens, contractProps])
+  // useEffect(() => { 
+  //   if (uniqueTokens !== 0 || undefined) {
+  //   }
+  // }
+  // , [uniqueTokens, contractProps])
 
   const cartTotal = mintingCart.reduce((acc, item) => acc +(BigInt(item.tokenPrice)), BigInt(0))
   return (
@@ -252,7 +273,7 @@ const Store = () => {
         {showMintModal ? (
           <div className="fixed z-30 inset-0 flex items-center justify-center bg-black bg-opacity-40">
             <div className="rise-up mb-40">
-              {nftData &&
+              {nftData && 
               <MintModal
                 itemSum={cartTotal}
                 itemsArray={mintingCart}
@@ -276,7 +297,7 @@ const Store = () => {
               <p>Mint any Mitchs you like on Gnosis Chain, Optimism and Polygon!</p>
               <p>
                 You are currently connected to <b>{contractProps.name}</b>, so you'll need to use{' '}
-                {isNativeMinting && isNativeMintingSuccess ? (
+                {nativeMinting ? (
                   <b>ETH</b>
                 ) : (
                   <b>
@@ -329,7 +350,7 @@ const Store = () => {
                 </div>
                 {/* <div className="flex lg:max-w-[50%] xl:max-w-[66%] justify-between my-3 space-x-1">
                 </div> */}
-                <div className="lg:fixed lg:float-right z-20 mt-2 lg:top-20 right-10 mr-5 xl:max-w-[26%]">
+                <div className="lg:fixed lg:float-right z-20 mt-2 lg:top-20 right-10 mr-5 md:max-w-[40%] xl:max-w-[26%]">
                   <CartModal
                     itemsArray={mintingCart}
                     itemSum={cartTotal}
@@ -341,25 +362,25 @@ const Store = () => {
                   <div className="space-y-4 mt-3 space-x-1">
                     <button
                       onClick={() => autoMint(5)}
-                      className="font-bold text-xl text-slate-300 border-4 px-6 border-solid bg-gradient-to-br border-violet-700 from-violet-500 to-purple-600 rounded-2xl p-3"
+                      className="font-bold text-xl text-white border-4 px-6 border-solid bg-gradient-to-br border-violet-700 from-violet-500 to-purple-600 rounded-2xl p-3"
                     >
                       Mystery 5 pack 🤔
                     </button>
                     <button 
                       onClick={() => autoMint(10)}
-                      className="font-bold text-xl text-slate-300 border-4 px-6 border-solid bg-gradient-to-br border-violet-700 from-violet-500 to-purple-600 rounded-2xl p-3">
+                      className="font-bold text-xl text-white border-4 px-6 border-solid bg-gradient-to-br border-violet-700 from-violet-500 to-purple-600 rounded-2xl p-3">
                       Mystery 10 pack ✨
                     </button>
                     <button 
                       onClick={() => autoMint(uniqueTokens)}
-                    className="font-bold text-xl text-slate-300 border-4 px-6 border-solid bg-gradient-to-br border-violet-700 from-violet-500 to-purple-600 rounded-2xl p-3">
+                    className="font-bold text-xl text-white border-4 px-6 border-solid bg-gradient-to-br border-violet-700 from-violet-500 to-purple-600 rounded-2xl p-3">
                       GIMME 'EM ALL 🤩
                     </button>
                   </div>
                 </div>
               </>
             )}
-            {nftData ? (
+            {nftData && nftData.length !== 0 && isAccountConnected ? (
               <div className="flex-initial grid xl:grid-cols-2 grid-cols-1 gap-2 gap-x-6 sm:max-w-[50%] xl:max-w-[66%] ">
                {Array.from({ length: uniqueTokens }).map((_, i) => (
                   <NFTCard
@@ -381,7 +402,7 @@ const Store = () => {
             )}
           </div>
         </div>
-        {!isRightNetwork && currentNetwork !== undefined && (
+        {renderWrongNetwork && (
           <div className="fixed z-30 inset-0 flex items-center justify-center bg-black bg-opacity-40">
             <div className="rise-up">
               <WrongNetwork isRightNetwork={correctNetwork} />

@@ -33,7 +33,6 @@ export const NFTCard: React.FC<NFTCardProps> = ({
   // const [ipfsData, setIpfsData] = useState({}) as any
   const [ipfsImage, setIpfsImage] = useState() as any
   const [tokenPrice, setTokenPrice] = useState('0')
-  const [tokenURI, setTokenURI] = useState('')
   const [isInCart, setIsInCart] = useState<boolean>(false)
   const [showFadeText, setShowFadeText] = useState(false)
   const [randomMsg, setRandomMsg] = useState('')
@@ -160,22 +159,28 @@ export const NFTCard: React.FC<NFTCardProps> = ({
 
   useEffect(() => {
     if (tokenInfo) {
-      const [newTokenPriceHex, newTokenURI] = tokenInfo as [bigint, string]
+      const [newTokenPriceHex,] = tokenInfo as [bigint, string]
       setTokenPrice(newTokenPriceHex.toString())
-      setTokenURI(newTokenURI)
     } else if (isTokenInfoError) {
       console.log(tokenInfoError)
     }
   }, [tokenInfo, isTokenInfoError])
 
+  // if (image && name && description && !ipfsImage) {
+  //   getIpfsImage(image).then((res) => {
+  //     setIpfsImage(res)
+  //   }
+  //   )
+  // }
+
   useEffect(() => {
-    if (image) {
+    if (image && !ipfsImage) {
       getIpfsImage(image).then((res) => {
         setIpfsImage(res)
       }
       )
     }
-  },[image])
+  },[image, ipfsImage, name, description])
 
   useEffect(() => {
     setTokenSymbol(paymentTokenSymbol)
