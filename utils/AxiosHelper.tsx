@@ -1,9 +1,6 @@
 const axios = require('axios');
 import {  MintingContractProps } from './ContractHelper';
-import { useEffect, useState, useCallback  } from 'react';
-import { useDebounce } from 'usehooks-ts';
 import MintingContractJSON from '../artifacts/contracts/MitchMinterSupplyUpgradeable.sol/MitchMinter.json'
-import { useContractRead } from 'wagmi'; 
 import { constants } from './constants';
 import { readContract } from '@wagmi/core';
 import { nftData } from '../pages/store';
@@ -33,16 +30,16 @@ export const getIpfsData = async (tokenId: number, contractProps: MintingContrac
       args: [tokenId],
       chainId: contractProps.chainId
     });
-
-    const [, tokenURI] = tokenInfo as [string, string];
+    const [tokenPrice , tokenURI] = tokenInfo as [bigint, string];
     const tokenCID = tokenURI.replace("ipfs://", "");
     const response = await getDataFromGateways(tokenCID);
-
+    console.log('token Price is getipfs data', tokenPrice)
     const metaData = {
       name: response.data.name,
       description: response.data.description,
       image: response.data.image,
       tokenId: tokenId,
+      tokenPrice: tokenPrice
     };
 
     return metaData;

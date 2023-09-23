@@ -1,9 +1,10 @@
 import React from 'react'
 import { useEffect, useState } from 'react'
 import { formatEther } from 'viem'
+import { nftData } from '../pages/store.jsx'
 
 interface cartItems {
-  itemsArray: any[]
+  itemsArray: nftData[]
   itemSum: bigint
   isMintModal: Function
   paymentTokenSymbol: string
@@ -14,9 +15,10 @@ interface cartItems {
 export const CartModal = ({ userBalance, itemsArray, itemSum, isMintModal, paymentTokenSymbol, emptyCart }: cartItems) => {
   const [tokenSymbol, setTokenSymbol] = useState('ETH')
   const cartItems = Array.from(itemsArray).map((item) => (
-    <li key={item.tokenID}>
+    console.log('token name on cart modal', item.name),
+    <li key={item.tokenId}>
       {' '}
-      {item.tokenName}: {formatEther(item.tokenPrice)} {tokenSymbol}
+      {item.name}: {formatEther(item.tokenPrice)} {tokenSymbol}
     </li>
   ))
 

@@ -5,6 +5,7 @@ import { useContractRead } from 'wagmi'
 import MintingContractJSON from '../artifacts/contracts/MitchMinterSupplyUpgradeable.sol/MitchMinter.json'
 import { formatEther } from 'viem'
 import { getIpfsImage } from '../utils/AxiosHelper'
+import { nftData } from '../pages/store'
 
 
 interface NFTCardProps {
@@ -17,6 +18,7 @@ interface NFTCardProps {
   name: string,
   description: string,
   image: string,
+  price: bigint,
 }
 
 export const NFTCard: React.FC<NFTCardProps> = ({
@@ -29,10 +31,12 @@ export const NFTCard: React.FC<NFTCardProps> = ({
   name,
   description,
   image,
+  price,
 }) => {
   // const [ipfsData, setIpfsData] = useState({}) as any
   const [ipfsImage, setIpfsImage] = useState() as any
   const [tokenPrice, setTokenPrice] = useState('0')
+  const [nftData, setNftData] = useState<nftData>({} as nftData)
   const [isInCart, setIsInCart] = useState<boolean>(false)
   const [showFadeText, setShowFadeText] = useState(false)
   const [randomMsg, setRandomMsg] = useState('')
@@ -43,8 +47,6 @@ export const NFTCard: React.FC<NFTCardProps> = ({
   const handleToggle = () => {
     setToggleText(!toggleText)
   }
-
-  const tokenID = tokenId
 
   const maxTokenSupply = useContractRead({
     address: `0x${contractProps.address}`,
@@ -85,7 +87,10 @@ export const NFTCard: React.FC<NFTCardProps> = ({
   //   enabled: false,
   // })
 
-
+  useEffect(() => {
+    setNftData({ name, description, image, tokenId, tokenPrice: price })
+  }, [name, description, image, price])
+  
 
   useEffect(() => {
     setTimeout(() => {
@@ -117,14 +122,16 @@ export const NFTCard: React.FC<NFTCardProps> = ({
   }
 
   const handleCart = () => {
+    const {tokenId: id, name: name, tokenPrice: price } = nftData
     setIsInCart((prevIsInCart) => !prevIsInCart)
     setRandomMsg(randomMessage())
 
     if (!isInCart) {
-      addToCart({ tokenID, name, tokenPrice })
+      console.log('adding to cart', id, name, price)
+      addToCart({ tokenId: id, name, tokenPrice: price })
       showFadeInOutText()
     } else {
-      removeFromCart({ tokenID, name, tokenPrice })
+      removeFromCart({ tokenId: id, name, tokenPrice: price})
     }
   }
 
@@ -145,26 +152,26 @@ export const NFTCard: React.FC<NFTCardProps> = ({
     return messages[randomIndex]
   }
 
-  const {
-    data: tokenInfo,
-    isError: isTokenInfoError,
-    error: tokenInfoError,
-  } = useContractRead({
-    address: `0x${contractProps.address}`,
-    abi: MintingContractJSON.abi,
-    functionName: 'getTokenInfo',
-    args: [tokenId],
-    chainId: contractProps.chainId,
-  })
+  // const {
+  //   data: tokenInfo,
+  //   isError: isTokenInfoError,
+  //   error: tokenInfoError,
+  // } = useContractRead({
+  //   address: `0x${contractProps.address}`,
+  //   abi: MintingContractJSON.abi,
+  //   functionName: 'getTokenInfo',
+  //   args: [tokenId],
+  //   chainId: contractProps.chainId,
+  // })
 
-  useEffect(() => {
-    if (tokenInfo) {
-      const [newTokenPriceHex,] = tokenInfo as [bigint, string]
-      setTokenPrice(newTokenPriceHex.toString())
-    } else if (isTokenInfoError) {
-      console.log(tokenInfoError)
-    }
-  }, [tokenInfo, isTokenInfoError])
+  // useEffect(() => {
+  //   if (tokenInfo) {
+  //     const [newTokenPriceHex,] = tokenInfo as [bigint, string]
+  //     setTokenPrice(newTokenPriceHex.toString())
+  //   } else if (isTokenInfoError) {
+  //     console.log(tokenInfoError)
+  //   }
+  // }, [tokenInfo, isTokenInfoError])
 
   // if (image && name && description && !ipfsImage) {
   //   getIpfsImage(image).then((res) => {

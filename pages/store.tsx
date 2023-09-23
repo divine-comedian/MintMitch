@@ -16,24 +16,25 @@ import { formatUnits } from 'viem'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { getIpfsData } from '../utils/AxiosHelper'
 
-interface Item {
-  tokenID: number
-  tokenName: any
-  tokenPrice: string
-}
+// interface Item {
+//   tokenID: number
+//   tokenName: string
+//   tokenPrice: string
+// }
 
 export interface nftData {
   name: string
-  description: string
-  image: string
+  description?: string
+  image?: string
   tokenId: number
+  tokenPrice: bigint
 }
 
 const Store = () => {
   const [updateBalance, setUpdateBalance] = useState<any>()
   const [isRightNetwork, setisRightNetwork] = useState<boolean | undefined>(undefined)
   const [showMintModal, setShowMintModal] = React.useState(false)
-  const [mintingCart, setMintingCart] = useState<Item[]>([])
+  const [mintingCart, setMintingCart] = useState<nftData[]>([])
   const [uniqueTokens, setUniqueTokens] = useState(0)
   const [nativeMinting, setNativeMinting] = useState<boolean>(false)
   const [nftData, setNftData] = useState<nftData[]>()
@@ -121,16 +122,15 @@ const Store = () => {
           tokensNotOwned[randomIndex], tokensNotOwned[currentIndex]];
       }
       const tokensToMint = tokensNotOwned.slice(0, amount)
+      console.log('tokens to mint', tokensToMint)
       async function addBatchToCart () {
         emptyCart()
+        nftData &&
         tokensToMint.forEach((token: number) => {
-          getTokenInfo(token, contractProps).then((tokenInfo) => {
-            const [tokenPrice, ] = tokenInfo as [string, ]
             addToCart({
-              tokenID: token,
-              tokenName: '????',
-              tokenPrice: tokenPrice,
-            })
+              tokenId: token,
+              name: '????',
+              tokenPrice: nftData[token-1].tokenPrice,
           })
         })
         
@@ -164,12 +164,13 @@ const Store = () => {
     setShowMintModal(state)
   }
 
-  const addToCart = useCallback((item: Item) => {
+  const addToCart = useCallback((item: nftData) => {
+    // console.log('item added to cart', item)
     setMintingCart((prevMintingCart) => [...prevMintingCart, item])
   }, [])
 
-  const removeFromCart = useCallback((item: Item) => {
-    setMintingCart((prevMintingCart) => prevMintingCart.filter((i) => i.tokenID !== item.tokenID))
+  const removeFromCart = useCallback((item: nftData) => {
+    setMintingCart((prevMintingCart) => prevMintingCart.filter((i) => i.tokenId !== item.tokenId))
   }, [])
 
   const emptyCart = useCallback(() => {
@@ -283,7 +284,6 @@ const Store = () => {
                 updateBalance={updateBalance}
                 setUpdateBalance={setUpdateBalance}
                 userBalance={userBalance}
-                nftData={nftData}
               />
               }
             </div>
@@ -350,6 +350,7 @@ const Store = () => {
                 </div>
                 {/* <div className="flex lg:max-w-[50%] xl:max-w-[66%] justify-between my-3 space-x-1">
                 </div> */}
+               {nftData && nftData.length !== 0 && isAccountConnected &&
                 <div className="lg:fixed lg:float-right z-20 mt-2 lg:top-20 right-10 mr-5 md:max-w-[40%] xl:max-w-[26%]">
                   <CartModal
                     itemsArray={mintingCart}
@@ -373,27 +374,30 @@ const Store = () => {
                     </button>
                     <button 
                       onClick={() => autoMint(uniqueTokens)}
-                    className="font-bold text-xl text-white border-4 px-6 border-solid bg-gradient-to-br border-violet-700 from-violet-500 to-purple-600 rounded-2xl p-3">
+                      className="font-bold text-xl text-white border-4 px-6 border-solid bg-gradient-to-br border-violet-700 from-violet-500 to-purple-600 rounded-2xl p-3">
                       GIMME 'EM ALL 🤩
                     </button>
                   </div>
                 </div>
+                    }
               </>
             )}
             {nftData && nftData.length !== 0 && isAccountConnected ? (
               <div className="flex-initial grid xl:grid-cols-2 grid-cols-1 gap-2 gap-x-6 sm:max-w-[50%] xl:max-w-[66%] ">
-               {Array.from({ length: uniqueTokens }).map((_, i) => (
+               {Array.from({ length: nftData.length }).map((_, i) => (
+                // console.log('nft data', nftData[i], i),
                   <NFTCard
                     contractProps={contractProps}
                     addToCart={addToCart}
                     removeFromCart={removeFromCart}
                     key={i}
-                    tokenId={i + 1}
+                    tokenId={i+1}
                     paymentTokenSymbol={paymentTokenSymbol}
                     owned={tokensOwnedParsed?.includes(i + 1)}
                     name={nftData[i]?.name}
-                    description={nftData[i]?.description}
-                    image={nftData[i]?.image}
+                    description={nftData[i]?.description as string}
+                    image={nftData[i]?.image as string}
+                    price={nftData[i].tokenPrice}
                   />
                 ))}
               </div>
