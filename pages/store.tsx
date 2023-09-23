@@ -377,7 +377,7 @@ const Store = () => {
               </>
             )}
             {nftData && nftData.length !== 0 && isAccountConnected ? (
-              <div className="flex-initial grid xl:grid-cols-2 grid-cols-1 gap-2 gap-x-6 sm:max-w-[50%] xl:max-w-[66%] ">
+              <div className="grid xl:grid-cols-2 grid-cols-1 gap-2 lg:gap-x-6 sm:max-w-[50%]  xl:max-w-[66%] ">
                {Array.from({ length: nftData.length }).map((_, i) => (
                 // console.log('nft data', nftData[i], i),
                   <NFTCard

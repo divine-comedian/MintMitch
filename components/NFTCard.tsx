@@ -183,7 +183,7 @@ export const NFTCard: React.FC<NFTCardProps> = ({
   }, [paymentTokenSymbol])
   return (
     <div
-      className={`shadow-2xl container bg-gray-400/30 dark:bg-gray-700/30 rounded-lg border-grey-600 transition-max-height duration-200 ease-in-out ${
+      className={`mx-auto shadow-2xl container bg-gray-400/30 dark:bg-gray-700/30 rounded-lg border-grey-600 transition-max-height duration-200 ease-in-out ${
         toggleText ? 'max-h-[770px]' : 'max-h-[620px]'
       }`}
     >
