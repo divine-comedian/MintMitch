@@ -42,63 +42,64 @@ IProps) => {
       abi: MintingContractJSON.abi,
       functionName: 'nativeMintEnabled',
       args: [],
-      chainId: chainId
-    }).then((response) => {
-      setIsNativeMinting(response as boolean)
-    }).catch((error) => {
-      console.log('error', error, 'chainID', chainId)
-    }
-    )
+      chainId: chainId,
+    })
+      .then((response) => {
+        setIsNativeMinting(response as boolean)
+      })
+      .catch((error) => {
+        console.log('error', error, 'chainID', chainId)
+      })
   }
-    
+
   const getMitchTokenBalance = async (mitchTokenAddress: string) => {
-    if (account.address !== undefined ) {
+    if (account.address !== undefined) {
       fetchBalance({
         address: `0x${account.address?.substring(2)}`,
         token: `0x${mitchTokenAddress}`,
         chainId: contractProps?.chainId,
-      }).then((response) => {
-        if (response !== undefined) {
-          const formattedBalance = parseFloat(formatEther(response.value))
-          setRewardTokenBalance(formattedBalance)
-        }
-      }).catch((error) => {
-        console.log('error', error)
-      }
-      )
+      })
+        .then((response) => {
+          if (response !== undefined) {
+            const formattedBalance = parseFloat(formatEther(response.value))
+            setRewardTokenBalance(formattedBalance)
+          }
+        })
+        .catch((error) => {
+          console.log('error', error)
+        })
     }
   }
 
   const getContractBalance = async (address: string, chainId: number) => {
-    isNativeMinting ? 
-        fetchBalance({
+    isNativeMinting
+      ? fetchBalance({
           address: `0x${address}`,
-        })
-        .then((response) => {
-            setBalance(parseFloat(formatEther(response.value)))
-        })
-        : 
-        readContract({
-        address: `0x${address}`,
-        abi: MintingContractJSON.abi,
-        functionName: 'paymentToken',
-        args: [],
-        chainId: chainId,
-      }).then((response) => {
-        fetchBalance({
-          address: `0x${address}`,
-          token: `0x${(response as string).substring(2) }`,
-          chainId: chainId,
         }).then((response) => {
-          if (response !== undefined) {
-            const formattedBalance = parseFloat(formatEther(response.value))
-            setBalance(formattedBalance)
-          }
+          setBalance(parseFloat(formatEther(response.value)))
         })
-      }).catch((error) => {
-        console.log('error', error)
-        }
-        )
+      : readContract({
+          address: `0x${address}`,
+          abi: MintingContractJSON.abi,
+          functionName: 'paymentToken',
+          args: [],
+          chainId: chainId,
+        })
+          .then((response) => {
+            fetchBalance({
+              address: `0x${address}`,
+              token: `0x${(response as string).substring(2)}`,
+              chainId: chainId,
+            }).then((response) => {
+              if (response !== undefined) {
+                const formattedBalance = parseFloat(formatEther(response.value))
+                setBalance(formattedBalance)
+              }
+            })
+          })
+          .catch((error) => {
+            console.log('error', error)
+          })
   }
   useEffect(() => {
     if (isRightNetwork && contractProps?.address && contractProps?.chainId && contractProps?.mitchTokenAddress) {
@@ -106,26 +107,24 @@ IProps) => {
       getMitchTokenBalance(contractProps.mitchTokenAddress)
     }
   }, [contractProps, isNativeMinting, updateBalance, isRightNetwork])
- 
+
   useEffect(() => {
     if (network !== undefined) {
       setContractProps(selectContractAddress(network))
     }
   }, [network])
-  
+
   useEffect(() => {
     if (contractProps?.address && contractProps?.chainId) {
       getNativeMintEnabled(contractProps?.address, contractProps?.chainId)
     }
-  }
-  , [contractProps])
+  }, [contractProps])
 
   useEffect(() => {
     const maxEthNeeded = 32
     const percentComplete = ((2.25 + balance!) / maxEthNeeded) * 100
     setProgressBar(Number(percentComplete.toFixed(3)))
   }, [balance])
-
 
   return (
     <nav className="flex flex-col z-30 lg:flex-row items-center bg-gradient-to-r from-cyan-500 to-blue-500 dark:from-blue-500 dark:to-cyan-500 sm:max-w-screen justify-between py-2 px-4 navBarBorder">

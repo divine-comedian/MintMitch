@@ -5,21 +5,19 @@ import '@rainbow-me/rainbowkit/styles.css'
 
 import type { AppProps } from 'next/app'
 import { ThemeProvider } from 'next-themes'
-import {  getDefaultWallets, RainbowKitProvider } from '@rainbow-me/rainbowkit'
+import { getDefaultWallets, RainbowKitProvider } from '@rainbow-me/rainbowkit'
 import { configureChains, createConfig, WagmiConfig } from 'wagmi'
-import {infuraProvider} from 'wagmi/providers/infura'
+import { infuraProvider } from 'wagmi/providers/infura'
 import { constants } from '../utils/constants'
 import { Analytics } from '@vercel/analytics/react'
 import { jsonRpcProvider } from 'wagmi/providers/jsonRpc'
-import { publicProvider } from 'wagmi/providers/public';
-
+import { publicProvider } from 'wagmi/providers/public'
 
 const walletConnectId = process.env.WALLET_CONNECT_PROJECT as string
 const infuraID = process.env.NEXT_PUBLIC_INFURA_ID as string
 // const { NEXT_PUBLIC_ALCHEMY_ID } = config
 const NEXT_PUBLIC_GNOSIS_RPC_URL = process.env.NEXT_PUBLIC_GNOSIS_RPC_URL as string
 // const alchemyId = NEXT_PUBLIC_ALCHEMY_ID as string
-
 
 let appChains: any[] = []
 if (process.env.NODE_ENV === 'development') {
@@ -29,7 +27,7 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 const { chains, publicClient } = configureChains(appChains, [
-  infuraProvider({ apiKey: infuraID}),
+  infuraProvider({ apiKey: infuraID }),
   jsonRpcProvider({ rpc: () => ({ http: NEXT_PUBLIC_GNOSIS_RPC_URL }) }),
   publicProvider(),
 ])
@@ -39,7 +37,6 @@ const { connectors } = getDefaultWallets({
   projectId: walletConnectId,
   chains,
 })
-
 
 const wagmiClient = createConfig({
   autoConnect: true,

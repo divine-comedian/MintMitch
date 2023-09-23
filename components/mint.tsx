@@ -325,8 +325,8 @@ export const MintModal = ({
           <div className="space-y-2 font-medium dark:text-white">
             <p>Amazing! Thank you so much for minting some mitch and supporting me in my goals!</p>
             <>
-            <h3 className="text-xl font-bold">Check out your Mitch's here:</h3>
-            <ul>{tokenLinks}</ul>
+              <h3 className="text-xl font-bold">Check out your Mitch's here:</h3>
+              <ul>{tokenLinks}</ul>
             </>
 
             <p>

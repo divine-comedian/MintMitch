@@ -10,18 +10,30 @@ interface cartItems {
   paymentTokenSymbol: string
   userBalance: bigint
   emptyCart: Function
-  isMysteryMint: boolean;
+  isMysteryMint: boolean
 }
 
-export const CartModal = ({ userBalance, itemsArray, itemSum, isMintModal, paymentTokenSymbol, emptyCart, isMysteryMint }: cartItems) => {
+export const CartModal = ({
+  userBalance,
+  itemsArray,
+  itemSum,
+  isMintModal,
+  paymentTokenSymbol,
+  emptyCart,
+  isMysteryMint,
+}: cartItems) => {
   const [tokenSymbol, setTokenSymbol] = useState('ETH')
-  const cartItems = Array.from(itemsArray).map((item) => (
-    console.log('token name on cart modal', item.name),
-    <li key={item.tokenId}>
-      {' '}
-      { isMysteryMint ? '????' : item.name}: {formatEther(item.tokenPrice)} {tokenSymbol}
-    </li>
-  ))
+  const cartItems = Array.from(itemsArray).map(
+    (item) => (
+      console.log('token name on cart modal', item.name),
+      (
+        <li key={item.tokenId}>
+          {' '}
+          {isMysteryMint ? '????' : item.name}: {formatEther(item.tokenPrice)} {tokenSymbol}
+        </li>
+      )
+    ),
+  )
 
   useEffect(() => {
     setTokenSymbol(paymentTokenSymbol)
@@ -32,19 +44,18 @@ export const CartModal = ({ userBalance, itemsArray, itemSum, isMintModal, payme
       <div className="box-content border-solid border-2 lg:w-96  bg-orange-300 dark:bg-orange-800 rounded-lg border-grey-600 ">
         <div className="p-4 space-y-1">
           <div>
-          <h3 className=" inline text-lg font-semibold">Current Mitch Cart</h3>
-        <button
-            className={
-              itemsArray.length === 0
-                ? 'inline float-right text-xs p-1 bg-gray-200 text-gray-400 cursor-default rounded-lg'
-                : 'inline float-right text-xs p-1 bg-orange-400 dark:bg-orange-700 rounded-lg active:scale-90 transition-transform duration-100'
-            }
-            disabled={itemsArray.length === 0}
-            onClick={() => emptyCart()}
-          >
-            Empty Cart
-          </button>
-
+            <h3 className=" inline text-lg font-semibold">Current Mitch Cart</h3>
+            <button
+              className={
+                itemsArray.length === 0
+                  ? 'inline float-right text-xs p-1 bg-gray-200 text-gray-400 cursor-default rounded-lg'
+                  : 'inline float-right text-xs p-1 bg-orange-400 dark:bg-orange-700 rounded-lg active:scale-90 transition-transform duration-100'
+              }
+              disabled={itemsArray.length === 0}
+              onClick={() => emptyCart()}
+            >
+              Empty Cart
+            </button>
           </div>
           <hr className="border-t border-gray-400 dark:border-gray-300 my-4" />
 

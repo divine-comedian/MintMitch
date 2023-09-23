@@ -7,7 +7,6 @@ import { formatEther } from 'viem'
 import { getIpfsImage } from '../utils/AxiosHelper'
 import { nftData } from '../pages/store'
 
-
 interface NFTCardProps {
   tokenId: number
   addToCart: Function
@@ -15,11 +14,11 @@ interface NFTCardProps {
   contractProps: MintingContractProps
   paymentTokenSymbol: string
   owned: boolean
-  name: string,
-  description: string,
-  image: string,
-  price: bigint,
-  setIsMysteryMint: Function,
+  name: string
+  description: string
+  image: string
+  price: bigint
+  setIsMysteryMint: Function
   isMysteryMint: boolean
   emptyCart: Function
 }
@@ -37,7 +36,7 @@ export const NFTCard: React.FC<NFTCardProps> = ({
   price,
   setIsMysteryMint,
   isMysteryMint,
-  emptyCart
+  emptyCart,
 }) => {
   // const [ipfsData, setIpfsData] = useState({}) as any
   const [ipfsImage, setIpfsImage] = useState() as any
@@ -75,7 +74,6 @@ export const NFTCard: React.FC<NFTCardProps> = ({
   useEffect(() => {
     setNftData({ name, description, image, tokenId, tokenPrice: price })
   }, [name, description, image, price])
-  
 
   useEffect(() => {
     setTimeout(() => {
@@ -107,12 +105,12 @@ export const NFTCard: React.FC<NFTCardProps> = ({
   }
 
   const handleCart = () => {
-    const {tokenId: id, name: name, tokenPrice: price } = nftData
+    const { tokenId: id, name: name, tokenPrice: price } = nftData
     setIsInCart((prevIsInCart) => !prevIsInCart)
     setRandomMsg(randomMessage())
     if (isMysteryMint) {
       emptyCart()
-      setIsMysteryMint(false);
+      setIsMysteryMint(false)
     }
 
     if (!isInCart) {
@@ -120,7 +118,7 @@ export const NFTCard: React.FC<NFTCardProps> = ({
       addToCart({ tokenId: id, name, tokenPrice: price })
       showFadeInOutText()
     } else {
-      removeFromCart({ tokenId: id, name, tokenPrice: price})
+      removeFromCart({ tokenId: id, name, tokenPrice: price })
     }
   }
 
@@ -173,10 +171,9 @@ export const NFTCard: React.FC<NFTCardProps> = ({
     if (image && !ipfsImage) {
       getIpfsImage(image).then((res) => {
         setIpfsImage(res)
-      }
-      )
+      })
     }
-  },[image, ipfsImage, name, description])
+  }, [image, ipfsImage, name, description])
 
   useEffect(() => {
     setTokenSymbol(paymentTokenSymbol)
