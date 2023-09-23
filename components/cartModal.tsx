@@ -10,15 +10,16 @@ interface cartItems {
   paymentTokenSymbol: string
   userBalance: bigint
   emptyCart: Function
+  isMysteryMint: boolean;
 }
 
-export const CartModal = ({ userBalance, itemsArray, itemSum, isMintModal, paymentTokenSymbol, emptyCart }: cartItems) => {
+export const CartModal = ({ userBalance, itemsArray, itemSum, isMintModal, paymentTokenSymbol, emptyCart, isMysteryMint }: cartItems) => {
   const [tokenSymbol, setTokenSymbol] = useState('ETH')
   const cartItems = Array.from(itemsArray).map((item) => (
     console.log('token name on cart modal', item.name),
     <li key={item.tokenId}>
       {' '}
-      {item.name}: {formatEther(item.tokenPrice)} {tokenSymbol}
+      { isMysteryMint ? '????' : item.name}: {formatEther(item.tokenPrice)} {tokenSymbol}
     </li>
   ))
 

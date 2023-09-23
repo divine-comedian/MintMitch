@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react'
 import { NFTCard } from '../components/NFTCard'
 import Navbar from '../components/navbar'
-import { selectContractAddress, getTokenInfo,MintingContractProps, getNativeBalance, getPaymentTokenBalance } from '../utils/ContractHelper'
+import { selectContractAddress,MintingContractProps, getNativeBalance, getPaymentTokenBalance } from '../utils/ContractHelper'
 import { useState, useEffect } from 'react'
 import { CartModal } from '../components/cartModal'
 import { WrongNetwork } from '../components/wrongNetwork'
@@ -15,12 +15,6 @@ import { constants } from '../utils/constants'
 import { formatUnits } from 'viem'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { getIpfsData } from '../utils/AxiosHelper'
-
-// interface Item {
-//   tokenID: number
-//   tokenName: string
-//   tokenPrice: string
-// }
 
 export interface nftData {
   name: string
@@ -36,6 +30,7 @@ const Store = () => {
   const [showMintModal, setShowMintModal] = React.useState(false)
   const [mintingCart, setMintingCart] = useState<nftData[]>([])
   const [uniqueTokens, setUniqueTokens] = useState(0)
+  const [isMysteryMint, setIsMysteryMint] = useState(false)
   const [nativeMinting, setNativeMinting] = useState<boolean>(false)
   const [nftData, setNftData] = useState<nftData[]>()
   const [renderWrongNetwork, setRenderWrongNetwork] = useState(false)
@@ -124,12 +119,13 @@ const Store = () => {
       const tokensToMint = tokensNotOwned.slice(0, amount)
       console.log('tokens to mint', tokensToMint)
       async function addBatchToCart () {
+        setIsMysteryMint(true)
         emptyCart()
         nftData &&
         tokensToMint.forEach((token: number) => {
             addToCart({
               tokenId: token,
-              name: '????',
+              name: nftData[token-1].name,
               tokenPrice: nftData[token-1].tokenPrice,
           })
         })
@@ -188,6 +184,7 @@ const Store = () => {
   useEffect(() => {
     if (currentNetwork !== undefined) {
       setNetwork(currentNetwork)
+      emptyCart()
     }
   }, [currentNetwork])
 
@@ -206,6 +203,17 @@ const Store = () => {
     }
   }, [isRightNetwork, currentNetwork])
 
+  useEffect(() => {
+    if (newUniqueTokens !== undefined) {
+      setUniqueTokens(Number(newUniqueTokens))
+      fetchNFTCardData(Number(newUniqueTokens)).then((response) => {
+        setNftData(response)
+      }
+      ).catch((error) => console.log(error))
+    } else if (isUniqueTokensError) {
+      console.log(uniqueTokensError)
+    }
+  }, [newUniqueTokens, contractProps])
 
   useEffect(() => {
     if (isPaymentTokenAddressSuccess && isNativeMinting === false) {
@@ -238,23 +246,8 @@ const Store = () => {
     }
   }, [isNativeMinting, account, contractProps])
 
-  useEffect(() => {
-    if (newUniqueTokens !== undefined) {
-      setUniqueTokens(Number(newUniqueTokens))
-      fetchNFTCardData(Number(newUniqueTokens)).then((response) => {
-        setNftData(response)
-      }
-      ).catch((error) => console.log(error))
-    } else if (isUniqueTokensError) {
-      console.log(uniqueTokensError)
-    }
-  }, [newUniqueTokens, contractProps])
+  
 
-  // useEffect(() => { 
-  //   if (uniqueTokens !== 0 || undefined) {
-  //   }
-  // }
-  // , [uniqueTokens, contractProps])
 
   const cartTotal = mintingCart.reduce((acc, item) => acc +(BigInt(item.tokenPrice)), BigInt(0))
   return (
@@ -359,6 +352,7 @@ const Store = () => {
                     paymentTokenSymbol={paymentTokenSymbol}
                     userBalance={userBalance}
                     emptyCart={emptyCart}
+                    isMysteryMint={isMysteryMint}
                   />
                   <div className="space-y-4 mt-3 space-x-1">
                     <button
@@ -398,6 +392,9 @@ const Store = () => {
                     description={nftData[i]?.description as string}
                     image={nftData[i]?.image as string}
                     price={nftData[i].tokenPrice}
+                    setIsMysteryMint={setIsMysteryMint}
+                    isMysteryMint={isMysteryMint}
+                    emptyCart={emptyCart}
                   />
                 ))}
               </div>

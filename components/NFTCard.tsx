@@ -19,6 +19,9 @@ interface NFTCardProps {
   description: string,
   image: string,
   price: bigint,
+  setIsMysteryMint: Function,
+  isMysteryMint: boolean
+  emptyCart: Function
 }
 
 export const NFTCard: React.FC<NFTCardProps> = ({
@@ -32,10 +35,13 @@ export const NFTCard: React.FC<NFTCardProps> = ({
   description,
   image,
   price,
+  setIsMysteryMint,
+  isMysteryMint,
+  emptyCart
 }) => {
   // const [ipfsData, setIpfsData] = useState({}) as any
   const [ipfsImage, setIpfsImage] = useState() as any
-  const [tokenPrice, setTokenPrice] = useState('0')
+  // const [tokenPrice, setTokenPrice] = useState('0')
   const [nftData, setNftData] = useState<nftData>({} as nftData)
   const [isInCart, setIsInCart] = useState<boolean>(false)
   const [showFadeText, setShowFadeText] = useState(false)
@@ -65,27 +71,6 @@ export const NFTCard: React.FC<NFTCardProps> = ({
     chainId: contractProps.chainId,
     enabled: false,
   })
-
-
-  // const getSupplyInfo = useContractReads({
-  //   contracts: [
-  //     {
-  //       address: `0x${contractProps.address}`,
-  //       abi: MintingContractJSON.abi,
-  //       functionName: 'maxTokenSupply',
-  //       args: [tokenId],
-  //       chainId: contractProps.chainId,
-  //     },
-  //     {
-  //       address: `0x${contractProps.address}`,
-  //       abi: MintingContractJSON.abi,
-  //       functionName: 'totalSupply',
-  //       args: [tokenId],
-  //       chainId: contractProps.chainId,
-  //     },
-  //   ],
-  //   enabled: false,
-  // })
 
   useEffect(() => {
     setNftData({ name, description, image, tokenId, tokenPrice: price })
@@ -125,6 +110,10 @@ export const NFTCard: React.FC<NFTCardProps> = ({
     const {tokenId: id, name: name, tokenPrice: price } = nftData
     setIsInCart((prevIsInCart) => !prevIsInCart)
     setRandomMsg(randomMessage())
+    if (isMysteryMint) {
+      emptyCart()
+      setIsMysteryMint(false);
+    }
 
     if (!isInCart) {
       console.log('adding to cart', id, name, price)
@@ -222,7 +211,7 @@ export const NFTCard: React.FC<NFTCardProps> = ({
         </div>
         {toggleText ? <p className="font-300 bg-gray-200/30 p-2 rounded-lg">{description}</p> : null}
         <p>
-          {parseFloat(formatEther(BigInt(tokenPrice)))} {tokenSymbol}
+          {parseFloat(formatEther(BigInt(price)))} {tokenSymbol}
         </p>
         {remainingSupply !== 'SOLD OUT' && (
           <div className="pb-3">
